@@ -1,7 +1,7 @@
 {
-  "version": "3.4.22",
-  "build": 78,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.22_BUILD_78.zip",
-  "releaseNotes": "zlyhávajúci widget_test.dart,\ninterná chyba Flutter Semantics počas testovania,\nasynchrónne načítanie témy je možné v teste vypnúť,\ntest používa jednoduchú testovaciu obrazovku namiesto celého Dashboardu 2.0,\nprodukčné spustenie aplikácie zostáva nezmenené,\nverzia bola zvýšená na 3.4.22 Build 78 vo všetkých hlavných miestach,\naktualizované Release Notes."
+  "version": "3.4.23",
+  "build": 79,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.23_BUILD_79.zip",
+  "releaseNotes": "pridané klávesové skratky na rýchle prepínanie sekcií:\nCtrl + 1 – Dashboard,\nCtrl + 2 – Projekt,\nCtrl + 3 – APK,\nCtrl + 4 – GitHub,\nCtrl + 5 – Nástroje,\nv hornej lište pribudlo tlačidlo s prehľadom skratiek,\npočas prebiehajúcej operácie sú skratky bezpečne zablokované,\nverzia bola aktualizovaná na 3.4.23 Build 79 vo všetkých hlavných miestach,\naktualizované Release Notes,\nfungujúce aktualizácie, uložený priečinok, téma a testovacie úpravy zostali zachované."
 }
 
