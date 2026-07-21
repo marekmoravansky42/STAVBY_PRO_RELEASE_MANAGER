@@ -1,7 +1,7 @@
 {
-  "version": "3.4.20",
-  "build": 76,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.20_BUILD_76.zip",
-  "releaseNotes": "pridaný percentuálny ukazovateľ pripravenosti vydania,\ndashboard zobrazuje počet pripravených krokov, napríklad 5 zo 7,\ndoplnený grafický priebeh pripravenosti,\nchýbajúce položky zostávajú jasne označené oranžovou farbou,\núspešné hlásenia majú zelenú ikonu a profesionálnejší vzhľad,\nchybové hlásenia majú červenú ikonu a výraznejšie zobrazenie,\naktualizovaná verzia na 3.4.20 Build 76 vo všetkých hlavných miestach,\nsprávne nastavený interný Build 76 pre kontrolu aktualizácií,\nfungujúce aktualizácie, ukladanie priečinka a ikona aplikácie zostali zachované."
+  "version": "3.4.22",
+  "build": 78,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.22_BUILD_78.zip",
+  "releaseNotes": "zlyhávajúci widget_test.dart,\ninterná chyba Flutter Semantics počas testovania,\nasynchrónne načítanie témy je možné v teste vypnúť,\ntest používa jednoduchú testovaciu obrazovku namiesto celého Dashboardu 2.0,\nprodukčné spustenie aplikácie zostáva nezmenené,\nverzia bola zvýšená na 3.4.22 Build 78 vo všetkých hlavných miestach,\naktualizované Release Notes."
 }
 
