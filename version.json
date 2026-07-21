@@ -1,7 +1,7 @@
 {
-  "version": "3.4.14",
-  "build": 70,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.14_BUILD_70.zip",
-  "releaseNotes": "sa použije namiesto pevného priečinka Downloads,\nzostane nastavený počas aktuálneho spustenia aplikácie,\npo vypnutí aplikácie sa zabudne,\npri ďalšom spustení sa vyberá znova,\npri zrušení výberu sa sťahovanie nespustí."
+  "version": "3.4.15",
+  "build": 71,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.15_BUILD_71.zip",
+  "releaseNotes": "pridať do Nastavení položku Predvolený priečinok pre aktualizačné ZIP,\ntlačidlá Vybrať priečinok a Zmeniť priečinok,\nuloženie cesty do nastavení aplikácie,\nautomatické použitie nastavenej cesty pri sťahovaní,\nak cesta nie je nastavená alebo už neexistuje, zobraziť dialóg na jej výber."
 }
 
