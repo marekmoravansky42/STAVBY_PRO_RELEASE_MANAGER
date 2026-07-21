@@ -1,7 +1,7 @@
 {
-  "version": "3.4.16",
-  "build": 72,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.16_BUILD_72.zip",
-  "releaseNotes": "po rozbalení ZIP sa už automaticky neotvorí Prieskumník,\naplikácia po rozbalení zobrazí cieľovú cestu,\nuložený predvolený priečinok sa automaticky použije pri sťahovaní aktualizácie,\nak uložený priečinok neexistuje, aplikácia vyžiada nový a uloží ho,\npridané prvé grafické úpravy:\nmodernejšie karty,\nzaoblené tlačidlá a vstupné polia,\njemné pozadie,\nupravená navigácia,\nvýraznejšie nadpisy sekcií,\nverzia bola aktualizovaná na všetkých hlavných miestach na 3.4.16 Build 72,\naktualizované RELEASE_NOTES.md a README.md."
+  "version": "3.4.17",
+  "build": 73,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.17_BUILD_73.zip",
+  "releaseNotes": "prepracovaná horná lišta s názvom aplikácie, podnadpisom a označením verzie,\nmodernejšia ľavá navigácia s produktovým symbolom,\nvýraznejšie označenie aktívnej sekcie,\nzjednotená profesionálna farebná paleta,\nupravená typografia a nadpisy,\nčistejšie karty bez rušivých tieňov,\nupravené okraje, deliace čiary, formuláre a tlačidlá,\nzachované fungujúce ukladanie a automatické používanie predvoleného priečinka,\nverzia aktualizovaná na 3.4.17 Build 73 vrátane Release Notes."
 }
 
