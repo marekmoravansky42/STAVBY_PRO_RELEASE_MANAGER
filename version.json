@@ -1,7 +1,7 @@
 {
-  "version": "3.1.2",
-  "build": 53,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.1.2_BUILD_53.zip",
-  "releaseNotes": "Opravené bolo všetkých 7 nekompatibilných volaní:"
+  "version": "3.4.11",
+  "build": 67,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.11_BUILD_67.zip",
+  "releaseNotes": "Verzia 3.4.11 Build 67\r\n\r\n• opravené rozbaľovanie ZIP – odstránený nadbytočný vnorený priečinok po rozbalení\r\n• opravený widget test stránky Nástroje (publishReleaseManagerButton)\r\n• úspešne prechádza flutter analyze, flutter test aj flutter build windows --release"
 }
 
