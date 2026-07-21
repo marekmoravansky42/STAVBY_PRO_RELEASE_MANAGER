@@ -1,7 +1,7 @@
 {
-  "version": "3.4.18",
-  "build": 74,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.18_BUILD_74.zip",
-  "releaseNotes": "ktuálna verzia je správne 3.4.18 Build 74,\ndialóg sa zobrazí iba pri vyššej verzii alebo vyššom builde,\npri rovnakej alebo staršej verzii sa aktualizácia neponúkne,\nvzhľad aj fungujúce ukladanie priečinka zostali zachované."
+  "version": "3.4.19",
+  "build": 75,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.19_BUILD_75.zip",
+  "releaseNotes": "ytvorená nová profesionálna ikona aplikácie,\nikona obsahuje motív stavby a potvrdenej verzie,\npripravené sú všetky potrebné Windows veľkosti od 16 × 16 po 256 × 256,\nnová ikona sa použije v EXE, titulku okna a na paneli úloh,\nsymbol v ľavej navigácii bol upravený tak, aby ladil s ikonou,\nopravené označenie buildu v ľavej navigácii na BUILD 75,\ninterná kontrola aktualizácie používa správny Build 75,\nverzia bola aktualizovaná na všetkých hlavných miestach,\nfungujúce aktualizácie a ukladanie priečinka zostali bez zmeny."
 }
 
