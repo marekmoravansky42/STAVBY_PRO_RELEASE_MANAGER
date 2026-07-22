@@ -1,7 +1,7 @@
 {
-  "version": "3.4.23",
-  "build": 79,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.23_BUILD_79.zip",
-  "releaseNotes": "pridané klávesové skratky na rýchle prepínanie sekcií:\nCtrl + 1 – Dashboard,\nCtrl + 2 – Projekt,\nCtrl + 3 – APK,\nCtrl + 4 – GitHub,\nCtrl + 5 – Nástroje,\nv hornej lište pribudlo tlačidlo s prehľadom skratiek,\npočas prebiehajúcej operácie sú skratky bezpečne zablokované,\nverzia bola aktualizovaná na 3.4.23 Build 79 vo všetkých hlavných miestach,\naktualizované Release Notes,\nfungujúce aktualizácie, uložený priečinok, téma a testovacie úpravy zostali zachované."
+  "version": "3.4.25",
+  "build": 81,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.25_BUILD_81.zip",
+  "releaseNotes": "hlavná navigácia má farebné ikony,\nkaždá sekcia má vlastnú farbu:\nDashboard – modrá,\nProjekt – oranžová,\nAPK – zelená,\nGitHub – tyrkysová,\nNástroje – fialová,\naktívna ikona je farebne zvýraznená,\nfarebné ikony boli doplnené aj na Dashboard,\nstavové karty používajú zelené a oranžové označenie,\nfarebná ikona prepínania svetlej a tmavej témy,\nfarebná ikona klávesových skratiek,\nverzia aktualizovaná na 3.4.25 Build 81 vo všetkých hlavných miestach,\naktualizované Release Notes a README,\nZIP bol skontrolovaný a nie je poškodený."
 }
 
