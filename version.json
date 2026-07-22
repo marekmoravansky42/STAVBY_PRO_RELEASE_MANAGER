@@ -1,7 +1,7 @@
 {
-  "version": "3.4.25",
-  "build": 81,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.25_BUILD_81.zip",
-  "releaseNotes": "hlavná navigácia má farebné ikony,\nkaždá sekcia má vlastnú farbu:\nDashboard – modrá,\nProjekt – oranžová,\nAPK – zelená,\nGitHub – tyrkysová,\nNástroje – fialová,\naktívna ikona je farebne zvýraznená,\nfarebné ikony boli doplnené aj na Dashboard,\nstavové karty používajú zelené a oranžové označenie,\nfarebná ikona prepínania svetlej a tmavej témy,\nfarebná ikona klávesových skratiek,\nverzia aktualizovaná na 3.4.25 Build 81 vo všetkých hlavných miestach,\naktualizované Release Notes a README,\nZIP bol skontrolovaný a nie je poškodený."
+  "version": "3.4.26",
+  "build": 82,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.26_BUILD_82.zip",
+  "releaseNotes": "aplikácia si zapamätá posledných 6 otvorených Flutter projektov,\nuložený projekt možno znovu otvoriť jedným kliknutím,\naktívny projekt je zvýraznený oranžovou farbou,\ndostupné projekty používajú farebné ikony,\nneexistujúci alebo presunutý priečinok zobrazí bezpečné upozornenie,\nprojekt možno odstrániť zo zoznamu bez odstránenia jeho súborov,\nzoznam zostane uložený aj po reštarte aplikácie,\nverzia a interný build boli aktualizované na 3.4.26 Build 82."
 }
 
