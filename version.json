@@ -1,7 +1,7 @@
 {
-  "version": "3.4.26",
-  "build": 82,
-  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_3.4.26_BUILD_82.zip",
-  "releaseNotes": "aplikácia si zapamätá posledných 6 otvorených Flutter projektov,\nuložený projekt možno znovu otvoriť jedným kliknutím,\naktívny projekt je zvýraznený oranžovou farbou,\ndostupné projekty používajú farebné ikony,\nneexistujúci alebo presunutý priečinok zobrazí bezpečné upozornenie,\nprojekt možno odstrániť zo zoznamu bez odstránenia jeho súborov,\nzoznam zostane uložený aj po reštarte aplikácie,\nverzia a interný build boli aktualizované na 3.4.26 Build 82."
+  "version": "5.0.15",
+  "build": 150,
+  "downloadUrl": "https://github.com/marekmoravansky42/STAVBY_PRO_RELEASE_MANAGER/releases/latest/download/STAVBY_PRO_RELEASE_MANAGER_5.0.15_BUILD_150.zip",
+  "releaseNotes": "STAVBY PRO Release Manager 5.0.15 Build 150"
 }
 
