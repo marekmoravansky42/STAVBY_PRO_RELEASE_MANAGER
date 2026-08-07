@@ -1,0 +1,12 @@
+{
+  "id": "release_manager",
+  "name": "STAVBY PRO Release Manager",
+  "version": "6.1.5",
+  "minimumReleaseManagerVersion": "6.1.4",
+  "platforms": [
+    "windows"
+  ],
+  "description": "Predvolená registrácia samotného Release Managera.",
+  "profileId": "release_manager",
+  "enabled": true
+}

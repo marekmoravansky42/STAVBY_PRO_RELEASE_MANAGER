@@ -1,0 +1,13 @@
+{
+  "id": "stavby_pro",
+  "name": "STAVBY PRO",
+  "projectPath": "C:\\STAVBY_PRO\\Bxxx",
+  "exportPath": "C:\\STAVBY_PRO\\releases",
+  "gitRepository": "",
+  "flutterExecutable": "flutter",
+  "platforms": [
+    "windows",
+    "android"
+  ],
+  "isActive": false
+}

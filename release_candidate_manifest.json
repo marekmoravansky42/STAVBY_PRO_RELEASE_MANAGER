@@ -1,0 +1,27 @@
+{
+  "product": "STAVBY PRO Release Manager",
+  "version": "8.0.0",
+  "channel": "RC1",
+  "build": 257,
+  "stage": "RELEASE_CANDIDATE_1",
+  "source": "Build 256 DEV004 FIX002",
+  "codeFreeze": true,
+  "requiredValidation": [
+    "flutter clean",
+    "flutter pub get",
+    "flutter analyze",
+    "flutter test",
+    "flutter build windows --release",
+    "launch smoke test"
+  ],
+  "includedFeatures": [
+    "Unified Release Wizard",
+    "Project Profiles",
+    "Local Build Assistant",
+    "Workspace Manager",
+    "Workspace Health",
+    "Workspace Export Import",
+    "Startup Wizard",
+    "Development Center"
+  ]
+}

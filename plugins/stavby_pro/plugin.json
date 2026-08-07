@@ -1,0 +1,13 @@
+{
+  "id": "stavby_pro",
+  "name": "STAVBY PRO",
+  "version": "3.6.47",
+  "minimumReleaseManagerVersion": "6.1.4",
+  "platforms": [
+    "windows",
+    "android"
+  ],
+  "description": "Projektové rozšírenie pre zostavenie a export STAVBY PRO.",
+  "profileId": "stavby_pro",
+  "enabled": true
+}

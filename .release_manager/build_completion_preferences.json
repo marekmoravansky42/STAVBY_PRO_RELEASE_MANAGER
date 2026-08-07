@@ -1,0 +1,10 @@
+{
+  "releaseType": "RC",
+  "commit": true,
+  "push": true,
+  "tag": false,
+  "exportZip": true,
+  "buildReport": true,
+  "history": true,
+  "synchronizeZip": false
+}

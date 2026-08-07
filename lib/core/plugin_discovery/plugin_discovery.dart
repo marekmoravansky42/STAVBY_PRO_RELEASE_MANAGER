@@ -1,0 +1,9 @@
+export 'plugin_directory_scanner.dart';
+export 'plugin_discovery_report.dart';
+export 'plugin_discovery_service.dart';
+export 'plugin_manifest.dart';
+export 'plugin_manifest_parser.dart';
+export 'plugin_registry_bridge.dart';
+export 'plugin_scan_issue.dart';
+export 'plugin_scan_result.dart';
+export 'plugin_validation_result.dart';

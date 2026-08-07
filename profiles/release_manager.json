@@ -1,0 +1,12 @@
+{
+  "id": "release_manager",
+  "name": "STAVBY PRO Release Manager",
+  "projectPath": ".",
+  "exportPath": "releases",
+  "gitRepository": "",
+  "flutterExecutable": "flutter",
+  "platforms": [
+    "windows"
+  ],
+  "isActive": true
+}

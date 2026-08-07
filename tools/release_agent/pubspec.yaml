@@ -1,0 +1,6 @@
+name: stavby_pro_release_agent
+description: Minimal LAN Release Agent for STAVBY PRO Release Manager.
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: '>=3.3.0 <4.0.0'

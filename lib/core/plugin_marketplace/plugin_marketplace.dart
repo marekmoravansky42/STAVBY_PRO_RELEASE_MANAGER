@@ -1,0 +1,9 @@
+export 'plugin_marketplace_cache.dart';
+export 'plugin_marketplace_client.dart';
+export 'plugin_marketplace_index.dart';
+export 'plugin_marketplace_manifest.dart';
+export 'plugin_marketplace_models.dart';
+export 'plugin_marketplace_repository.dart';
+export 'plugin_marketplace_result.dart';
+export 'plugin_marketplace_search.dart';
+export 'plugin_marketplace_validator.dart';

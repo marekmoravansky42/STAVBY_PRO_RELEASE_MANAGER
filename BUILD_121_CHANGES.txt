@@ -1,0 +1,17 @@
+STAVBY PRO RELEASE MANAGER 4.0.16 LTS – Build 122
+
+WINDOWS DEV WORKFLOW:
+- nový APK-style kompletný Windows build,
+- každý krok je samostatne viditeľný,
+- analyze,
+- flutter clean,
+- vyčistenie windows\flutter\ephemeral,
+- flutter pub get,
+- flutter build windows --release,
+- kontrola stavby_pro_dev.exe,
+- spustenie EXE a 5-sekundový test,
+- Export Windows Release zostáva samostatný finálny krok,
+- veľké tlačidlo SPUSTIŤ KOMPLETNÝ WINDOWS BUILD,
+- počas behu tlačidlo ukazuje PREBIEHA: <aktuálny krok>,
+- úspešné kroky sa postupne zazelenajú rovnako ako v APK workflow,
+- jednotlivé diagnostické tlačidlá zostali zachované.

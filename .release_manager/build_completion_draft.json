@@ -1,0 +1,23 @@
+{
+  "project": "Release_Manager",
+  "workspace": "C:\\SP\\Release_Manager",
+  "version": "8.0.0",
+  "build": 257,
+  "stage": "rc1 fix001",
+  "releaseType": "RC",
+  "branch": "dev",
+  "commitMessage": "Release Manager 8.0 RC1 Build 257 - Initial working baseline",
+  "changeDescription": "- Pripravený kandidát na vydanie a dokončená predvýdajová kontrola\n- Projekt: Release_Manager\n- Verzia: 8.0.0 • Build 257\n- Zmenené súbory pred dokončením: 262\n- Build úspešne otestovaný",
+  "internalNotes": "",
+  "options": {
+    "commit": true,
+    "push": true,
+    "tag": false,
+    "exportZip": true,
+    "buildReport": true,
+    "history": true,
+    "synchronizeZip": false
+  },
+  "tagName": "",
+  "savedAt": "2026-08-07T12:56:09.217780"
+}
