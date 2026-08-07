@@ -3,11 +3,11 @@
   "workspace": "C:\\SP\\Release_Manager",
   "version": "8.0.0",
   "build": 257,
-  "stage": "rc1 fix001",
+  "stage": "rc1 fix002",
   "releaseType": "RC",
   "branch": "dev",
-  "commitMessage": "Release Manager 8.0 RC1 Build 257 - Initial working baseline",
-  "changeDescription": "- Pripravený kandidát na vydanie a dokončená predvýdajová kontrola\n- Projekt: Release_Manager\n- Verzia: 8.0.0 • Build 257\n- Zmenené súbory pred dokončením: 262\n- Build úspešne otestovaný",
+  "commitMessage": "Release_Manager 8.0.0 RC1 - Build 257",
+  "changeDescription": "- Pripravený kandidát na vydanie a dokončená predvýdajová kontrola\n- Projekt: Release_Manager\n- Verzia: 8.0.0 • Build 257\n- Zmenené súbory pred dokončením: 8\n- Build úspešne otestovaný",
   "internalNotes": "",
   "options": {
     "commit": true,
@@ -19,5 +19,5 @@
     "synchronizeZip": false
   },
   "tagName": "",
-  "savedAt": "2026-08-07T12:56:09.217780"
+  "savedAt": "2026-08-07T13:05:28.986200"
 }

@@ -546,9 +546,7 @@ Thumbs.db
       }
 
       final remoteResult = await Process.run('git', <String>['remote', 'get-url', remoteName], workingDirectory: workspacePath, runInShell: true);
-      if (remoteResult.exitCode != 0 || remoteResult.stdout.toString().trim().isEmpty) {
-        return GitBuildPublishResult(success: false, branch: branch, message: 'V repozitári nie je nastavený vzdialený repozitár „$remoteName“.');
-      }
+      final hasRemote = remoteResult.exitCode == 0 && remoteResult.stdout.toString().trim().isNotEmpty;
 
       final status = await Process.run('git', const ['status', '--porcelain'], workingDirectory: workspacePath, runInShell: true);
       if (status.exitCode != 0) {
@@ -562,9 +560,11 @@ Thumbs.db
       if (localTag.exitCode == 0 && localTag.stdout.toString().trim().isNotEmpty) {
         return GitBuildPublishResult(success: false, branch: branch, tagName: tag, message: 'Tag „$tag“ už existuje lokálne. Použi nový build/tag alebo starý tag najprv vedome odstráň.');
       }
-      final remoteTag = await Process.run('git', <String>['ls-remote', '--exit-code', '--tags', remoteName, 'refs/tags/$tag'], workingDirectory: workspacePath, runInShell: true);
-      if (remoteTag.exitCode == 0 && remoteTag.stdout.toString().trim().isNotEmpty) {
-        return GitBuildPublishResult(success: false, branch: branch, tagName: tag, message: 'Tag „$tag“ už existuje na vzdialenom repozitári. Nebol prepísaný.');
+      if (hasRemote) {
+        final remoteTag = await Process.run('git', <String>['ls-remote', '--exit-code', '--tags', remoteName, 'refs/tags/$tag'], workingDirectory: workspacePath, runInShell: true);
+        if (remoteTag.exitCode == 0 && remoteTag.stdout.toString().trim().isNotEmpty) {
+          return GitBuildPublishResult(success: false, branch: branch, tagName: tag, message: 'Tag „$tag“ už existuje na vzdialenom repozitári. Nebol prepísaný.');
+        }
       }
 
       final add = await Process.run('git', const ['add', '--all'], workingDirectory: workspacePath, runInShell: true);
@@ -583,6 +583,16 @@ Thumbs.db
       final createTag = await Process.run('git', <String>['tag', '-a', tag, '-m', message], workingDirectory: workspacePath, runInShell: true);
       if (createTag.exitCode != 0) {
         return GitBuildPublishResult(success: false, branch: branch, commitSha: sha, tagName: tag, message: 'Commit bol vytvorený${sha == null ? '' : ' ($sha)'}, ale tag zlyhal: ${output(createTag)}');
+      }
+
+      if (!hasRemote) {
+        return GitBuildPublishResult(
+          success: true,
+          branch: branch,
+          commitSha: sha,
+          tagName: tag,
+          message: 'Build bol úspešne uložený lokálne do Gitu. Vzdialený repozitár „$remoteName“ nie je nastavený, preto bol push preskočený. Commit: ${sha ?? 'vytvorený'} • Tag: $tag',
+        );
       }
 
       final pushBranch = await Process.run('git', <String>['push', '-u', remoteName, branch], workingDirectory: workspacePath, runInShell: true);

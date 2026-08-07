@@ -10595,6 +10595,18 @@ SHA256: $hash''';
     return largeFiles;
   }
 
+  Future<bool> _gitRemoteExists(
+    String workspace, {
+    String remoteName = 'origin',
+  }) async {
+    final result = await _runGitCommand(
+      workspace,
+      <String>['remote', 'get-url', remoteName],
+      timeout: const Duration(seconds: 15),
+    );
+    return result.exitCode == 0 && result.stdout.toString().trim().isNotEmpty;
+  }
+
   Future<String> _originBranchRef(String workspace, String branch) async {
     final fetch = await _runGitCommand(
       workspace,
@@ -10799,6 +10811,7 @@ SHA256: $hash''';
     String branch, {
     required String commitMessage,
     required String changeDescription,
+    bool includeRemoteChecks = true,
   }) async {
     await _removeStaleGitIndexLock(workspace);
     _addLog('Git preflight: kontrola .gitignore');
@@ -10827,21 +10840,27 @@ SHA256: $hash''';
       }
     }
 
-    _addLog('Git preflight: kontrola neodoslaných commitov');
-    final outgoing = await _findOutgoingLargeBlobs(workspace, branch);
-    if (outgoing.isNotEmpty) {
-      await _repairOutgoingLargeFileHistory(
-        workspace,
-        branch,
-        outgoing,
-        commitMessage: commitMessage,
-        changeDescription: changeDescription,
-      );
+    if (includeRemoteChecks) {
+      _addLog('Git preflight: kontrola neodoslaných commitov');
+      final outgoing = await _findOutgoingLargeBlobs(workspace, branch);
+      if (outgoing.isNotEmpty) {
+        await _repairOutgoingLargeFileHistory(
+          workspace,
+          branch,
+          outgoing,
+          commitMessage: commitMessage,
+          changeDescription: changeDescription,
+        );
+      }
+    } else {
+      _addLog('Git preflight: origin nie je nastavený, vzdialené kontroly boli preskočené.');
     }
 
     _addLog('Git preflight: záverečné overenie');
     final remainingTracked = await _findTrackedLargeFiles(workspace);
-    final remainingOutgoing = await _findOutgoingLargeBlobs(workspace, branch);
+    final remainingOutgoing = includeRemoteChecks
+        ? await _findOutgoingLargeBlobs(workspace, branch)
+        : <Map<String, Object?>>[];
     final remaining = <Map<String, Object?>>[...remainingTracked, ...remainingOutgoing];
     if (remaining.isNotEmpty) {
       final details = remaining
@@ -10975,6 +10994,11 @@ SHA256: $hash''';
       }
     }
 
+    void skippedStep(String name, String message) {
+      results.add(<String, Object?>{'name': name, 'success': true, 'message': message});
+      _addLog('Build Completion Center: ↷ $name — $message');
+    }
+
     try {
       if (options['commit'] == true) {
         await step('Git commit', () async {
@@ -10998,14 +11022,17 @@ SHA256: $hash''';
       }
 
       if (options['push'] == true) {
+        final hasOrigin = await _gitRemoteExists(workspace);
+        final branch = (data['branch'] as String?)?.trim();
+        if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
+
         await step('Git preflight', () async {
-          final branch = (data['branch'] as String?)?.trim();
-          if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
           await _runSmartGitPreflight(
             workspace,
             branch,
             commitMessage: (data['commitMessage'] as String?)?.trim() ?? 'Build completion recovery',
             changeDescription: (data['changeDescription'] as String?)?.trim() ?? '',
+            includeRemoteChecks: hasOrigin,
           ).timeout(
             const Duration(minutes: 3),
             onTimeout: () => throw TimeoutException(
@@ -11014,27 +11041,32 @@ SHA256: $hash''';
           );
         });
 
-        await step('Git push', () async {
-          final branch = (data['branch'] as String?)?.trim();
-          if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
-          final pushBranch = await Process.run(
-            'git', <String>['push', '-u', 'origin', branch],
-            workingDirectory: workspace, runInShell: true,
+        if (!hasOrigin) {
+          skippedStep(
+            'Git push',
+            'Preskočené — vzdialený repozitár origin nie je nastavený. Commit a tag zostali bezpečne uložené lokálne.',
           );
-          if (pushBranch.exitCode != 0) {
-            throw StateError('Push vetvy zlyhal: ${pushBranch.stderr.toString().trim()}');
-          }
-          if (options['tag'] == true) {
-            final tag = (data['tagName'] as String?)?.trim() ?? '';
-            final pushTag = await Process.run(
-              'git', <String>['push', 'origin', tag],
+        } else {
+          await step('Git push', () async {
+            final pushBranch = await Process.run(
+              'git', <String>['push', '-u', 'origin', branch],
               workingDirectory: workspace, runInShell: true,
             );
-            if (pushTag.exitCode != 0) {
-              throw StateError('Push tagu zlyhal: ${pushTag.stderr.toString().trim()}');
+            if (pushBranch.exitCode != 0) {
+              throw StateError('Push vetvy zlyhal: ${pushBranch.stderr.toString().trim()}');
             }
-          }
-        });
+            if (options['tag'] == true) {
+              final tag = (data['tagName'] as String?)?.trim() ?? '';
+              final pushTag = await Process.run(
+                'git', <String>['push', 'origin', tag],
+                workingDirectory: workspace, runInShell: true,
+              );
+              if (pushTag.exitCode != 0) {
+                throw StateError('Push tagu zlyhal: ${pushTag.stderr.toString().trim()}');
+              }
+            }
+          });
+        }
       }
 
       if (options['exportZip'] == true) {
