@@ -16,7 +16,6 @@ import 'core/performance/startup_performance.dart';
 import 'core/projects/project_profile.dart';
 import 'core/services/project_service.dart';
 import 'core/services/workspace_manager_service.dart';
-import 'core/services/project_snapshot_service.dart';
 import 'core/plugin_marketplace/plugin_marketplace_cache.dart';
 import 'core/plugin_marketplace/plugin_marketplace_client.dart';
 import 'core/plugin_marketplace/plugin_marketplace_repository.dart';
@@ -341,7 +340,6 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   final ProjectAnalyzerService _projectAnalyzerService = const ProjectAnalyzerService();
   final ProjectService _projectService = const ProjectService();
   final WorkspaceManagerService _workspaceManager = const WorkspaceManagerService();
-  final ProjectSnapshotService _snapshotService = const ProjectSnapshotService();
   final TextEditingController _githubOwnerController = TextEditingController();
   final TextEditingController _githubRepositoryController = TextEditingController();
   final TextEditingController _githubTokenController = TextEditingController();
@@ -365,8 +363,6 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   List<WorkspaceHealthItem> _workspaceHealth = const <WorkspaceHealthItem>[];
   bool _workspaceHealthLoading = false;
   bool _startupWizardShown = false;
-  ProjectSnapshotInfo? _lastProjectSnapshot;
-  bool _snapshotRunning = false;
   final List<String> _recentGitWorkspacePaths = <String>[];
   int _selectedPage = 0;
   bool _developerMode = false;
@@ -944,19 +940,12 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
       final build = int.parse(match.group(2)!);
       var stage = 'dev';
       try {
-        final candidates = <File>[
-          File('$workspace${Platform.pathSeparator}lib${Platform.pathSeparator}features${Platform.pathSeparator}about${Platform.pathSeparator}version_service.dart'),
-          File('$workspace${Platform.pathSeparator}lib${Platform.pathSeparator}app${Platform.pathSeparator}app_version.dart'),
-        ];
-        for (final versionFile in candidates) {
-          if (!await versionFile.exists()) continue;
+        final versionFile = File('$workspace${Platform.pathSeparator}lib${Platform.pathSeparator}features${Platform.pathSeparator}about${Platform.pathSeparator}version_service.dart');
+        if (await versionFile.exists()) {
           final source = await versionFile.readAsString();
           final stageMatch = RegExp(r'''(?:stage|channel|suffix)\s*=\s*['"]([^'"]+)['"]''', caseSensitive: false).firstMatch(source);
           final detected = stageMatch?.group(1)?.trim().toLowerCase();
-          if (detected != null && detected.isNotEmpty) {
-            stage = detected;
-            break;
-          }
+          if (detected != null && detected.isNotEmpty) stage = detected;
         }
       } catch (_) {}
       return (version: version, build: build, stage: stage);
@@ -1064,7 +1053,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
         workspace,
         commitMessage: confirmed.message,
         tagName: confirmed.tag,
-        requiredBranch: '',
+        requiredBranch: 'develop',
       );
       if (!mounted) return;
       _addLog(result.message);
@@ -1573,7 +1562,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
                     ? 'Najprv vyber platný Git workspace.'
                     : changedFiles.isEmpty
                         ? 'Working tree je čistý — nie sú žiadne zmeny na uloženie.'
-                        : 'Pred uložením sa automaticky použije aktuálna Git vetva a overí sa origin, dostupnosť zmien a kolízia tagu.',
+                        : 'Pred uložením sa automaticky overí vetva develop, origin, dostupnosť zmien a kolízia tagu.',
                 style: TextStyle(
                   color: !isRepository
                       ? Theme.of(context).colorScheme.error
@@ -4231,6 +4220,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
   Future<File> _writeSuccessfulBuildReport({
     required String projectPath,
     required DateTime startedAt,
+    required bool fastMode,
   }) async {
     final pubspec = File(path.join(projectPath, 'pubspec.yaml'));
     var identity = 'neznáma verzia';
@@ -4249,8 +4239,10 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       ..writeln('Koniec: ${DateTime.now().toIso8601String()}')
       ..writeln('Trvanie: ${DateTime.now().difference(startedAt).inSeconds} s')
       ..writeln()
-      ..writeln('✔ flutter clean')
-      ..writeln('✔ flutter pub get')
+      ..writeln('Režim: ${fastMode ? 'FAST DEV BUILD' : 'FULL BUILD'}')
+      ..writeln()
+      ..writeln(fastMode ? '↷ flutter clean – preskočené' : '✔ flutter clean')
+      ..writeln(fastMode ? '↷ flutter pub get – preskočené' : '✔ flutter pub get')
       ..writeln('✔ flutter analyze')
       ..writeln('✔ flutter test')
       ..writeln('✔ flutter build windows --release');
@@ -4413,7 +4405,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
                     _oneClickBuildResumeIndex = 2;
                     _oneClickBuildFailedLabel = 'Flutter analyze';
                   });
-                  await _runOneClickBuild();
+                  await _runOneClickBuild(fastMode: false);
                 },
                 icon: const Icon(Icons.build_circle_outlined),
                 label: const Text('OPRAVIŤ ZÁVISLOSTI'),
@@ -4464,15 +4456,6 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
               icon: const Icon(Icons.archive_outlined),
               label: const Text('EXPORT ZIP'),
             ),
-            if (_lastProjectSnapshot != null)
-              TextButton.icon(
-                onPressed: () async {
-                  Navigator.of(dialogContext).pop();
-                  await _restoreLastProjectSnapshot();
-                },
-                icon: const Icon(Icons.restore_rounded),
-                label: const Text('OBNOVIŤ SNAPSHOT'),
-              ),
             FilledButton.icon(
               onPressed: () => _copyDiagnosticReport(report),
               icon: const Icon(Icons.copy_all),
@@ -5469,7 +5452,6 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         if (await Directory(path.join(selected, 'windows')).exists()) 'windows',
         if (await Directory(path.join(selected, 'android')).exists()) 'android',
       ];
-      final detectedBranch = await _gitService.currentBranch(selected) ?? '';
       final profile = ProjectProfile(
         id: id,
         name: name,
@@ -5478,7 +5460,6 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         gitRepository: '',
         flutterExecutable: 'flutter',
         platforms: platforms,
-        gitBranch: detectedBranch,
         isActive: true,
       );
       setState(() {
@@ -5502,163 +5483,6 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     if (index < 0) return;
     setState(() => _projectProfiles[index] = profile.copyWith(name: name));
     await _persistProjectProfiles();
-  }
-
-  Future<void> _editProjectProfileBranch(ProjectProfile profile) async {
-    var detectedBranch = '';
-    try {
-      detectedBranch = await _gitService.currentBranch(profile.projectPath) ?? '';
-    } catch (_) {}
-    if (!mounted) return;
-    final controller = TextEditingController(
-      text: profile.gitBranch.trim().isNotEmpty ? profile.gitBranch : detectedBranch,
-    );
-    final value = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Git vetva projektu'),
-        content: SizedBox(
-          width: 460,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextField(
-                controller: controller,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Preferovaná vetva',
-                  helperText: detectedBranch.isEmpty
-                      ? 'Zadaj vetvu projektu, napr. dev, develop alebo main.'
-                      : 'Aktuálne zistená vetva: $detectedBranch',
-                ),
-              ),
-              if (detectedBranch.isNotEmpty) ...<Widget>[
-                const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: () => controller.text = detectedBranch,
-                  icon: const Icon(Icons.call_split_rounded),
-                  label: Text('POUŽIŤ $detectedBranch'),
-                ),
-              ],
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('ZRUŠIŤ')),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: const Text('ULOŽIŤ'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (value == null || value.trim().isEmpty || !mounted) return;
-    final index = _projectProfiles.indexWhere((item) => item.id == profile.id);
-    if (index < 0) return;
-    setState(() => _projectProfiles[index] = profile.copyWith(gitBranch: value.trim()));
-    await _persistProjectProfiles();
-    _addLog('Project Profile ${profile.name}: preferovaná Git vetva = ${value.trim()}.');
-  }
-
-  Future<ProjectSnapshotInfo?> _createProjectSnapshot({String label = 'Before build'}) async {
-    final workspace = _gitWorkspacePath;
-    if (workspace == null || workspace.trim().isEmpty) {
-      _showError('Najprv vyber pracovný projekt.');
-      return null;
-    }
-    if (_snapshotRunning) return null;
-    if (mounted) setState(() => _snapshotRunning = true);
-    try {
-      _addLog('Vytváram Project Snapshot: $label');
-      final snapshot = await _snapshotService.createSnapshot(workspace, label: label);
-      _lastProjectSnapshot = snapshot;
-      _addLog('Project Snapshot vytvorený: ${snapshot.directory.path} (${snapshot.fileCount} súborov).');
-      if (mounted) setState(() {});
-      return snapshot;
-    } catch (error) {
-      _addLog('Project Snapshot zlyhal: $error');
-      if (mounted) _showError('Project Snapshot sa nepodarilo vytvoriť: $error');
-      return null;
-    } finally {
-      if (mounted) setState(() => _snapshotRunning = false);
-    }
-  }
-
-  Future<void> _restoreLastProjectSnapshot() async {
-    final snapshot = _lastProjectSnapshot;
-    if (snapshot == null) {
-      _showError('V tejto relácii ešte nebol vytvorený žiadny snapshot.');
-      return;
-    }
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Obnoviť Project Snapshot?'),
-        content: Text(
-          'Zdrojové súbory projektu budú prepísané obsahom snapshotu "${snapshot.label}". '
-          'Build cache a Git metadata sa neobnovujú.',
-        ),
-        actions: <Widget>[
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('ZRUŠIŤ')),
-          FilledButton.icon(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            icon: const Icon(Icons.restore_rounded),
-            label: const Text('OBNOVIŤ'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    try {
-      await _snapshotService.restoreSnapshot(snapshot);
-      _addLog('Project Snapshot bol obnovený: ${snapshot.directory.path}');
-      await _refreshGitWorkspace();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Project Snapshot bol úspešne obnovený.')),
-        );
-      }
-    } catch (error) {
-      if (mounted) _showError('Obnovenie snapshotu zlyhalo: $error');
-    }
-  }
-
-  Widget _buildSnapshotCenter() {
-    final snapshot = _lastProjectSnapshot;
-    return RMSectionCard(
-      title: 'Project Snapshot',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(
-            snapshot == null
-                ? 'Pred One Click Buildom sa automaticky vytvorí lokálny snapshot zdrojových súborov.'
-                : 'Posledný snapshot: ${snapshot.label} • ${snapshot.fileCount} súborov\n${snapshot.directory.path}',
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: <Widget>[
-              FilledButton.tonalIcon(
-                onPressed: _snapshotRunning ? null : () => _createProjectSnapshot(label: 'Manual snapshot'),
-                icon: _snapshotRunning
-                    ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.camera_outlined),
-                label: Text(_snapshotRunning ? 'VYTVÁRAM...' : 'VYTVORIŤ SNAPSHOT'),
-              ),
-              OutlinedButton.icon(
-                onPressed: snapshot == null || _snapshotRunning ? null : _restoreLastProjectSnapshot,
-                icon: const Icon(Icons.restore_rounded),
-                label: const Text('OBNOVIŤ POSLEDNÝ'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _duplicateProjectProfile(ProjectProfile profile) async {
@@ -5936,9 +5760,18 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
             runSpacing: 10,
             children: <Widget>[
               FilledButton.icon(
-                onPressed: !ready || _oneClickBuildRunning ? null : _runOneClickBuild,
+                onPressed: !ready || _oneClickBuildRunning
+                    ? null
+                    : () => _runOneClickBuild(fastMode: true),
+                icon: const Icon(Icons.bolt_rounded),
+                label: const Text('FAST DEV BUILD'),
+              ),
+              OutlinedButton.icon(
+                onPressed: !ready || _oneClickBuildRunning
+                    ? null
+                    : () => _runOneClickBuild(fastMode: false),
                 icon: const Icon(Icons.rocket_launch_rounded),
-                label: const Text('ONE CLICK BUILD'),
+                label: const Text('FULL BUILD'),
               ),
               OutlinedButton.icon(
                 onPressed: !ready || _busy ? null : () => _runWorkspaceFlutterStep(workspace, const <String>['analyze'], 'Flutter analyze'),
@@ -5969,7 +5802,9 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
           ),
           const SizedBox(height: 8),
           Text(
-            'One Click Build používa existujúci overený reťazec: clean → pub get → analyze → test → Windows Release → report → Release ZIP.',
+            'FAST DEV BUILD: analyze → test → Windows Release → report → Release ZIP. '
+            'FULL BUILD: clean → pub get → analyze → test → Windows Release. '
+            'FAST režim je určený na rýchle testovanie bežných zmien kódu.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -8828,6 +8663,364 @@ SHA256: $hash''';
     return match?.group(1) ?? 'nezistená verzia';
   }
 
+  Future<String> _readProjectPackageName(Directory projectRoot) async {
+    final pubspec = File(path.join(projectRoot.path, 'pubspec.yaml'));
+    if (!await pubspec.exists()) return '';
+    final text = await pubspec.readAsString();
+    final match = RegExp(r'^name:\s*([A-Za-z0-9_.-]+)\s*$', multiLine: true).firstMatch(text);
+    return match?.group(1)?.trim() ?? '';
+  }
+
+  Future<String> _readProjectGitRemote(Directory projectRoot) async {
+    if (!await Directory(path.join(projectRoot.path, '.git')).exists()) return '';
+    try {
+      final result = await Process.run(
+        'git',
+        <String>['-C', projectRoot.path, 'config', '--get', 'remote.origin.url'],
+        runInShell: false,
+      );
+      if (result.exitCode == 0) return '${result.stdout}'.trim();
+    } catch (_) {}
+    return '';
+  }
+
+  String _normalizedProjectIdentityValue(String value) =>
+      value.trim().replaceAll('\\', '/').toLowerCase();
+
+  Future<bool> _verifyProjectIdentityGuard({
+    required Directory workspace,
+    Directory? incomingProject,
+    required String operation,
+  }) async {
+    final workspaceName = await _readProjectPackageName(workspace);
+    if (workspaceName.isEmpty) {
+      _showError(
+        'PROJECT IDENTITY GUARD: operácia $operation bola zablokovaná. '
+        'Aktívny workspace nemá čitateľný názov projektu v pubspec.yaml.',
+      );
+      return false;
+    }
+
+    final guardDirectory = Directory(path.join(workspace.path, '.release_manager'));
+    final guardFile = File(path.join(guardDirectory.path, 'project_identity_guard.json'));
+    final workspaceRemote = await _readProjectGitRemote(workspace);
+
+    Map<String, dynamic>? saved;
+    if (await guardFile.exists()) {
+      try {
+        final decoded = jsonDecode(await guardFile.readAsString());
+        if (decoded is Map<String, dynamic>) saved = decoded;
+      } catch (_) {}
+    }
+
+    if (saved != null) {
+      final savedName = (saved['packageName'] ?? '').toString();
+      final savedRemote = (saved['gitRemote'] ?? '').toString();
+      if (savedName.isNotEmpty &&
+          _normalizedProjectIdentityValue(savedName) !=
+              _normalizedProjectIdentityValue(workspaceName)) {
+        _showError(
+          'PROJECT IDENTITY GUARD: operácia $operation bola zablokovaná.\n\n'
+          'Tento workspace bol uzamknutý pre projekt: $savedName\n'
+          'Aktuálny obsah workspace: $workspaceName\n\n'
+          'Release Manager nebude pokračovať, aby nepoškodil iný projekt.',
+        );
+        return false;
+      }
+      if (savedRemote.isNotEmpty &&
+          workspaceRemote.isNotEmpty &&
+          _normalizedProjectIdentityValue(savedRemote) !=
+              _normalizedProjectIdentityValue(workspaceRemote)) {
+        _showError(
+          'PROJECT IDENTITY GUARD: Git identita workspace sa zmenila. '
+          'Operácia $operation bola zablokovaná.',
+        );
+        return false;
+      }
+    } else {
+      await guardDirectory.create(recursive: true);
+      await guardFile.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(<String, dynamic>{
+          'packageName': workspaceName,
+          'gitRemote': workspaceRemote,
+          'workspacePath': workspace.path,
+          'createdAt': DateTime.now().toIso8601String(),
+        }),
+      );
+      _addLog('Project Identity Guard: workspace uzamknutý pre projekt $workspaceName.');
+    }
+
+    if (incomingProject != null) {
+      final incomingName = await _readProjectPackageName(incomingProject);
+      if (incomingName.isEmpty ||
+          _normalizedProjectIdentityValue(incomingName) !=
+              _normalizedProjectIdentityValue(workspaceName)) {
+        _showError(
+          'PROJECT IDENTITY GUARD: SYNCHRONIZÁCIA ZABLOKOVANÁ.\n\n'
+          'Aktívny projekt: $workspaceName\n'
+          'ZIP projekt: ${incomingName.isEmpty ? 'nezistený' : incomingName}\n\n'
+          'Vybraný ZIP patrí inému projektu. Nebol odstránený ani prepísaný '
+          'žiadny súbor workspace.',
+        );
+        _addLog(
+          'Project Identity Guard: BLOKOVANÉ – workspace=$workspaceName, '
+          'ZIP=${incomingName.isEmpty ? 'nezistený' : incomingName}.',
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+  static const int _backupStorageMaxCount = 10;
+  static const int _backupStorageProtectedNewest = 3;
+  static const int _backupStorageMaxBytes = 5 * 1024 * 1024 * 1024;
+
+  String _formatBackupStorageSize(int bytes) {
+    if (bytes >= 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+    }
+    if (bytes >= 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    if (bytes >= 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
+    return '$bytes B';
+  }
+
+  Future<List<File>> _workspaceBackupFiles(Directory backupDirectory) async {
+    if (!await backupDirectory.exists()) return <File>[];
+    final files = <File>[];
+    await for (final entity in backupDirectory.list(followLinks: false)) {
+      if (entity is! File) continue;
+      final name = path.basename(entity.path);
+      if (!name.startsWith('Workspace_Backup_') || !name.toLowerCase().endsWith('.zip')) {
+        continue;
+      }
+      files.add(entity);
+    }
+    files.sort((a, b) {
+      final aTime = a.lastModifiedSync();
+      final bTime = b.lastModifiedSync();
+      return bTime.compareTo(aTime);
+    });
+    return files;
+  }
+
+  Future<({int count, int bytes})> _backupStorageStats(
+    Directory backupDirectory,
+  ) async {
+    final files = await _workspaceBackupFiles(backupDirectory);
+    var bytes = 0;
+    for (final file in files) {
+      try {
+        bytes += await file.length();
+      } catch (_) {}
+    }
+    return (count: files.length, bytes: bytes);
+  }
+
+  Future<({int deletedCount, int deletedBytes, int remainingCount, int remainingBytes})>
+      _cleanupWorkspaceBackups(
+    Directory backupDirectory, {
+    bool force = false,
+  }) async {
+    final files = await _workspaceBackupFiles(backupDirectory);
+    final sizes = <String, int>{};
+    var totalBytes = 0;
+    for (final file in files) {
+      try {
+        final size = await file.length();
+        sizes[file.path] = size;
+        totalBytes += size;
+      } catch (_) {
+        sizes[file.path] = 0;
+      }
+    }
+
+    final overLimit =
+        files.length > _backupStorageMaxCount || totalBytes > _backupStorageMaxBytes;
+    if (!force && !overLimit) {
+      return (
+        deletedCount: 0,
+        deletedBytes: 0,
+        remainingCount: files.length,
+        remainingBytes: totalBytes,
+      );
+    }
+
+    var currentCount = files.length;
+    var currentBytes = totalBytes;
+    var deletedCount = 0;
+    var deletedBytes = 0;
+
+    // Najnovšie tri zálohy sú vždy chránené. Maže sa iba od najstaršej.
+    final deletable = files.skip(_backupStorageProtectedNewest).toList().reversed;
+    for (final file in deletable) {
+      final shouldDelete = force
+          ? currentCount > _backupStorageProtectedNewest
+          : currentCount > _backupStorageMaxCount ||
+              currentBytes > _backupStorageMaxBytes;
+      if (!shouldDelete) break;
+
+      final size = sizes[file.path] ?? 0;
+      try {
+        await file.delete();
+        currentCount--;
+        currentBytes = currentBytes - size < 0 ? 0 : currentBytes - size;
+        deletedCount++;
+        deletedBytes += size;
+        _addLog(
+          'Backup Manager: odstránená stará záloha '
+          '${path.basename(file.path)} (${_formatBackupStorageSize(size)}).',
+        );
+      } catch (error) {
+        _addLog(
+          'Backup Manager: zálohu ${path.basename(file.path)} sa nepodarilo '
+          'odstrániť: $error',
+        );
+      }
+    }
+
+    return (
+      deletedCount: deletedCount,
+      deletedBytes: deletedBytes,
+      remainingCount: currentCount,
+      remainingBytes: currentBytes,
+    );
+  }
+
+  Future<void> _showBackupStorageManager() async {
+    final workspacePath = _gitWorkspacePath?.trim();
+    if (workspacePath == null || workspacePath.isEmpty) {
+      _showError('Najprv vyber pracovný Git projekt.');
+      return;
+    }
+
+    final backupDirectory =
+        Directory(path.join(Directory(workspacePath).parent.path, 'Backups'));
+    await backupDirectory.create(recursive: true);
+    var stats = await _backupStorageStats(backupDirectory);
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final overLimit = stats.count > _backupStorageMaxCount ||
+              stats.bytes > _backupStorageMaxBytes;
+          return AlertDialog(
+            title: const Row(children: <Widget>[
+              Icon(Icons.inventory_2_outlined, color: Color(0xFFFF9800)),
+              SizedBox(width: 10),
+              Text('Backup Storage Manager'),
+            ]),
+            content: SizedBox(
+              width: 560,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'Backups: ${backupDirectory.path}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    '${stats.count} záloh • ${_formatBackupStorageSize(stats.bytes)}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Automatický limit: max. $_backupStorageMaxCount záloh '
+                    'alebo ${_formatBackupStorageSize(_backupStorageMaxBytes)}. '
+                    'Najnovšie $_backupStorageProtectedNewest zálohy sú vždy chránené.',
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    overLimit
+                        ? 'Úložisko prekročilo nastavený limit.'
+                        : 'Úložisko je v nastavenom limite.',
+                    style: TextStyle(
+                      color: overLimit
+                          ? Theme.of(context).colorScheme.error
+                          : const Color(0xFF2E7D32),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton.icon(
+                onPressed: () => _openDirectory(backupDirectory.path),
+                icon: const Icon(Icons.folder_open_rounded),
+                label: const Text('OTVORIŤ BACKUPS'),
+              ),
+              OutlinedButton.icon(
+                onPressed: stats.count <= _backupStorageProtectedNewest
+                    ? null
+                    : () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (confirmContext) => AlertDialog(
+                            title: const Text('Vyčistiť staré zálohy?'),
+                            content: Text(
+                              'Release Manager odstráni staré Workspace_Backup ZIP-y '
+                              'a vždy ponechá minimálne '
+                              '$_backupStorageProtectedNewest najnovšie zálohy.',
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(confirmContext, false),
+                                child: const Text('ZRUŠIŤ'),
+                              ),
+                              FilledButton(
+                                onPressed: () =>
+                                    Navigator.pop(confirmContext, true),
+                                child: const Text('VYČISTIŤ'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed != true) return;
+                        final result = await _cleanupWorkspaceBackups(
+                          backupDirectory,
+                          force: true,
+                        );
+                        stats = (
+                          count: result.remainingCount,
+                          bytes: result.remainingBytes,
+                        );
+                        setDialogState(() {});
+                        _addLog(
+                          'Backup Manager: ručné čistenie dokončené, '
+                          'uvoľnené ${_formatBackupStorageSize(result.deletedBytes)} '
+                          '(${result.deletedCount} záloh).',
+                        );
+                      },
+                icon: const Icon(Icons.cleaning_services_rounded),
+                label: const Text('VYČISTIŤ STARÉ'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('HOTOVO'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _synchronizeDevelopmentZip() async {
     if (_workspaceSyncRunning) return;
     final workspacePath = _gitWorkspacePath;
@@ -8883,6 +9076,13 @@ SHA256: $hash''';
       }
 
       final sourceRoot = await _resolveDevelopmentZipRoot(extracted);
+      final identityAllowed = await _verifyProjectIdentityGuard(
+        workspace: workspace,
+        incomingProject: sourceRoot,
+        operation: 'Synchronizovať ZIP',
+      );
+      if (!identityAllowed) return;
+
       final sourceVersion = await _readProjectVersionLabel(sourceRoot);
       final workspaceVersion = await _readProjectVersionLabel(workspace);
       final sourceGit = Directory(path.join(sourceRoot.path, '.git'));
@@ -8913,7 +9113,7 @@ SHA256: $hash''';
                 Text('Cieľ: ${workspace.path}', maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 14),
                 const Text(
-                  'Pred synchronizáciou sa vytvorí automatická záloha. Workspace sa potom nahradí čistým obsahom ZIP-u. Zachované zostanú iba .git, .gitignore a .release_manager.',
+                  'Pred synchronizáciou sa vytvorí automatická záloha. Zdrojové súbory workspace sa nahradia obsahom ZIP-u. Zachované zostanú .git, .gitignore, .release_manager a generované priečinky build/.dart_tool, ktoré sa pri synchronizácii ignorujú.',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
               ],
@@ -8963,9 +9163,22 @@ SHA256: $hash''';
       }
       _addLog('Záloha: ${backupZip.path}');
 
+      final backupCleanup = await _cleanupWorkspaceBackups(backupDirectory);
+      if (backupCleanup.deletedCount > 0) {
+        _addLog(
+          'Backup Manager: automaticky uvoľnené '
+          '${_formatBackupStorageSize(backupCleanup.deletedBytes)} '
+          '(${backupCleanup.deletedCount} starých záloh).',
+        );
+      }
+      _addLog(
+        'Backup Manager: ${backupCleanup.remainingCount} záloh, '
+        '${_formatBackupStorageSize(backupCleanup.remainingBytes)}.',
+      );
+
       // Vytvor čistý workspace. Starý zdrojový strom sa nesmie miešať s
       // novým ZIP-om, preto sa zachovajú iba Git metadáta a nastavenia RM.
-      const preservedTopLevel = <String>{'.git', '.gitignore', '.release_manager'};
+      const preservedTopLevel = <String>{'.git', '.gitignore', '.release_manager', '.dart_tool', 'build'};
       await for (final entity in workspace.list(followLinks: false)) {
         final name = path.basename(entity.path);
         if (preservedTopLevel.contains(name)) continue;
@@ -8988,7 +9201,7 @@ SHA256: $hash''';
           workspace.path,
           '/E', '/COPY:DAT', '/DCOPY:DAT', '/R:2', '/W:1',
           '/NFL', '/NDL', '/NJH', '/NJS', '/NP',
-          '/XD', '.git', '.release_manager',
+          '/XD', '.git', '.release_manager', '.dart_tool', 'build',
           '/XF', '.gitignore',
         ],
         runInShell: false,
@@ -9069,21 +9282,24 @@ SHA256: $hash''';
       // sa mohlo pokračovať od analyze nad starým package_config alebo
       // spustiť EXE z predchádzajúceho buildu.
       for (final relative in <String>[
-        '.dart_tool',
         '.flutter-plugins',
         '.flutter-plugins-dependencies',
-        'build',
       ]) {
         final entityPath = path.join(workspace.path, relative);
         final type = FileSystemEntity.typeSync(entityPath);
-        if (type == FileSystemEntityType.directory) {
-          await Directory(entityPath).delete(recursive: true);
-          _addLog('Po synchronizácii odstránený odvodený priečinok: $relative');
-        } else if (type == FileSystemEntityType.file) {
-          await File(entityPath).delete();
-          _addLog('Po synchronizácii odstránený odvodený súbor: $relative');
+        try {
+          if (type == FileSystemEntityType.directory) {
+            await Directory(entityPath).delete(recursive: true);
+            _addLog('Po synchronizácii odstránený odvodený priečinok: $relative');
+          } else if (type == FileSystemEntityType.file) {
+            await File(entityPath).delete();
+            _addLog('Po synchronizácii odstránený odvodený súbor: $relative');
+          }
+        } on FileSystemException catch (error) {
+          _addLog('Workspace Sync: odvodená položka $relative je zamknutá a bola bezpečne preskočená: $error');
         }
       }
+      _addLog('Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.');
 
       if (mounted) {
         setState(() {
@@ -9292,7 +9508,7 @@ SHA256: $hash''';
     );
   }
 
-  Future<void> _runOneClickBuild() async {
+  Future<void> _runOneClickBuild({required bool fastMode}) async {
     if (_oneClickBuildRunning) return;
     final workspace = _gitWorkspacePath;
     if (workspace == null || workspace.trim().isEmpty) {
@@ -9301,6 +9517,13 @@ SHA256: $hash''';
     }
     if (!await File(path.join(workspace, 'pubspec.yaml')).exists()) {
       _showError('Vybraný workspace nie je platný Flutter projekt. Chýba pubspec.yaml.');
+      return;
+    }
+    final buildWorkspace = Directory(workspace);
+    if (!await _verifyProjectIdentityGuard(
+      workspace: buildWorkspace,
+      operation: fastMode ? 'FAST DEV BUILD' : 'FULL BUILD',
+    )) {
       return;
     }
     final currentProject = await _pubspecService.readProject(workspace);
@@ -9325,19 +9548,10 @@ SHA256: $hash''';
       'One Click Build identita: ${buildIdentityAtStart.version}+'
       '${buildIdentityAtStart.build} ${buildIdentityAtStart.stage.toUpperCase()}.',
     );
-    if (_oneClickBuildResumeIndex == 0) {
-      final snapshot = await _createProjectSnapshot(
-        label: 'Before build ${buildIdentityAtStart.build}',
-      );
-      if (snapshot == null) {
-        _showError('Build bol zastavený, pretože sa nepodarilo vytvoriť bezpečnostný snapshot.');
-        return;
-      }
-    }
     final buildStartedAt = DateTime.now();
     final steps = <({List<String> args, String label})>[
-      (args: <String>['clean'], label: 'Flutter clean'),
-      (args: <String>['pub', 'get'], label: 'Flutter pub get'),
+      if (!fastMode) (args: <String>['clean'], label: 'Flutter clean'),
+      if (!fastMode) (args: <String>['pub', 'get'], label: 'Flutter pub get'),
       (args: <String>['analyze'], label: 'Flutter analyze'),
       (args: <String>['test'], label: 'Flutter test'),
       (args: <String>['build', 'windows', '--release'], label: 'Windows Release build'),
@@ -9354,9 +9568,16 @@ SHA256: $hash''';
       _oneClickBuildFailedError = null;
       _oneClickBuildFailedStackTrace = null;
     });
+    final modeLabel = fastMode ? 'FAST DEV BUILD' : 'FULL BUILD';
     _addLog(startIndex == 0
-        ? '=== ZAČÍNA ONE CLICK BUILD ==='
-        : '=== ONE CLICK BUILD POKRAČUJE OD KROKU ${steps[startIndex].label} ===');
+        ? '=== ZAČÍNA $modeLabel ==='
+        : '=== $modeLabel POKRAČUJE OD KROKU ${steps[startIndex].label} ===');
+    if (fastMode) {
+      _addLog(
+        'FAST režim: flutter clean a flutter pub get boli preskočené. '
+        'Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.',
+      );
+    }
     try {
       for (var index = startIndex; index < steps.length; index++) {
         final step = steps[index];
@@ -9395,12 +9616,13 @@ SHA256: $hash''';
         );
       }
       _addLog(
-        '=== ONE CLICK BUILD ${identity.version}+${identity.build} '
+        '=== $modeLabel ${identity.version}+${identity.build} '
         'BOL ÚSPEŠNE DOKONČENÝ ===',
       );
       final buildReportFile = await _writeSuccessfulBuildReport(
         projectPath: workspace,
         startedAt: buildStartedAt,
+        fastMode: fastMode,
       );
       File? releaseZipFile;
       Object? releaseZipError;
@@ -9425,7 +9647,9 @@ SHA256: $hash''';
             const Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32)),
             const SizedBox(width: 10),
             Expanded(
-              child: Text('BUILD ${identity.build} úspešne dokončený'),
+              child: Text(
+                '${fastMode ? 'FAST' : 'FULL'} BUILD ${identity.build} úspešne dokončený',
+              ),
             ),
           ]),
           content: SizedBox(
@@ -9444,12 +9668,18 @@ SHA256: $hash''';
                   '${buildDuration.inSeconds.remainder(60)} s',
                 ),
                 const SizedBox(height: 14),
-                const Text(
-                  '✔ Flutter clean\n'
-                  '✔ Flutter pub get\n'
-                  '✔ Flutter analyze\n'
-                  '✔ Flutter test\n'
-                  '✔ Windows Release build',
+                Text(
+                  fastMode
+                      ? '↷ Flutter clean – preskočené\n'
+                          '↷ Flutter pub get – preskočené\n'
+                          '✔ Flutter analyze\n'
+                          '✔ Flutter test\n'
+                          '✔ Windows Release build'
+                      : '✔ Flutter clean\n'
+                          '✔ Flutter pub get\n'
+                          '✔ Flutter analyze\n'
+                          '✔ Flutter test\n'
+                          '✔ Windows Release build',
                 ),
                 const SizedBox(height: 14),
                 Text('Build report: ${buildReportFile.path}'),
@@ -10061,7 +10291,9 @@ SHA256: $hash''';
                 runSpacing: 8,
                 children: <Widget>[
                   FilledButton.icon(
-                    onPressed: isRepository && !_oneClickBuildRunning ? _runOneClickBuild : null,
+                    onPressed: isRepository && !_oneClickBuildRunning
+                        ? () => _runOneClickBuild(fastMode: false)
+                        : null,
                     icon: _oneClickBuildRunning
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.rocket_launch_rounded),
@@ -10098,6 +10330,11 @@ SHA256: $hash''';
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.folder_zip_rounded),
                     label: Text(_workspaceSyncRunning ? 'SYNCHRONIZUJEM...' : 'SYNCHRONIZOVAŤ ZIP'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _showBackupStorageManager,
+                    icon: const Icon(Icons.inventory_2_outlined),
+                    label: const Text('BACKUP MANAGER'),
                   ),
                   OutlinedButton.icon(
                     onPressed: _gitWorkspaceLoading ? null : _refreshGitWorkspace,
@@ -10595,18 +10832,6 @@ SHA256: $hash''';
     return largeFiles;
   }
 
-  Future<bool> _gitRemoteExists(
-    String workspace, {
-    String remoteName = 'origin',
-  }) async {
-    final result = await _runGitCommand(
-      workspace,
-      <String>['remote', 'get-url', remoteName],
-      timeout: const Duration(seconds: 15),
-    );
-    return result.exitCode == 0 && result.stdout.toString().trim().isNotEmpty;
-  }
-
   Future<String> _originBranchRef(String workspace, String branch) async {
     final fetch = await _runGitCommand(
       workspace,
@@ -10811,7 +11036,6 @@ SHA256: $hash''';
     String branch, {
     required String commitMessage,
     required String changeDescription,
-    bool includeRemoteChecks = true,
   }) async {
     await _removeStaleGitIndexLock(workspace);
     _addLog('Git preflight: kontrola .gitignore');
@@ -10840,27 +11064,21 @@ SHA256: $hash''';
       }
     }
 
-    if (includeRemoteChecks) {
-      _addLog('Git preflight: kontrola neodoslaných commitov');
-      final outgoing = await _findOutgoingLargeBlobs(workspace, branch);
-      if (outgoing.isNotEmpty) {
-        await _repairOutgoingLargeFileHistory(
-          workspace,
-          branch,
-          outgoing,
-          commitMessage: commitMessage,
-          changeDescription: changeDescription,
-        );
-      }
-    } else {
-      _addLog('Git preflight: origin nie je nastavený, vzdialené kontroly boli preskočené.');
+    _addLog('Git preflight: kontrola neodoslaných commitov');
+    final outgoing = await _findOutgoingLargeBlobs(workspace, branch);
+    if (outgoing.isNotEmpty) {
+      await _repairOutgoingLargeFileHistory(
+        workspace,
+        branch,
+        outgoing,
+        commitMessage: commitMessage,
+        changeDescription: changeDescription,
+      );
     }
 
     _addLog('Git preflight: záverečné overenie');
     final remainingTracked = await _findTrackedLargeFiles(workspace);
-    final remainingOutgoing = includeRemoteChecks
-        ? await _findOutgoingLargeBlobs(workspace, branch)
-        : <Map<String, Object?>>[];
+    final remainingOutgoing = await _findOutgoingLargeBlobs(workspace, branch);
     final remaining = <Map<String, Object?>>[...remainingTracked, ...remainingOutgoing];
     if (remaining.isNotEmpty) {
       final details = remaining
@@ -10994,11 +11212,6 @@ SHA256: $hash''';
       }
     }
 
-    void skippedStep(String name, String message) {
-      results.add(<String, Object?>{'name': name, 'success': true, 'message': message});
-      _addLog('Build Completion Center: ↷ $name — $message');
-    }
-
     try {
       if (options['commit'] == true) {
         await step('Git commit', () async {
@@ -11022,17 +11235,14 @@ SHA256: $hash''';
       }
 
       if (options['push'] == true) {
-        final hasOrigin = await _gitRemoteExists(workspace);
-        final branch = (data['branch'] as String?)?.trim();
-        if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
-
         await step('Git preflight', () async {
+          final branch = (data['branch'] as String?)?.trim();
+          if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
           await _runSmartGitPreflight(
             workspace,
             branch,
             commitMessage: (data['commitMessage'] as String?)?.trim() ?? 'Build completion recovery',
             changeDescription: (data['changeDescription'] as String?)?.trim() ?? '',
-            includeRemoteChecks: hasOrigin,
           ).timeout(
             const Duration(minutes: 3),
             onTimeout: () => throw TimeoutException(
@@ -11041,32 +11251,27 @@ SHA256: $hash''';
           );
         });
 
-        if (!hasOrigin) {
-          skippedStep(
-            'Git push',
-            'Preskočené — vzdialený repozitár origin nie je nastavený. Commit a tag zostali bezpečne uložené lokálne.',
+        await step('Git push', () async {
+          final branch = (data['branch'] as String?)?.trim();
+          if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
+          final pushBranch = await Process.run(
+            'git', <String>['push', '-u', 'origin', branch],
+            workingDirectory: workspace, runInShell: true,
           );
-        } else {
-          await step('Git push', () async {
-            final pushBranch = await Process.run(
-              'git', <String>['push', '-u', 'origin', branch],
+          if (pushBranch.exitCode != 0) {
+            throw StateError('Push vetvy zlyhal: ${pushBranch.stderr.toString().trim()}');
+          }
+          if (options['tag'] == true) {
+            final tag = (data['tagName'] as String?)?.trim() ?? '';
+            final pushTag = await Process.run(
+              'git', <String>['push', 'origin', tag],
               workingDirectory: workspace, runInShell: true,
             );
-            if (pushBranch.exitCode != 0) {
-              throw StateError('Push vetvy zlyhal: ${pushBranch.stderr.toString().trim()}');
+            if (pushTag.exitCode != 0) {
+              throw StateError('Push tagu zlyhal: ${pushTag.stderr.toString().trim()}');
             }
-            if (options['tag'] == true) {
-              final tag = (data['tagName'] as String?)?.trim() ?? '';
-              final pushTag = await Process.run(
-                'git', <String>['push', 'origin', tag],
-                workingDirectory: workspace, runInShell: true,
-              );
-              if (pushTag.exitCode != 0) {
-                throw StateError('Push tagu zlyhal: ${pushTag.stderr.toString().trim()}');
-              }
-            }
-          });
-        }
+          }
+        });
       }
 
       if (options['exportZip'] == true) {
@@ -11554,7 +11759,9 @@ Widget _buildSectionOverviewDashboard() {
                   icon: Icons.rocket_launch_rounded,
                   label: '2. SPUSTIŤ CELÝ BUILD',
                   detail: _oneClickBuildRunning ? 'Prebieha: $_oneClickBuildCurrentStep' : 'Analyze, test a Windows Release build.',
-                  onPressed: _gitWorkspaceStatus?.isRepository == true && !_oneClickBuildRunning ? _runOneClickBuild : null,
+                  onPressed: _gitWorkspaceStatus?.isRepository == true && !_oneClickBuildRunning
+                      ? () => _runOneClickBuild(fastMode: false)
+                      : null,
                   color: const Color(0xFF8E24AA),
                 ),
                 actionButton(
@@ -11966,6 +12173,11 @@ Widget _buildSectionOverviewDashboard() {
                           onPressed: _workspaceSyncRunning ? null : _synchronizeDevelopmentZip,
                           icon: const Icon(Icons.folder_zip_rounded),
                           label: const Text('SYNCHRONIZOVAŤ ZIP'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _showBackupStorageManager,
+                          icon: const Icon(Icons.inventory_2_outlined),
+                          label: const Text('BACKUP MANAGER'),
                         ),
                       ],
                     ),
@@ -12621,7 +12833,7 @@ Widget _buildSectionOverviewDashboard() {
                               ),
                               title: Text(profile.name, style: const TextStyle(fontWeight: FontWeight.w700)),
                               subtitle: Text(
-                                '${profile.projectPath}\n${profile.platforms.isEmpty ? 'Platformy: nezistené' : 'Platformy: ${profile.platforms.join(', ')}'} • Branch: ${profile.gitBranch.trim().isEmpty ? 'auto' : profile.gitBranch}',
+                                '${profile.projectPath}\n${profile.platforms.isEmpty ? 'Platformy: nezistené' : 'Platformy: ${profile.platforms.join(', ')}'} • Branch: ${profile.gitBranch}',
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -12631,13 +12843,11 @@ Widget _buildSectionOverviewDashboard() {
                                 tooltip: 'Správa profilu',
                                 onSelected: (action) async {
                                   if (action == 'rename') await _renameProjectProfile(profile);
-                                  if (action == 'branch') await _editProjectProfileBranch(profile);
                                   if (action == 'duplicate') await _duplicateProjectProfile(profile);
                                   if (action == 'delete') await _deleteProjectProfile(profile);
                                 },
                                 itemBuilder: (_) => const <PopupMenuEntry<String>>[
                                   PopupMenuItem(value: 'rename', child: Text('Premenovať')),
-                                  PopupMenuItem(value: 'branch', child: Text('Git vetva')),
                                   PopupMenuItem(value: 'duplicate', child: Text('Duplikovať')),
                                   PopupMenuItem(value: 'delete', child: Text('Odstrániť')),
                                 ],
@@ -12656,10 +12866,6 @@ Widget _buildSectionOverviewDashboard() {
                 const SizedBox(height: 16),
               if (_selectedPage == 1)
                 _buildLocalBuildAssistant(),
-              if (_selectedPage == 1)
-                const SizedBox(height: 16),
-              if (_selectedPage == 1)
-                _buildSnapshotCenter(),
               if (_selectedPage == 1)
                 const SizedBox(height: 16),
               if (_selectedPage == 1)

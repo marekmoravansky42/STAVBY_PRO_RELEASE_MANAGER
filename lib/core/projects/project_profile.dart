@@ -10,7 +10,7 @@ class ProjectProfile {
     required this.gitRepository,
     required this.flutterExecutable,
     required this.platforms,
-    this.gitBranch = '',
+    this.gitBranch = 'develop',
     this.releaseType = 'DEV',
     this.isActive = false,
   });
@@ -81,7 +81,7 @@ class ProjectProfile {
       platforms: rawPlatforms is List
           ? rawPlatforms.whereType<String>().toList(growable: false)
           : const <String>[],
-      gitBranch: (json['gitBranch'] as String? ?? '').trim(),
+      gitBranch: (json['gitBranch'] as String? ?? 'develop').trim(),
       releaseType: (json['releaseType'] as String? ?? 'DEV').trim(),
       isActive: json['isActive'] as bool? ?? false,
     );
