@@ -7,7 +7,7 @@
   "releaseType": "RC",
   "branch": "dev",
   "commitMessage": "Release_Manager 8.0.0 RC - Build 257",
-  "changeDescription": "- Pripravený kandidát na vydanie a dokončená predvýdajová kontrola\n- Projekt: Release_Manager\n- Verzia: 8.0.0 • Build 257\n- Zmenené súbory pred dokončením: 17\n- Build úspešne otestovaný",
+  "changeDescription": "- Pripravený kandidát na vydanie a dokončená predvýdajová kontrola\n- Projekt: Release_Manager\n- Verzia: 8.0.0 • Build 257\n- Zmenené súbory pred dokončením: 38\n- Build úspešne otestovaný",
   "internalNotes": "",
   "options": {
     "commit": true,
@@ -19,5 +19,5 @@
     "synchronizeZip": false
   },
   "tagName": "",
-  "savedAt": "2026-08-09T18:43:55.159057"
+  "savedAt": "2026-08-09T22:57:59.584694"
 }

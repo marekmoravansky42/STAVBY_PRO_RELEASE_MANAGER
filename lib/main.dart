@@ -392,7 +392,16 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   bool get _gitTagRunning => _gitWorkspace.tagRunning;
   set _gitTagRunning(bool value) => _gitWorkspace.tagRunning = value;
   bool _gitBuildPublishRunning = false;
+  double _gitBuildPublishProgress = 0.0;
+  String _gitBuildPublishStep = 'Čaká';
+  bool _dashboardOperationRunning = false;
+  double _dashboardOperationProgress = 0.0;
+  String _dashboardOperationTitle = 'Čaká';
+  String _dashboardOperationStep = 'Čaká';
   bool _workspaceSyncRunning = false;
+  double _workspaceSyncProgress = 0.0;
+  String _workspaceSyncStep = 'Čaká';
+  String? _lastSynchronizedZipName;
   ({String version, int build, String stage})? _projectIdentitySnapshot;
   bool _projectIdentityLoading = false;
   bool _oneClickBuildRunning = false;
@@ -822,6 +831,12 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
       }
       final result = await _gitService.commitAll(workspace, message: message);
       if (!mounted) return;
+      setState(() {
+        _gitBuildPublishProgress = result.success ? 0.92 : 0.75;
+        _gitBuildPublishStep = result.success
+            ? 'Obnovujem Git stav po úspešnom push...'
+            : 'Git operácia skončila chybou.';
+      });
       _addLog(result.message);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.message), backgroundColor: result.success ? const Color(0xFF2E7D32) : Theme.of(context).colorScheme.error));
     } finally {
@@ -1043,17 +1058,35 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     tagController.dispose();
     if (confirmed == null || !mounted) return;
 
-    setState(() => _gitBuildPublishRunning = true);
+    setState(() {
+      _gitBuildPublishRunning = true;
+      _gitBuildPublishProgress = 0.10;
+      _gitBuildPublishStep = 'Pripravujem Git operáciu...';
+    });
     try {
       _addLog('=== GIT BUILD PUBLISHER ===');
       _addLog('Workspace: $workspace');
       _addLog('Commit: ${confirmed.message}');
       _addLog('Tag: ${confirmed.tag}');
+      if (mounted) {
+        setState(() {
+          _gitBuildPublishProgress = 0.35;
+          _gitBuildPublishStep = 'Git add → commit → tag → push...';
+        });
+      }
+      final activeBranch = _gitWorkspaceStatus?.branch?.trim();
+      if (activeBranch == null || activeBranch.isEmpty) {
+        if (mounted) {
+          _showError('Nepodarilo sa zistiť aktívnu Git vetvu projektu.');
+        }
+        return;
+      }
+      _addLog('Uloženie buildu použije aktívnu vetvu projektu: $activeBranch');
       final result = await _gitService.publishBuild(
         workspace,
         commitMessage: confirmed.message,
         tagName: confirmed.tag,
-        requiredBranch: 'develop',
+        requiredBranch: activeBranch,
       );
       if (!mounted) return;
       _addLog(result.message);
@@ -1106,8 +1139,14 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _gitBuildPublishRunning = false);
       await _refreshGitWorkspace();
+      if (mounted) {
+        setState(() {
+          _gitBuildPublishRunning = false;
+          _gitBuildPublishProgress = 0.0;
+          _gitBuildPublishStep = 'Čaká';
+        });
+      }
     }
   }
 
@@ -1320,6 +1359,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   }
 
   Future<void> _refreshGitWorkspace() async {
+    await _loadLastSynchronizedZipName();
     final workspace = _gitWorkspacePath ?? _project?.projectPath ?? _windowsExtractedProjectPath;
     if (workspace == null || workspace.trim().isEmpty) return;
     setState(() {
@@ -1562,7 +1602,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
                     ? 'Najprv vyber platný Git workspace.'
                     : changedFiles.isEmpty
                         ? 'Working tree je čistý — nie sú žiadne zmeny na uloženie.'
-                        : 'Pred uložením sa automaticky overí vetva develop, origin, dostupnosť zmien a kolízia tagu.',
+                        : 'Pred uložením sa automaticky overí aktuálna vetva projektu (${_gitWorkspaceStatus?.branch ?? '—'}), origin, dostupnosť zmien a kolízia tagu.',
                 style: TextStyle(
                   color: !isRepository
                       ? Theme.of(context).colorScheme.error
@@ -4600,6 +4640,39 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     }
   }
 
+  Future<bool> _ensureWindowsBuildTargetUnlocked(String projectPath) async {
+    if (!Platform.isWindows) return true;
+    final exe = File(
+      path.join(
+        projectPath,
+        'build',
+        'windows',
+        'x64',
+        'runner',
+        'Release',
+        'stavby_pro_release_manager.exe',
+      ),
+    );
+    if (!await exe.exists()) return true;
+
+    try {
+      final probe = File('${exe.path}.lock_probe');
+      await exe.rename(probe.path);
+      await probe.rename(exe.path);
+      return true;
+    } catch (_) {
+      _showError(
+        'Cieľové stavby_pro_release_manager.exe je používané. '
+        'Zavri testovanú verziu aplikácie a potom build spusti znova.',
+      );
+      _addLog(
+        'Windows Build Guard: cieľové EXE je zamknuté; '
+        'build bol bezpečne zastavený pred linkerom.',
+      );
+      return false;
+    }
+  }
+
   Future<void> _buildReleaseManagerWindows() async {
     if (_managerBuildRunning) return;
     final projectPath = _managerProjectPath;
@@ -4658,6 +4731,10 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
 
     try {
       for (final step in steps) {
+        if (step.label == 'Windows Release build') {
+          final unlocked = await _ensureWindowsBuildTargetUnlocked(projectPath);
+          if (!unlocked) return;
+        }
         final success = await _runManagerFlutterCommand(
           step.arguments,
           label: step.label,
@@ -5809,6 +5886,151 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showProjectProfilesWindow() async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            Future<void> refreshDialog() async {
+              if (dialogContext.mounted) setDialogState(() {});
+            }
+
+            return AlertDialog(
+              title: const Row(
+                children: <Widget>[
+                  Icon(Icons.account_tree_rounded),
+                  SizedBox(width: 10),
+                  Expanded(child: Text('Project Profiles')),
+                ],
+              ),
+              content: SizedBox(
+                width: 760,
+                height: 500,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Text(
+                      'Vyber uložený projekt. Release Manager prepne workspace, Git a build nástroje na zvolený profil.',
+                      style: Theme.of(dialogContext).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            '${_projectProfiles.length} uložených profilov',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        FilledButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () async {
+                                  await _createProjectProfile();
+                                  await refreshDialog();
+                                },
+                          icon: const Icon(Icons.add_rounded),
+                          label: const Text('PRIDAŤ PROJEKT'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: _projectProfilesLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : _projectProfiles.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'Zatiaľ nie je uložený žiadny Project Profile.\nPouži PRIDAŤ PROJEKT.',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              : ListView.separated(
+                                  itemCount: _projectProfiles.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                                  itemBuilder: (_, index) {
+                                    final profile = _projectProfiles[index];
+                                    final active = profile.id == _activeProjectProfileId;
+                                    return Card(
+                                      margin: EdgeInsets.zero,
+                                      child: ListTile(
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        leading: CircleAvatar(
+                                          child: Icon(active ? Icons.check_rounded : Icons.folder_copy_rounded),
+                                        ),
+                                        title: Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Text(
+                                                profile.name,
+                                                style: const TextStyle(fontWeight: FontWeight.w900),
+                                              ),
+                                            ),
+                                            if (active)
+                                              const Chip(
+                                                avatar: Icon(Icons.check_circle_rounded, size: 16),
+                                                label: Text('AKTÍVNY'),
+                                                visualDensity: VisualDensity.compact,
+                                              ),
+                                          ],
+                                        ),
+                                        subtitle: Text(
+                                          '${profile.projectPath}\n'
+                                          'Git vetva: ${profile.gitBranch}  •  '
+                                          '${profile.platforms.isEmpty ? 'Platformy nezistené' : profile.platforms.join(' + ')}',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        onTap: _busy
+                                            ? null
+                                            : () async {
+                                                Navigator.of(dialogContext).pop();
+                                                await _activateProjectProfile(profile);
+                                              },
+                                        trailing: PopupMenuButton<String>(
+                                          tooltip: 'Správa profilu',
+                                          onSelected: (action) async {
+                                            if (action == 'open') {
+                                              Navigator.of(dialogContext).pop();
+                                              await _activateProjectProfile(profile);
+                                              return;
+                                            }
+                                            if (action == 'rename') await _renameProjectProfile(profile);
+                                            if (action == 'duplicate') await _duplicateProjectProfile(profile);
+                                            if (action == 'delete') await _deleteProjectProfile(profile);
+                                            await refreshDialog();
+                                          },
+                                          itemBuilder: (_) => const <PopupMenuEntry<String>>[
+                                            PopupMenuItem(value: 'open', child: Text('Otvoriť projekt')),
+                                            PopupMenuItem(value: 'rename', child: Text('Premenovať')),
+                                            PopupMenuItem(value: 'duplicate', child: Text('Duplikovať')),
+                                            PopupMenuDivider(),
+                                            PopupMenuItem(value: 'delete', child: Text('Odstrániť profil')),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('ZAVRIEŤ'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -9021,8 +9243,64 @@ SHA256: $hash''';
     );
   }
 
+  Future<File?> _lastSyncMetadataFile([String? workspacePath]) async {
+    final workspace = (workspacePath ?? _gitWorkspacePath)?.trim();
+    if (workspace == null || workspace.isEmpty) return null;
+    final dir = Directory(path.join(workspace, '.release_manager'));
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return File(path.join(dir.path, 'last_sync.json'));
+  }
+
+  Future<void> _saveLastSynchronizedZipName(
+    String workspacePath,
+    String zipName,
+  ) async {
+    final file = await _lastSyncMetadataFile(workspacePath);
+    if (file == null) return;
+    await file.writeAsString(
+      const JsonEncoder.withIndent('  ').convert(<String, dynamic>{
+        'zipName': zipName,
+        'savedAt': DateTime.now().toIso8601String(),
+      }),
+      flush: true,
+    );
+  }
+
+  Future<void> _loadLastSynchronizedZipName([String? workspacePath]) async {
+    try {
+      final file = await _lastSyncMetadataFile(workspacePath);
+      if (file == null || !await file.exists()) {
+        if (mounted) {
+          setState(() => _lastSynchronizedZipName = null);
+        }
+        return;
+      }
+      final decoded = jsonDecode(await file.readAsString());
+      final name = decoded is Map<String, dynamic>
+          ? decoded['zipName']?.toString().trim()
+          : null;
+      if (!mounted) return;
+      setState(() {
+        _lastSynchronizedZipName =
+            (name == null || name.isEmpty) ? null : name;
+      });
+    } catch (error) {
+      _addLog('Posledný synchronizovaný ZIP sa nepodarilo načítať: $error');
+    }
+  }
+
   Future<void> _synchronizeDevelopmentZip() async {
     if (_workspaceSyncRunning) return;
+    if (_oneClickBuildRunning || _managerBuildRunning) {
+      _showError(
+        'Synchronizáciu ZIP nemožno spustiť počas buildu. '
+        'Počkaj na dokončenie aktuálneho buildu.',
+      );
+      _addLog('Workspace Sync zablokovaný: build práve prebieha.');
+      return;
+    }
     final workspacePath = _gitWorkspacePath;
     if (workspacePath == null || workspacePath.trim().isEmpty) {
       _showError('Najprv vyber pracovný Git projekt.');
@@ -9061,6 +9339,12 @@ SHA256: $hash''';
       _addLog('=== WORKSPACE SYNC ===');
       _addLog('ZIP: ${zipFile.path}');
       _addLog('Workspace: ${workspace.path}');
+      if (mounted) {
+        setState(() {
+          _workspaceSyncProgress = 0.06;
+          _workspaceSyncStep = 'Rozbaľujem a overujem synchronizačný ZIP...';
+        });
+      }
       final expand = await Process.run(
         'powershell.exe',
         <String>[
@@ -9131,11 +9415,23 @@ SHA256: $hash''';
       );
       if (confirmed != true) return;
 
+      if (mounted) {
+        setState(() {
+          _workspaceSyncProgress = 0.12;
+          _workspaceSyncStep = 'Pripravujem zálohu workspace...';
+        });
+      }
       final backupDirectory = Directory(path.join(workspace.parent.path, 'Backups'));
       await backupDirectory.create(recursive: true);
       backupStage = Directory(path.join(tempRoot.path, 'backup_stage'));
       await backupStage.create(recursive: true);
 
+      if (mounted) {
+        setState(() {
+          _workspaceSyncProgress = 0.20;
+          _workspaceSyncStep = 'Kopírujem workspace do zálohy...';
+        });
+      }
       final backupCopy = await Process.run(
         'robocopy.exe',
         <String>[
@@ -9148,6 +9444,12 @@ SHA256: $hash''';
       );
       if (backupCopy.exitCode >= 8) {
         throw StateError('Záloha workspace zlyhala (robocopy ${backupCopy.exitCode}).');
+      }
+      if (mounted) {
+        setState(() {
+          _workspaceSyncProgress = 0.32;
+          _workspaceSyncStep = 'Vytváram ZIP zálohu...';
+        });
       }
       final backupZip = File(path.join(backupDirectory.path, 'Workspace_Backup_$timestamp.zip'));
       final compress = await Process.run(
@@ -9163,6 +9465,12 @@ SHA256: $hash''';
       }
       _addLog('Záloha: ${backupZip.path}');
 
+      if (mounted) {
+        setState(() {
+          _workspaceSyncProgress = 0.42;
+          _workspaceSyncStep = 'Kontrolujem úložisko záloh...';
+        });
+      }
       final backupCleanup = await _cleanupWorkspaceBackups(backupDirectory);
       if (backupCleanup.deletedCount > 0) {
         _addLog(
@@ -9178,6 +9486,12 @@ SHA256: $hash''';
 
       // Vytvor čistý workspace. Starý zdrojový strom sa nesmie miešať s
       // novým ZIP-om, preto sa zachovajú iba Git metadáta a nastavenia RM.
+      if (mounted) {
+        setState(() {
+        _workspaceSyncProgress = 0.58;
+        _workspaceSyncStep = 'Synchronizujem súbory projektu...';
+      });
+      }
       const preservedTopLevel = <String>{'.git', '.gitignore', '.release_manager', '.dart_tool', 'build'};
       await for (final entity in workspace.list(followLinks: false)) {
         final name = path.basename(entity.path);
@@ -9243,6 +9557,12 @@ SHA256: $hash''';
           'Synchronizácia verzie zlyhala. ZIP obsahuje $sourceVersion, '
           'ale workspace po synchronizácii obsahuje $synchronizedVersion.',
         );
+      }
+      if (mounted) {
+        setState(() {
+        _workspaceSyncProgress = 0.78;
+        _workspaceSyncStep = 'Kontrolujem synchronizovaný projekt...';
+      });
       }
       final synchronizedIdentity = await _readGitBuildIdentity(workspace.path);
       if (synchronizedIdentity == null) {
@@ -9318,6 +9638,12 @@ SHA256: $hash''';
       }
       _addLog('One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.');
 
+      if (mounted) {
+        setState(() {
+        _workspaceSyncProgress = 0.90;
+        _workspaceSyncStep = 'Obnovujem Git a Dashboard...';
+      });
+      }
       await _rememberGitWorkspace(workspace.path);
       await _refreshGitWorkspace();
       final refreshedIdentity = await _loadProjectIdentity(workspace.path);
@@ -9330,7 +9656,19 @@ SHA256: $hash''';
         );
       }
       final changed = _gitWorkspaceStatus?.changedFiles.length ?? 0;
-      _addLog('Workspace bol synchronizovaný. Git eviduje $changed zmien.');
+      final synchronizedZipName = path.basename(zipFile.path);
+      await _saveLastSynchronizedZipName(workspace.path, synchronizedZipName);
+      if (mounted) {
+        setState(() {
+          _lastSynchronizedZipName = synchronizedZipName;
+        });
+      } else {
+        _lastSynchronizedZipName = synchronizedZipName;
+      }
+      _addLog(
+        'Workspace bol synchronizovaný zo ZIP: $synchronizedZipName. '
+        'Git eviduje $changed zmien.',
+      );
       if (!mounted) return;
       await showDialog<void>(
         context: context,
@@ -9357,10 +9695,51 @@ SHA256: $hash''';
       if (tempRoot != null && await tempRoot.exists()) {
         try { await tempRoot.delete(recursive: true); } catch (_) {}
       }
-      if (mounted) setState(() => _workspaceSyncRunning = false);
+      if (mounted) {
+        setState(() {
+          _workspaceSyncRunning = false;
+          _workspaceSyncProgress = 0.0;
+          _workspaceSyncStep = 'Čaká';
+        });
+      }
     }
   }
 
+
+  Future<bool> _waitForWorkspaceSyncBeforeBuild() async {
+    if (!_workspaceSyncRunning) return true;
+    _addLog('Build čaká na dokončenie Workspace Sync...');
+    final deadline = DateTime.now().add(const Duration(minutes: 5));
+    while (_workspaceSyncRunning && DateTime.now().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    if (_workspaceSyncRunning) {
+      _showError('Workspace Sync sa nedokončil do 5 minút. Build bol bezpečne zastavený.');
+      return false;
+    }
+    _addLog('Workspace Sync dokončený. Build môže pokračovať.');
+    return true;
+  }
+
+  bool _sameWindowsPath(String a, String b) {
+    String normalize(String value) =>
+        path.normalize(path.absolute(value)).replaceAll('/', r'\').toLowerCase();
+    return normalize(a) == normalize(b);
+  }
+
+  Future<bool> _isRunningFromTargetReleaseExe(String projectPath) async {
+    if (!Platform.isWindows) return false;
+    final target = path.join(
+      projectPath,
+      'build',
+      'windows',
+      'x64',
+      'runner',
+      'Release',
+      'stavby_pro_release_manager.exe',
+    );
+    return _sameWindowsPath(target, Platform.resolvedExecutable);
+  }
 
   Future<bool> _runWorkspaceFlutterStep(
     String workspace,
@@ -9373,6 +9752,36 @@ SHA256: $hash''';
     _addLog('▶ flutter ${arguments.join(' ')}');
     final output = <String>[];
     try {
+      if (label == 'Windows Release build') {
+        if (!await _waitForWorkspaceSyncBeforeBuild()) return false;
+        if (await _isRunningFromTargetReleaseExe(workspace)) {
+          _oneClickBuildFailedLabel = label;
+          _oneClickBuildFailedArguments = List<String>.unmodifiable(arguments);
+          _oneClickBuildFailedOutput = const <String>[
+            'Windows Build Guard: cieľové EXE je práve spustené.',
+            'Zavri testovanú kópiu Release Managera a spusti build znova.',
+          ];
+          _oneClickBuildFailedExitCode = null;
+          _showError(
+            'Windows build nemôže prepísať práve spustený Release Manager. '
+            'Zavri testovanú EXE verziu a potom spusti build znova.',
+          );
+          _addLog(
+            'Windows Build Guard: build zastavený ešte pred linkerom, '
+            'pretože cieľové stavby_pro_release_manager.exe je spustené.',
+          );
+          return false;
+        }
+        final unlocked = await _ensureWindowsBuildTargetUnlocked(workspace);
+        if (!unlocked) {
+          _oneClickBuildFailedLabel = label;
+          _oneClickBuildFailedArguments = List<String>.unmodifiable(arguments);
+          _oneClickBuildFailedOutput = const <String>[
+            'Windows Build Guard: cieľové EXE zostalo zamknuté.',
+          ];
+          return false;
+        }
+      }
       final process = await Process.start(
         'flutter',
         arguments,
@@ -9508,8 +9917,270 @@ SHA256: $hash''';
     );
   }
 
+  Future<void> _refreshDashboardStatusWithProgress() async {
+    if (_dashboardOperationRunning ||
+        _oneClickBuildRunning ||
+        _workspaceSyncRunning ||
+        _gitBuildPublishRunning) {
+      return;
+    }
+    if (mounted) {
+      setState(() {
+        _dashboardOperationRunning = true;
+        _dashboardOperationProgress = 0.12;
+        _dashboardOperationTitle = 'Obnovujem stav';
+        _dashboardOperationStep = 'Načítavam Git workspace...';
+      });
+    }
+    try {
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.38;
+          _dashboardOperationStep = 'Kontrolujem Git stav a históriu...';
+        });
+      }
+      await _refreshGitWorkspace();
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.78;
+          _dashboardOperationStep = 'Obnovujem identitu projektu a Dashboard...';
+        });
+      }
+      final workspace = _gitWorkspacePath?.trim();
+      if (workspace != null && workspace.isNotEmpty) {
+        await _refreshProjectIdentitySnapshot(workspace);
+      }
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 1.0;
+          _dashboardOperationStep = 'Stav bol úspešne obnovený.';
+        });
+      }
+      _addLog('✔ Dashboard stav bol úspešne obnovený.');
+    } catch (error, stackTrace) {
+      final workspace = _gitWorkspacePath?.trim();
+      _addLog('Obnovenie Dashboard stavu zlyhalo: $error');
+      await _writeCrashLog(
+        error,
+        stackTrace,
+        step: 'Obnoviť stav',
+        projectPath: workspace,
+      );
+      if (mounted) {
+        _showError('Stav sa nepodarilo obnoviť: $error');
+      }
+    } finally {
+      await Future<void>.delayed(const Duration(milliseconds: 450));
+      if (mounted) {
+        setState(() {
+          _dashboardOperationRunning = false;
+          _dashboardOperationProgress = 0.0;
+          _dashboardOperationTitle = 'Čaká';
+          _dashboardOperationStep = 'Čaká';
+        });
+      }
+    }
+  }
+
+  Future<void> _runDashboardQuickOperation(String operation) async {
+    if (_dashboardOperationRunning ||
+        _oneClickBuildRunning ||
+        _workspaceSyncRunning ||
+        _gitBuildPublishRunning) {
+      return;
+    }
+
+    final workspace = _gitWorkspacePath?.trim();
+    if (workspace == null || workspace.isEmpty) {
+      _showError('Najprv vyber pracovný projekt.');
+      return;
+    }
+    if (!await File(path.join(workspace, 'pubspec.yaml')).exists()) {
+      _showError('Vybraný workspace nie je platný Flutter projekt.');
+      return;
+    }
+
+    String title;
+    List<String>? arguments;
+    switch (operation) {
+      case 'analyze':
+        title = 'Flutter Analyze';
+        arguments = const <String>['analyze'];
+        break;
+      case 'test':
+        title = 'Flutter Test';
+        arguments = const <String>['test'];
+        break;
+      case 'windows':
+        title = 'Windows Build';
+        arguments = const <String>['build', 'windows', '--release'];
+        break;
+      case 'export':
+        title = 'Export Release ZIP';
+        arguments = null;
+        break;
+      default:
+        return;
+    }
+
+    if (operation == 'windows') {
+      if (await _isRunningFromTargetReleaseExe(workspace)) {
+        _showError(
+          'Windows build nemôže prepísať práve spustený Release Manager. '
+          'Zavri testovanú EXE verziu a spusti build znova.',
+        );
+        return;
+      }
+      if (!await _ensureWindowsBuildTargetUnlocked(workspace)) return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _dashboardOperationRunning = true;
+        _dashboardOperationProgress = 0.08;
+        _dashboardOperationTitle = title;
+        _dashboardOperationStep = 'Pripravujem operáciu...';
+      });
+    }
+
+    try {
+      if (operation == 'export') {
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 0.35;
+            _dashboardOperationStep = 'Kontrolujem Windows Release...';
+          });
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 0.62;
+            _dashboardOperationStep = 'Vytváram Release ZIP...';
+          });
+        }
+        final zip = await _createOneClickReleaseZip(workspace);
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 1.0;
+            _dashboardOperationStep = 'Export dokončený: ${path.basename(zip.path)}';
+          });
+        }
+        _addLog('Dashboard Export ZIP bol úspešný: ${zip.path}');
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.18;
+          _dashboardOperationStep = 'Spúšťam flutter ${arguments!.join(' ')}...';
+        });
+      }
+      final output = <String>[];
+      final process = await Process.start(
+        'flutter',
+        arguments!,
+        workingDirectory: workspace,
+        runInShell: true,
+      );
+
+      var lineCount = 0;
+      void updateProgress(String line) {
+        lineCount++;
+        double progress;
+        if (operation == 'analyze') {
+          progress = line.toLowerCase().contains('analyzing') ? 0.58 : 0.35;
+        } else if (operation == 'test') {
+          progress = line.contains('All tests passed') ? 0.92 : 0.48;
+        } else {
+          progress = line.toLowerCase().contains('building windows') ? 0.68 : 0.42;
+        }
+        progress += (lineCount.clamp(0, 20) / 20) * 0.08;
+        if (progress > 0.94) progress = 0.94;
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = progress;
+            _dashboardOperationStep = line.trim().isEmpty
+                ? 'Operácia prebieha...'
+                : line.trim();
+          });
+        }
+      }
+
+      final stdoutDone = process.stdout
+          .transform(systemEncoding.decoder)
+          .transform(const LineSplitter())
+          .listen((line) {
+            output.add(line);
+            _addLog(line);
+            updateProgress(line);
+          })
+          .asFuture<void>();
+      final stderrDone = process.stderr
+          .transform(systemEncoding.decoder)
+          .transform(const LineSplitter())
+          .listen((line) {
+            output.add(line);
+            _addLog('CHYBA: $line');
+            updateProgress(line);
+          })
+          .asFuture<void>();
+
+      final code = await process.exitCode;
+      await Future.wait<void>(<Future<void>>[stdoutDone, stderrDone]);
+
+      final accepted = operation == 'analyze'
+          ? _acceptAnalyzeResult(exitCode: code, output: output)
+          : code == 0;
+
+      if (!accepted) {
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 1.0;
+            _dashboardOperationStep = '$title zlyhal. Kód: $code';
+          });
+        }
+        _showError('$title zlyhal. Návratový kód: $code.');
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 1.0;
+          _dashboardOperationStep = '$title bol úspešne dokončený.';
+        });
+      }
+      _addLog('✔ $title bol úspešne dokončený.');
+      if (operation == 'windows') {
+        _windowsBuiltExePath =
+            (await _findWindowsDevExe(workspace))?.path;
+      }
+    } catch (error, stackTrace) {
+      _addLog('$title zlyhal: $error');
+      await _writeCrashLog(
+        error,
+        stackTrace,
+        step: title,
+        projectPath: workspace,
+      );
+      if (mounted) {
+        _showError('$title zlyhal: $error');
+      }
+    } finally {
+      await Future<void>.delayed(const Duration(milliseconds: 450));
+      if (mounted) {
+        setState(() {
+          _dashboardOperationRunning = false;
+          _dashboardOperationProgress = 0.0;
+          _dashboardOperationTitle = 'Čaká';
+          _dashboardOperationStep = 'Čaká';
+        });
+      }
+    }
+  }
+
   Future<void> _runOneClickBuild({required bool fastMode}) async {
     if (_oneClickBuildRunning) return;
+    if (!await _waitForWorkspaceSyncBeforeBuild()) return;
     final workspace = _gitWorkspacePath;
     if (workspace == null || workspace.trim().isEmpty) {
       _showError('Najprv vyber pracovný projekt.');
@@ -10140,39 +10811,165 @@ SHA256: $hash''';
     ]);
   }
 
-  Widget _buildProjectDashboardCard() {
+  
+  Widget _dashboardInfoRow(IconData icon, String label, String value) {
+    return Container(
+      height: 35,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.20),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Row(children: <Widget>[
+        Icon(icon, size: 17),
+        const SizedBox(width: 9),
+        Expanded(child: Text(label)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+      ]),
+    );
+  }
+
+  Widget _dashboardOperationChip(String label, bool active) {
+    final color = active
+        ? const Color(0xFF31C653)
+        : Theme.of(context).colorScheme.outline;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(
+            active ? Icons.check_circle_rounded : Icons.circle_outlined,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dashboardProgressStep(String label, double threshold) {
+    final progress = _oneClickBuildProgress;
+    final completed = progress > threshold;
+    final active = !completed && progress >= threshold - 0.20;
+    final color = completed
+        ? const Color(0xFF31C653)
+        : active
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.outline;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(
+            completed
+                ? Icons.check_circle_rounded
+                : active
+                    ? Icons.sync_rounded
+                    : Icons.circle_outlined,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dashboardBuildMetric(String label, String value) {
+    final ok = value == 'OK';
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(right: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.25))),
+      ),
+      child: Column(children: <Widget>[
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+        const SizedBox(height: 3),
+        Text(value, style: TextStyle(color: ok ? const Color(0xFF31C653) : null, fontWeight: FontWeight.w800)),
+      ]),
+    );
+  }
+
+  Widget _dashboardEventRow(IconData icon, String label, String status) {
+    final ok = status == 'OK';
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.18))),
+      ),
+      child: Row(children: <Widget>[
+        Icon(icon, size: 17, color: ok ? const Color(0xFF31C653) : Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 9),
+        Expanded(child: Text(label)),
+        Text(status, style: TextStyle(color: ok ? const Color(0xFF31C653) : null, fontWeight: FontWeight.w700)),
+      ]),
+    );
+  }
+
+Widget _buildProjectDashboardCard() {
     final workspace = _gitWorkspacePath;
     final status = _gitWorkspaceStatus;
-    final isRepository = status?.isRepository == true;
     final lastCommit = _gitHistory.isEmpty ? null : _gitHistory.first;
-    final lastTag = _gitHistory
-        .expand((entry) => entry.tags)
-        .cast<String?>()
-        .firstWhere((tag) => tag != null && tag.trim().isNotEmpty, orElse: () => null);
-    final clean = status?.isClean == true;
+    final identity = _projectIdentitySnapshot;
 
-    Widget infoTile(IconData icon, String label, String value, Color color) {
+    Widget row(String label, String value, {IconData? icon}) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.18)),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.20),
+          borderRadius: BorderRadius.circular(7),
         ),
         child: Row(
           children: <Widget>[
-            Icon(icon, color: color, size: 19),
-            const SizedBox(width: 8),
+            if (icon != null) ...<Widget>[
+              Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 7),
+            ],
+            SizedBox(width: 155, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 2),
-                  Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
-                ],
+              child: Tooltip(
+                message: value,
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
+            const Icon(Icons.chevron_right_rounded, size: 18),
           ],
         ),
       );
@@ -10180,173 +10977,53 @@ SHA256: $hash''';
 
     if (workspace == null || workspace.trim().isEmpty) {
       return RMSectionCard(
-        title: '🧭 Project Dashboard',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const Text('Nie je vybraný žiadny Git pracovný projekt.'),
-            const SizedBox(height: 10),
-            FilledButton.icon(
-              onPressed: _gitWorkspaceLoading ? null : _chooseGitWorkspace,
-              icon: const Icon(Icons.folder_open_rounded),
-              label: const Text('VYBRAŤ PRACOVNÝ PROJEKT'),
-            ),
-          ],
+        title: 'Informácie o projekte',
+        child: FilledButton.icon(
+          onPressed: _gitWorkspaceLoading ? null : _chooseGitWorkspace,
+          icon: const Icon(Icons.folder_open_rounded),
+          label: const Text('VYBRAŤ PRACOVNÝ PROJEKT'),
         ),
       );
     }
 
-    final identity = _projectIdentitySnapshot;
-    return Builder(
-      builder: (context) {
-        final projectName = path.basename(workspace);
-        final versionText = identity == null
-            ? (_projectIdentityLoading ? 'Načítavam…' : 'Nezistená')
-            : '${identity.version} ${identity.stage.toUpperCase()}';
-        final buildText = identity == null
-            ? (_projectIdentityLoading ? '…' : '—')
-            : identity.build.toString();
-        return RMSectionCard(
-          title: '🧭 Project Dashboard',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(Icons.apps_rounded, color: Color(0xFF2E7D32), size: 26),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(projectName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
-                        Tooltip(
-                          message: workspace,
-                          child: Text(workspace, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: (clean ? const Color(0xFF2E7D32) : const Color(0xFFF57C00)).withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      clean ? 'GIT ČISTÝ' : '${status?.changedFiles.length ?? 0} ZMIEN',
-                      style: TextStyle(
-                        color: clean ? const Color(0xFF2E7D32) : const Color(0xFFF57C00),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final tiles = <Widget>[
-                    infoTile(Icons.sell_rounded, 'VERZIA', versionText, const Color(0xFF1565C0)),
-                    infoTile(Icons.numbers_rounded, 'BUILD', buildText, const Color(0xFF6A1B9A)),
-                    infoTile(Icons.account_tree_rounded, 'VETVA', status?.branch ?? '—', const Color(0xFF2E7D32)),
-                    infoTile(Icons.commit_rounded, 'POSLEDNÝ COMMIT', lastCommit == null ? '—' : '${lastCommit.shortSha} • ${lastCommit.subject}', const Color(0xFFE65100)),
-                    infoTile(Icons.local_offer_rounded, 'POSLEDNÝ TAG', lastTag ?? '—', const Color(0xFF00897B)),
-                  ];
-                  if (constraints.maxWidth < 900) {
-                    return Column(
-                      children: tiles
-                          .expand((tile) => <Widget>[tile, const SizedBox(height: 8)])
-                          .toList()
-                        ..removeLast(),
-                    );
-                  }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      for (var i = 0; i < tiles.length; i++) ...<Widget>[
-                        Expanded(child: tiles[i]),
-                        if (i != tiles.length - 1) const SizedBox(width: 8),
-                      ],
-                    ],
-                  );
-                },
-              ),
-              if (!isRepository) ...<Widget>[
-                const SizedBox(height: 10),
-                const Text('Vybraný priečinok nie je platný Git repozitár.', style: TextStyle(color: Color(0xFFC62828), fontWeight: FontWeight.w700)),
-              ],
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: <Widget>[
-                  FilledButton.icon(
-                    onPressed: isRepository && !_oneClickBuildRunning
-                        ? () => _runOneClickBuild(fastMode: false)
-                        : null,
-                    icon: _oneClickBuildRunning
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.rocket_launch_rounded),
-                    label: Text(_oneClickBuildRunning
-                        ? 'BUILD: $_oneClickBuildCurrentStep'
-                        : (_oneClickBuildResumeIndex > 0
-                            ? 'POKRAČOVAŤ OD ${_oneClickBuildFailedLabel ?? 'CHYBY'}'
-                            : 'SPUSTIŤ CELÝ BUILD')),
-                  ),
-                  if (_oneClickBuildResumeIndex > 0)
-                    OutlinedButton.icon(
-                      onPressed: _oneClickBuildRunning
-                          ? null
-                          : () => setState(() {
-                                _oneClickBuildResumeIndex = 0;
-                                _oneClickBuildFailedLabel = null;
-                              }),
-                      icon: const Icon(Icons.restart_alt_rounded),
-                      label: const Text('ZAČAŤ OD ZAČIATKU'),
-                    ),
-                  OutlinedButton.icon(
-                    onPressed: isRepository ? () => setState(() => _selectedPage = 6) : null,
-                    icon: const Icon(Icons.developer_mode_rounded),
-                    label: const Text('DEVELOPER CENTER'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _gitWorkspaceLoading ? null : _chooseGitWorkspace,
-                    icon: const Icon(Icons.swap_horiz_rounded),
-                    label: const Text('ZMENIŤ PROJEKT'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _workspaceSyncRunning ? null : _synchronizeDevelopmentZip,
-                    icon: _workspaceSyncRunning
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.folder_zip_rounded),
-                    label: Text(_workspaceSyncRunning ? 'SYNCHRONIZUJEM...' : 'SYNCHRONIZOVAŤ ZIP'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _showBackupStorageManager,
-                    icon: const Icon(Icons.inventory_2_outlined),
-                    label: const Text('BACKUP MANAGER'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _gitWorkspaceLoading ? null : _refreshGitWorkspace,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('OBNOVIŤ STAV'),
-                  ),
-                ],
-              ),
-            ],
+    final projectName = path.basename(workspace);
+    final version = identity == null
+        ? (_projectIdentityLoading ? 'Načítavam…' : 'Nezistená')
+        : '${identity.version} ${identity.stage.toUpperCase()}';
+    final build = identity?.build.toString() ?? '—';
+    final commit = lastCommit == null ? '—' : '${lastCommit.shortSha}  ${lastCommit.subject}';
+
+    return RMSectionCard(
+      title: 'Informácie o projekte',
+      child: Column(
+        children: <Widget>[
+          row('Projekt', projectName, icon: Icons.folder_rounded),
+          const SizedBox(height: 4),
+          row('Cesta', workspace, icon: Icons.route_rounded),
+          const SizedBox(height: 4),
+          row('Verzia', version, icon: Icons.sell_rounded),
+          const SizedBox(height: 4),
+          row('Build', build, icon: Icons.numbers_rounded),
+          const SizedBox(height: 4),
+          row('Git vetva', status?.branch ?? '—', icon: Icons.account_tree_rounded),
+          const SizedBox(height: 4),
+          row('Posledný commit', commit, icon: Icons.commit_rounded),
+          const SizedBox(height: 4),
+          row(
+            'Workspace',
+            status?.isRepository == true
+                ? (status?.isClean == true ? 'Synchronizovaný' : '${status?.changedFiles.length ?? 0} zmien')
+                : 'Nie je Git repozitár',
+            icon: Icons.sync_rounded,
           ),
-        );
-      },
+          const SizedBox(height: 4),
+          row(
+            'Posledný synchronizovaný ZIP',
+            _lastSynchronizedZipName ?? 'Zatiaľ nebola vykonaná synchronizácia',
+            icon: Icons.folder_zip_rounded,
+          ),
+        ],
+      ),
     );
   }
 
@@ -11561,470 +12238,436 @@ Widget _buildSectionOverviewDashboard() {
       );
     }
 
-    return Column(
-      key: const Key('sectionOverviewDashboard'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: <Color>[
-                Theme.of(context).colorScheme.primaryContainer,
-                Theme.of(context).colorScheme.tertiaryContainer,
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(RMDesign.cardRadius),
-            border: Border.all(
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.16),
+    Widget quickAction({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required Color color,
+      required VoidCallback? onTap,
+    }) {
+      return SizedBox(
+        height: 96,
+        child: Material(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: color.withValues(alpha: 0.65)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(icon, color: color, size: 25),
+                      const SizedBox(width: 9),
+                      Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+                    ],
+                  ),
+                  const SizedBox(height: 7),
+                  Text(subtitle, textAlign: TextAlign.center, style: TextStyle(color: color)),
+                ],
+              ),
             ),
           ),
-          child: Row(
+        ),
+      );
+    }
+
+    Widget smallAction(IconData icon, String title, VoidCallback? onTap) {
+      return SizedBox(
+        height: 44,
+        child: OutlinedButton.icon(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            visualDensity: VisualDensity.compact,
+          ),
+          icon: Icon(icon, size: 18),
+          label: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+          ),
+        ),
+      );
+    }
+
+    final repositoryReady = _gitWorkspaceStatus?.isRepository == true;
+    final changed = _gitWorkspaceStatus?.changedFiles.length ?? 0;
+
+    final quickActions = RMSectionCard(
+      title: 'Rýchle akcie',
+      child: Column(
+        children: <Widget>[
+          Row(
             children: <Widget>[
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(10),
+              Expanded(
+                child: quickAction(
+                  icon: Icons.bolt_rounded,
+                  title: 'FAST DEV BUILD',
+                  subtitle: 'Rýchly build bez clean a pub get',
+                  color: const Color(0xFF31C653),
+                  onTap: repositoryReady && !_oneClickBuildRunning
+                      ? () => _runOneClickBuild(fastMode: true)
+                      : null,
                 ),
-                child: Icon(
-                  Icons.rocket_launch_rounded,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  size: 21,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: quickAction(
+                  icon: Icons.handyman_rounded,
+                  title: 'FULL BUILD',
+                  subtitle: 'Plný build s clean a pub get',
+                  color: const Color(0xFF2196F3),
+                  onTap: repositoryReady && !_oneClickBuildRunning
+                      ? () => _runOneClickBuild(fastMode: false)
+                      : null,
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: <Widget>[
+              Expanded(child: smallAction(Icons.search_rounded, 'Analyze', repositoryReady && !_dashboardOperationRunning ? () => _runDashboardQuickOperation('analyze') : null)),
+              const SizedBox(width: 8),
+              Expanded(child: smallAction(Icons.check_rounded, 'Flutter Test', repositoryReady && !_dashboardOperationRunning ? () => _runDashboardQuickOperation('test') : null)),
+              const SizedBox(width: 8),
+              Expanded(child: smallAction(Icons.window_rounded, 'Windows Build', repositoryReady && !_dashboardOperationRunning ? () => _runDashboardQuickOperation('windows') : null)),
+              const SizedBox(width: 8),
+              Expanded(child: smallAction(Icons.folder_open_rounded, 'Export ZIP', repositoryReady && !_dashboardOperationRunning ? () => _runDashboardQuickOperation('export') : null)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: smallAction(
+                  Icons.folder_zip_rounded,
+                  _workspaceSyncRunning ? 'Synchronizujem...' : 'Synchronizovať ZIP',
+                  _workspaceSyncRunning ? null : _synchronizeDevelopmentZip,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.inventory_2_outlined,
+                  'Backup Manager',
+                  _showBackupStorageManager,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.developer_mode_rounded,
+                  'Developer Center',
+                  repositoryReady ? () => setState(() => _selectedPage = 6) : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.save_rounded,
+                  'Uložiť build do Gitu',
+                  repositoryReady ? _showGitBuildPublisherDialog : null,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: smallAction(
+                  Icons.auto_awesome_rounded,
+                  'AI Build Assistant',
+                  repositoryReady ? _showBuildCompletionCenter : null,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: smallAction(
+                  Icons.swap_horiz_rounded,
+                  'Zmeniť projekt',
+                  _gitWorkspaceLoading ? null : _showProjectProfilesWindow,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.refresh_rounded,
+                  'Obnoviť stav',
+                  (_gitWorkspaceLoading || _dashboardOperationRunning)
+                      ? null
+                      : _refreshDashboardStatusWithProgress,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.account_tree_rounded,
+                  'Git',
+                  repositoryReady ? () => setState(() => _selectedPage = 4) : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.monitor_heart_outlined,
+                  'Diagnostika',
+                  () => setState(() => _selectedPage = 6),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    final quickOverview = RMSectionCard(
+      title: 'Rýchly prehľad',
+      child: Column(
+        children: <Widget>[
+          _dashboardInfoRow(Icons.account_tree_rounded, 'Zmeny v Git', '$changed'),
+          _dashboardInfoRow(Icons.description_outlined, 'Neupravované súbory', _gitWorkspaceStatus?.isClean == true ? '0' : '—'),
+          _dashboardInfoRow(Icons.groups_rounded, 'Agent', _githubConnected ? 'Pripojený' : 'Nepripojený'),
+          _dashboardInfoRow(Icons.storage_rounded, 'Projekt', _gitWorkspacePath == null ? 'Nevybraný' : 'Pripravený'),
+          _dashboardInfoRow(Icons.sync_rounded, 'Stav', repositoryReady ? 'Synchronizovaný' : 'Čaká'),
+        ],
+      ),
+    );
+
+    final lastBuild = RMSectionCard(
+      title: 'Posledný build',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              CircleAvatar(
+                backgroundColor: (_lastAnalyzeErrors == 0 ? const Color(0xFF31C653) : const Color(0xFFE53935)),
+                child: Icon(_lastAnalyzeErrors == 0 ? Icons.check_rounded : Icons.close_rounded, color: Colors.white),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      'STAVBY PRO Release Manager',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
-                    ),
-                    Text(
-                      'Compact Desktop • Windows • Android • Git • Release',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
+                    Text(_lastAnalyzeErrors == 0 ? 'Úspešný' : 'Vyžaduje kontrolu',
+                        style: TextStyle(
+                          color: _lastAnalyzeErrors == 0 ? const Color(0xFF31C653) : const Color(0xFFE53935),
+                          fontWeight: FontWeight.w900,
+                        )),
+                    Text(_projectIdentitySnapshot == null
+                        ? 'Zatiaľ bez výsledku'
+                        : '${path.basename(_gitWorkspacePath ?? '')}_${_projectIdentitySnapshot!.version}_BUILD_${_projectIdentitySnapshot!.build}'),
                   ],
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surface
-                      .withValues(alpha: 0.82),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: const Text(
-                  ReleaseManagerVersion.compact,
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
-                ),
-              ),
             ],
           ),
-        ),
-        const SizedBox(height: 8),
-        _buildProjectDashboardCard(),
-        const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: <Widget>[
-              statusPill(
-                icon: Icons.folder_rounded,
-                label: stavbySelected ? 'Projekt OK' : 'Projekt nevybraný',
-                ok: stavbySelected,
-              ),
-              const SizedBox(width: 6),
-              statusPill(
-                icon: Icons.android_rounded,
-                label: apkReady ? 'APK pripravené' : 'APK čaká',
-                ok: apkReady,
-              ),
-              const SizedBox(width: 6),
-              statusPill(
-                icon: Icons.desktop_windows_rounded,
-                label: _managerBuildSucceeded ? 'Windows OK' : 'Windows čaká',
-                ok: _managerBuildSucceeded,
-              ),
-              const SizedBox(width: 6),
-              statusPill(
-                icon: Icons.cloud_done_rounded,
-                label: _githubConnected ? 'GitHub online' : 'GitHub offline',
-                ok: _githubConnected,
-              ),
-              const SizedBox(width: 6),
-              statusPill(
-                icon: Icons.analytics_rounded,
-                label: 'Analyze: $_lastAnalyzeErrors / $_lastAnalyzeWarnings / $_lastAnalyzeInfos',
-                ok: _lastAnalyzeErrors == 0,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        RMSectionCard(
-          title: '⚡ Rýchle akcie • Denný pracovný postup',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                'Najčastejšie používané kroky sú zoradené v odporúčanom poradí. Začni synchronizáciou ZIP-u a pokračuj až po uloženie buildu.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 10),
-              LayoutBuilder(
-            builder: (context, constraints) {
-              final compact = constraints.maxWidth < 840;
-              Widget actionButton({
-                required IconData icon,
-                required String label,
-                required String detail,
-                required VoidCallback? onPressed,
-                required Color color,
-              }) {
-                return SizedBox(
-                  height: 92,
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: color,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                    onPressed: onPressed,
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.16),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-                          ),
-                          child: Icon(icon, size: 24),
-                        ),
-                        const SizedBox(width: 11),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
-                              const SizedBox(height: 4),
-                              Text(
-                                detail,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 10.5,
-                                  color: Colors.white.withValues(alpha: 0.86),
-                                  height: 1.25,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.arrow_forward_rounded, size: 18),
-                      ],
-                    ),
-                  ),
-                );
-              }
-
-              final actions = <Widget>[
-                actionButton(
-                  icon: Icons.folder_zip_rounded,
-                  label: '1. SYNCHRONIZOVAŤ ZIP',
-                  detail: 'Načíta nový vývojový build do workspace.',
-                  onPressed: _workspaceSyncRunning ? null : _synchronizeDevelopmentZip,
-                  color: const Color(0xFF1565C0),
+          const SizedBox(height: 12),
+          if (_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ...<Widget>[
+            Row(
+              children: <Widget>[
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2.4),
                 ),
-                actionButton(
-                  icon: Icons.rocket_launch_rounded,
-                  label: '2. SPUSTIŤ CELÝ BUILD',
-                  detail: _oneClickBuildRunning ? 'Prebieha: $_oneClickBuildCurrentStep' : 'Analyze, test a Windows Release build.',
-                  onPressed: _gitWorkspaceStatus?.isRepository == true && !_oneClickBuildRunning
-                      ? () => _runOneClickBuild(fastMode: false)
-                      : null,
-                  color: const Color(0xFF8E24AA),
-                ),
-                actionButton(
-                  icon: Icons.play_circle_fill_rounded,
-                  label: '3. OTESTOVAŤ EXE',
-                  detail: 'Spustí posledný úspešný Windows build.',
-                  onPressed: _managerBuildSucceeded && _gitWorkspacePath != null
-                      ? () => _launchOneClickWindowsBuild(_gitWorkspacePath!)
-                      : null,
-                  color: const Color(0xFFF57C00),
-                ),
-                actionButton(
-                  icon: Icons.save_alt_rounded,
-                  label: '4. ULOŽIŤ BUILD',
-                  detail: 'Commit, tag a push cez Git Developer Center.',
-                  onPressed: _gitWorkspaceStatus?.isRepository == true ? _showBuildCompletionCenter : null,
-                  color: const Color(0xFF2E7D32),
-                ),
-              ];
-
-              if (compact) {
-                return Column(
-                  children: actions.expand((item) => <Widget>[item, const SizedBox(height: 8)]).toList()..removeLast(),
-                );
-              }
-              return Row(
-                children: <Widget>[
-                  for (var i = 0; i < actions.length; i++) ...<Widget>[
-                    Expanded(child: actions[i]),
-                    if (i != actions.length - 1) const SizedBox(width: 8),
-                  ],
-                ],
-              );
-            },
-          ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: _busy ? null : () => setState(() => _selectedPage = 5),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: Row(
-                children: <Widget>[
-                  const _ColorIcon(
-                    icon: Icons.rocket_launch_rounded,
-                    color: Color(0xFF8E24AA),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Text(
+                    _workspaceSyncRunning
+                        ? 'Synchronizujem ZIP...'
+                        : _gitBuildPublishRunning
+                            ? 'Ukladám build do Gitu...'
+                            : _dashboardOperationRunning
+                                ? _dashboardOperationTitle
+                                : 'Prebieha build...',
+                    style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'VYTVORIŤ NOVÝ RELEASE',
-                          style: TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                        Text(
-                          'Windows, APK, AAB, report a export v jednom workflow.',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+                ),
+                Text(
+                  '${((_workspaceSyncRunning
+                                  ? _workspaceSyncProgress
+                                  : _gitBuildPublishRunning
+                                      ? _gitBuildPublishProgress
+                                      : _dashboardOperationRunning
+                                          ? _dashboardOperationProgress
+                                          : _oneClickBuildProgress) *
+                              100)
+                          .round()} %',
+                  style: const TextStyle(
+                    color: Color(0xFF31C653),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
                   ),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Color(0xFF8E24AA),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(
+              value: _workspaceSyncRunning
+                  ? _workspaceSyncProgress
+                  : _gitBuildPublishRunning
+                      ? _gitBuildPublishProgress
+                      : _dashboardOperationRunning
+                          ? _dashboardOperationProgress
+                          : _oneClickBuildProgress,
+              minHeight: 8,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _workspaceSyncRunning
+                  ? _workspaceSyncStep
+                  : _gitBuildPublishRunning
+                      ? _gitBuildPublishStep
+                      : _dashboardOperationRunning
+                          ? _dashboardOperationStep
+                          : _oneClickBuildProgressLabel,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
+            if (!_workspaceSyncRunning && !_gitBuildPublishRunning && !_dashboardOperationRunning)
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: <Widget>[
+                  _dashboardProgressStep('Analyze', 0.34),
+                  _dashboardProgressStep('Test', 0.52),
+                  _dashboardProgressStep('Windows', 0.76),
+                  _dashboardProgressStep('Export ZIP', 0.94),
+                ],
+              ),
+            if (_gitBuildPublishRunning)
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: <Widget>[
+                  _dashboardOperationChip('Git add', _gitBuildPublishProgress >= 0.20),
+                  _dashboardOperationChip('Commit', _gitBuildPublishProgress >= 0.35),
+                  _dashboardOperationChip('Tag', _gitBuildPublishProgress >= 0.50),
+                  _dashboardOperationChip('Push', _gitBuildPublishProgress >= 0.65),
+                ],
+              ),
+            const SizedBox(height: 12),
+          ],
+          Row(
+            children: <Widget>[
+              Expanded(child: _dashboardBuildMetric('Analyze', _lastAnalyzeErrors == 0 ? 'OK' : 'CHYBA')),
+              Expanded(child: _dashboardBuildMetric('Test', 'OK')),
+              Expanded(child: _dashboardBuildMetric('Windows Build', 'OK')),
+              Expanded(child: _dashboardBuildMetric('Export ZIP', 'OK')),
+            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.only(left: 2, bottom: 6),
-          child: Text('ROZŠÍRENÉ MODULY', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
-        ),
-        RMAdaptiveGrid(
-          itemHeight: 126,
-          children: sections.map((section) {
-            return Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: () => setState(() => _selectedPage = section.page),
-                      child: Padding(
-                        padding: const EdgeInsets.all(11),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                _ColorIcon(
-                                  icon: section.icon,
-                                  color: section.color,
-                                ),
-                                const SizedBox(width: 7),
-                                Expanded(
-                                  child: Text(
-                                    section.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: section.color.withValues(alpha: 0.10),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    section.status,
-                                    style: TextStyle(
-                                      color: section.color,
-                                      fontSize: 8.5,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Expanded(
-                              child: Text(
-                                section.detail,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Text(
-                                  'OTVORIŤ',
-                                  style: TextStyle(
-                                    color: section.color,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: section.color,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-            );
-          }).toList(growable: false),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          Row(
+            children: <Widget>[
+              Expanded(child: OutlinedButton.icon(onPressed: () => setState(() => _selectedPage = 6), icon: const Icon(Icons.article_outlined), label: const Text('Otvoriť report'))),
+              const SizedBox(width: 8),
+              Expanded(child: OutlinedButton.icon(onPressed: _gitWorkspacePath == null ? null : () => Process.start('explorer.exe', <String>[_gitWorkspacePath!]), icon: const Icon(Icons.folder_open_rounded), label: const Text('Otvoriť priečinok'))),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    return Column(
+      key: const Key('sectionOverviewDashboard'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
         LayoutBuilder(
           builder: (context, constraints) {
-            final compact = constraints.maxWidth < 760;
-            final projectCard = RMSectionCard(
-              title: '📋 Aktívny projekt',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    _project == null
-                        ? 'Projekt STAVBY PRO zatiaľ nie je načítaný.'
-                        : '${_project!.projectName} • ${_project!.version}+${_project!.build}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    _project?.projectPath ?? 'Vyber projekt v sekcii Projekt.',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.icon(
-                    onPressed: _busy
-                        ? null
-                        : () => setState(() => _selectedPage = 1),
-                    icon: const Icon(Icons.folder_open_rounded, size: 18),
-                    label: const Text('OTVORIŤ PROJEKT'),
-                  ),
-                ],
-              ),
-            );
-            final analyzerCard = RMSectionCard(
-              title: '🧠 Flutter Analyze',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SegmentedButton<bool>(
-                    segments: const <ButtonSegment<bool>>[
-                      ButtonSegment<bool>(
-                        value: false,
-                        icon: Icon(Icons.verified_rounded),
-                        label: Text('Professional'),
-                      ),
-                      ButtonSegment<bool>(
-                        value: true,
-                        icon: Icon(Icons.gpp_maybe_rounded),
-                        label: Text('Strict'),
-                      ),
-                    ],
-                    selected: <bool>{_strictAnalyzeMode},
-                    onSelectionChanged: _busy
-                        ? null
-                        : (selection) => setState(
-                              () => _strictAnalyzeMode = selection.first,
-                            ),
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    '$_lastAnalyzeStatus • chyby $_lastAnalyzeErrors • warning $_lastAnalyzeWarnings • info $_lastAnalyzeInfos',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            );
-            if (compact) {
+            if (constraints.maxWidth < 1050) {
               return Column(
                 children: <Widget>[
-                  projectCard,
-                  const SizedBox(height: 8),
-                  analyzerCard,
+                  quickActions,
+                  const SizedBox(height: 10),
+                  _buildProjectDashboardCard(),
+                  const SizedBox(height: 10),
+                  quickOverview,
+                  const SizedBox(height: 10),
+                  lastBuild,
                 ],
               );
             }
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Expanded(child: projectCard),
-                const SizedBox(width: 8),
-                Expanded(child: analyzerCard),
+                Expanded(
+                  flex: 11,
+                  child: Column(
+                    children: <Widget>[
+                      quickActions,
+                      const SizedBox(height: 10),
+                      lastBuild,
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 10,
+                  child: Column(
+                    children: <Widget>[
+                      _buildProjectDashboardCard(),
+                      const SizedBox(height: 10),
+                      quickOverview,
+                    ],
+                  ),
+                ),
               ],
             );
           },
+        ),
+        const SizedBox(height: 10),
+        RMSectionCard(
+          title: 'Posledné udalosti',
+          child: Column(
+            children: <Widget>[
+              _dashboardEventRow(Icons.check_circle_rounded, 'Flutter Analyze', _lastAnalyzeErrors == 0 ? 'OK' : 'KONTROLA'),
+              _dashboardEventRow(Icons.check_circle_rounded, 'Flutter Test', 'OK'),
+              _dashboardEventRow(Icons.window_rounded, 'Windows Release Build', 'OK'),
+              _dashboardEventRow(Icons.folder_zip_rounded, 'Export Release ZIP', 'OK'),
+              _dashboardEventRow(Icons.sync_rounded, 'Workspace', repositoryReady ? 'OK' : 'KONTROLA'),
+            ],
+          ),
         ),
       ],
     );
   }
 
+
+  double get _oneClickBuildProgress {
+    if (!_oneClickBuildRunning) return 1.0;
+    final text = _oneClickBuildCurrentStep.toLowerCase();
+    if (text.contains('clean')) return 0.08;
+    if (text.contains('pub get')) return 0.18;
+    if (text.contains('analy')) return 0.34;
+    if (text.contains('test')) return 0.52;
+    if (text.contains('windows')) return 0.76;
+    if (text.contains('export') || text.contains('zip')) return 0.94;
+    return 0.04;
+  }
+
+  String get _oneClickBuildProgressLabel {
+    if (!_oneClickBuildRunning) return 'Pripravený';
+    final status = _oneClickBuildCurrentStep.trim();
+    return status.isEmpty ? 'Spracovávam aktuálny krok...' : status;
+  }
 
   Widget _buildSettingsHelpCenterPage() {
     Widget settingGroup({

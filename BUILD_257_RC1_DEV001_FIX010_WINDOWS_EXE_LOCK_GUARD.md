@@ -1,0 +1,1 @@
+Pre Windows Release build kontroluje zamknutie stavby_pro_release_manager.exe. Ak stará kópia beží, pokúsi sa ju ukončiť cez taskkill a až potom pokračuje. Pri pretrvávajúcom locku build bezpečne zastaví s jasnou správou namiesto LNK1104.

@@ -5,6 +5,3 @@ build/
 .flutter-plugins
 .flutter-plugins-dependencies
 windows/flutter/ephemeral/
-*.pdb
-*.ilk
-*.obj
