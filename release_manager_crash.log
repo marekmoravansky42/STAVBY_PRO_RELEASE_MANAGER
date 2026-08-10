@@ -1,0 +1,10 @@
+============================================================
+Dátum: 2026-08-09T23:37:33.059606
+Verzia: 8.0.0 RC1 Build 257 RC1 DEV001 FIX034A SAFE LOCAL AGENT PATH
+Krok: Workspace Sync
+Chyba: Bad state: Nepodarilo sa odstrániť starú položku tools: PathAccessException: Deletion failed, path = 'C:\SP\Release_Manager\tools' (OS Error: The process cannot access the file because it is being used by another process, errno = 32)
+Stack trace:
+#0      _ReleaseManagerPageState._synchronizeDevelopmentZip (package:stavby_pro_release_manager/main.dart:9507)
+<asynchronous suspension>
+
+

@@ -14,8 +14,11 @@ import '../../core/remote_agents/remote_agent_service.dart';
 import '../../core/remote_agents/scheduler_service.dart';
 import '../../shared/widgets/rm_section_card.dart';
 
+final ValueNotifier<bool> remoteAgentOnlineNotifier = ValueNotifier<bool>(false);
+
 class RemoteAgentsPage extends StatefulWidget {
-  const RemoteAgentsPage({super.key});
+  const RemoteAgentsPage({super.key, this.projectPath});
+  final String? projectPath;
 
   @override
   State<RemoteAgentsPage> createState() => _RemoteAgentsPageState();
@@ -82,7 +85,7 @@ class _RemoteAgentsPageState extends State<RemoteAgentsPage> {
   void dispose() {
     _heartbeatTimer?.cancel();
     _taskPollTimer?.cancel();
-    unawaited(_localAgent.stop());
+    // Local Agent zostáva spustený aj po odchode zo stránky.
     _hostController.dispose();
     _portController.dispose();
     _projectPathController.removeListener(_onProjectPathChanged);
@@ -176,6 +179,7 @@ class _RemoteAgentsPageState extends State<RemoteAgentsPage> {
   void _upsertAgent(RemoteAgent agent, {bool makeCurrent = true}) {
     _agentPool.upsert(agent);
     if (makeCurrent) _agent = agent;
+    remoteAgentOnlineNotifier.value = agent.isOnline;
     for (final step in _pipelineSteps) {
       step.selectedAgentId ??= agent.id;
     }
@@ -191,6 +195,7 @@ class _RemoteAgentsPageState extends State<RemoteAgentsPage> {
         setState(() {
           _agentPool.upsert(refreshed);
           if (_agent?.id == refreshed.id) _agent = refreshed;
+          remoteAgentOnlineNotifier.value = _firstOnlineAgent?.isOnline == true;
         });
       } catch (_) {
         // Záznam ponecháme v poole; po 12 sekundách sa zobrazí ako OFFLINE.
@@ -352,6 +357,7 @@ class _RemoteAgentsPageState extends State<RemoteAgentsPage> {
 
       await _localAgent.start(
         port: _port,
+        projectRoot: widget.projectPath,
         onOutput: (line) {
           if (!mounted || line.trim().isEmpty) return;
           setState(() => _localAgentText = line.trim());
@@ -390,6 +396,7 @@ class _RemoteAgentsPageState extends State<RemoteAgentsPage> {
                 ? null
                 : 'Diagnostika Local Agenta:\n$detail';
             _agent = null;
+            remoteAgentOnlineNotifier.value = false;
             _taskPollTimer?.cancel();
           });
         },

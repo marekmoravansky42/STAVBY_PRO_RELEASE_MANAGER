@@ -1,0 +1,124 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX040 AGENT STARTUP HEARTBEAT
+Dátum a čas: 2026-08-10T08:28:05.481
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 25 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+  error - Undefined name '_dashboardAgentHeartbeatTimer'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:216:5 - undefined_identifier
+   info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:530:8 - prefer_final_fields
+warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:532:7 - unused_field
+warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:533:7 - unused_field
+warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:534:10 - unused_field
+warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:12193:11 - unused_local_variable
+warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:12267:12 - unused_element
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12507:38 - unnecessary_brace_in_string_interps
+
+8 issues found. (ran in 3.6s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+08:24:28  Release Manager 8.0.0 RC1 Build 257 RC1 DEV001 FIX040 AGENT STARTUP HEARTBEAT je pripravený.
+08:24:28  Štart aplikácie: Flutter binding: 0 ms • pred runApp: 0 ms • prvý frame: 29 ms
+08:24:28  Obnovený posledný Git workspace: C:\SP\Release_Manager
+08:24:29  GitHub nastavenie bolo bezpečne načítané.
+08:24:29  Testujem GitHub pripojenie pre marekmoravansky42/stavby-pro-updates...
+08:24:29  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+08:24:29  Git workspace: dev, 18 zmien.
+08:24:29  Predvolený priečinok pre Android APK Release: C:\SP\praca Stavby PRO app-release
+08:24:29  Predvolený priečinok pre STAVBY PRO Windows Release: C:\SP\Export Release win a android
+08:24:29  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+08:24:29  Project Profile obnovený: stavby_pro_release_manager
+08:24:29  Načítavam projekt: C:\SP\Release_Manager
+08:24:29  Načítanie projektu – Načítanie pubspec.yaml...
+08:24:29  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+08:24:29  Projekt otvorený: stavby_pro_release_manager
+08:24:29  Načítaná verzia 8.0.0+257.
+08:24:29  Načítanie projektu – Načítanie histórie vydaní...
+08:24:29  Načítanie projektu – Načítanie histórie vydaní dokončené.
+08:24:29  Načítanie projektu – Kontrola pripravenosti projektu...
+08:24:29  Kontrolujem pripravenosť projektu...
+08:24:29  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+08:24:29  Kontrolujem aktualizáciu Release Managera na GitHube...
+08:24:30  Používaš najnovšiu verziu.
+08:24:31  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+08:24:31  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+08:24:31  Načítanie projektu – Automatická analýza APK...
+08:24:31  Hľadám release APK...
+08:24:31  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+08:24:31  Načítanie projektu – Automatická analýza APK dokončené.
+08:27:19  === WORKSPACE SYNC ===
+08:27:19  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX041_AGENT_LATENCY_HEARTBEAT.zip
+08:27:19  Workspace: C:\SP\Release_Manager
+08:27:50  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-10T08-27-19-075183.zip
+08:27:50  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-09T22-52-04-901500.zip (85.4 MB).
+08:27:50  Backup Manager: automaticky uvoľnené 85.4 MB (1 starých záloh).
+08:27:50  Backup Manager: 10 záloh, 854.4 MB.
+08:27:50  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+08:27:51  Overená identita workspace: 8.0.0+257 DEV.
+08:27:51  Dashboard projekt obnovený po synchronizácii: 8.0.0+257.
+08:27:51  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+08:27:51  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+08:27:51  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+08:27:51  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+08:27:51  Git workspace: dev, 16 zmien.
+08:27:51  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX041_AGENT_LATENCY_HEARTBEAT.zip. Git eviduje 16 zmien.
+08:27:59  One Click Build identita: 8.0.0+257 DEV.
+08:27:59  === ZAČÍNA FAST DEV BUILD ===
+08:27:59  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+08:27:59  ▶ flutter analyze
+08:28:00  Resolving dependencies...
+08:28:00  Downloading packages...
+08:28:00    flutter_lints 5.0.0 (6.0.0 available)
+08:28:00    lints 5.1.1 (6.1.0 available)
+08:28:00    matcher 0.12.19 (0.12.20 available)
+08:28:00    meta 1.18.0 (1.19.0 available)
+08:28:00    test_api 0.7.11 (0.7.13 available)
+08:28:00    vector_math 2.2.0 (2.4.2 available)
+08:28:00    win32 5.15.0 (6.4.0 available)
+08:28:00    xml 6.6.1 (7.0.1 available)
+08:28:00  Got dependencies!
+08:28:00  8 packages have newer versions incompatible with dependency constraints.
+08:28:00  Try `flutter pub outdated` for more information.
+08:28:05  Analyzing Release_Manager...                                    
+08:28:05  
+08:28:05    error - Undefined name '_dashboardAgentHeartbeatTimer'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:216:5 - undefined_identifier
+08:28:05     info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:530:8 - prefer_final_fields
+08:28:05  warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:532:7 - unused_field
+08:28:05  warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:533:7 - unused_field
+08:28:05  warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:534:10 - unused_field
+08:28:05  warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:12193:11 - unused_local_variable
+08:28:05  warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:12267:12 - unused_element
+08:28:05     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12507:38 - unnecessary_brace_in_string_interps
+08:28:05  
+08:28:05  CHYBA: 8 issues found. (ran in 3.6s)
+08:28:05  ✖ Flutter analyze zlyhal. Návratový kód: 1.

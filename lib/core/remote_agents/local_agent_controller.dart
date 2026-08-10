@@ -17,8 +17,14 @@ class LocalAgentController {
   bool get isRunning => _process != null;
   bool get ownsProcess => _process != null;
 
-  Future<Directory> findAgentDirectory() async {
+  Future<Directory> findAgentDirectory({String? projectRoot}) async {
     final candidates = <Directory>[];
+    final explicitRoot = projectRoot?.trim();
+    if (explicitRoot != null && explicitRoot.isNotEmpty) {
+      candidates.add(Directory(
+        '${Directory(explicitRoot).absolute.path}${Platform.pathSeparator}tools${Platform.pathSeparator}release_agent',
+      ));
+    }
 
     void addWithParents(Directory start) {
       var current = start.absolute;
@@ -45,12 +51,13 @@ class LocalAgentController {
 
     throw FileSystemException(
       'Priečinok tools/release_agent sa nepodarilo nájsť. '
-      'Spusti Release Manager z rozbaleného projektu B254.',
+      'Očakávané umiestnenie: <aktuálny workspace>/tools/release_agent.',
     );
   }
 
   Future<void> start({
     int port = AgentApi.defaultPort,
+    String? projectRoot,
     void Function(String line)? onOutput,
     void Function(int exitCode)? onExit,
   }) async {
@@ -58,7 +65,7 @@ class LocalAgentController {
     _stopRequested = false;
     _recentOutput.clear();
 
-    final directory = await findAgentDirectory();
+    final directory = await findAgentDirectory(projectRoot: projectRoot);
     final process = await Process.start(
       'dart',
       <String>['run', 'bin/release_agent.dart', '$port', '--local'],

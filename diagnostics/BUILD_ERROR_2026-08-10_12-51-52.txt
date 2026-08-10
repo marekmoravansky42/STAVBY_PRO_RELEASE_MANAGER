@@ -1,0 +1,134 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX060 SIDEBAR VISUAL REFRESH
+Dátum a čas: 2026-08-10T12:51:52.337261
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Pravdepodobná príčina: nekompatibilné API balíka alebo nesprávny názov metódy či vlastnosti.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 30 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:425:7 - unused_field
+   info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:540:8 - prefer_final_fields
+warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:542:7 - unused_field
+warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:543:7 - unused_field
+warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:544:10 - unused_field
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1039:7 - use_build_context_synchronously
+warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:12699:11 - unused_local_variable
+warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:12773:12 - unused_element
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:13013:38 - unnecessary_brace_in_string_interps
+   info - The local variable '_exportPortableNewPcBackup' starts with an underscore. Try renaming the variable to not start with an underscore - lib\main.dart:13398:18 - no_leading_underscores_for_local_identifiers
+  error - The getter 'platform' isn't defined for the type 'FilePicker'. Try importing the library that defines 'platform', correcting the name to the name of an existing getter, or defining a getter or field named 'platform' - lib\main.dart:13401:42 - undefined_getter
+  error - Undefined name 'AppVersion'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:13434:34 - undefined_identifier
+  error - The method '_writeDiagnosticReport' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_writeDiagnosticReport' - lib\main.dart:13506:13 - undefined_method
+
+13 issues found. (ran in 3.9s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+12:47:15  Release Manager 8.0.0 RC1 Build 257 RC1 DEV001 FIX060 SIDEBAR VISUAL REFRESH je pripravený.
+12:47:15  Štart aplikácie: Flutter binding: 0 ms • pred runApp: 0 ms • prvý frame: 31 ms
+12:47:15  Obnovený posledný Git workspace: C:\SP\Release_Manager
+12:47:15  GitHub nastavenie bolo bezpečne načítané.
+12:47:15  Testujem GitHub pripojenie pre marekmoravansky42/stavby-pro-updates...
+12:47:16  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+12:47:16  Git workspace: dev, 63 zmien.
+12:47:16  Predvolený priečinok pre Android APK Release: C:\SP\praca Stavby PRO app-release
+12:47:16  Predvolený priečinok pre STAVBY PRO Windows Release: C:\SP\Export Release win a android
+12:47:16  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+12:47:16  Project Profile obnovený: stavby_pro_release_manager
+12:47:16  Načítavam projekt: C:\SP\Release_Manager
+12:47:16  Načítanie projektu – Načítanie pubspec.yaml...
+12:47:16  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+12:47:16  Projekt otvorený: stavby_pro_release_manager
+12:47:16  Načítaná verzia 8.0.0+257.
+12:47:16  Načítanie projektu – Načítanie histórie vydaní...
+12:47:16  Načítanie projektu – Načítanie histórie vydaní dokončené.
+12:47:16  Načítanie projektu – Kontrola pripravenosti projektu...
+12:47:16  Kontrolujem pripravenosť projektu...
+12:47:17  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+12:47:17  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+12:47:17  Načítanie projektu – Automatická analýza APK...
+12:47:17  Hľadám release APK...
+12:47:17  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+12:47:17  Načítanie projektu – Automatická analýza APK dokončené.
+12:47:21  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+12:47:21  Kontrolujem aktualizáciu Release Managera na GitHube...
+12:47:21  Používaš najnovšiu verziu.
+12:50:56  === WORKSPACE SYNC ===
+12:50:56  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX061_PORTABLE_NEW_PC_EXPORT.zip
+12:50:56  Workspace: C:\SP\Release_Manager
+12:51:28  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-10T12-50-56-777367.zip
+12:51:28  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-10T11-28-06-757227.zip (85.5 MB).
+12:51:28  Backup Manager: automaticky uvoľnené 85.5 MB (1 starých záloh).
+12:51:28  Backup Manager: 10 záloh, 854.8 MB.
+12:51:28  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+12:51:29  Overená identita workspace: 8.0.0+257 DEV.
+12:51:29  Dashboard projekt obnovený po synchronizácii: 8.0.0+257.
+12:51:29  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+12:51:29  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+12:51:29  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+12:51:29  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+12:51:29  Git workspace: dev, 61 zmien.
+12:51:29  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX061_PORTABLE_NEW_PC_EXPORT.zip. Git eviduje 61 zmien.
+12:51:45  One Click Build identita: 8.0.0+257 DEV.
+12:51:45  === ZAČÍNA FAST DEV BUILD ===
+12:51:45  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+12:51:45  ▶ flutter analyze
+12:51:47  Resolving dependencies...
+12:51:47  Downloading packages...
+12:51:47    flutter_lints 5.0.0 (6.0.0 available)
+12:51:47    lints 5.1.1 (6.1.0 available)
+12:51:47    matcher 0.12.19 (0.12.20 available)
+12:51:47    meta 1.18.0 (1.19.0 available)
+12:51:47    test_api 0.7.11 (0.7.13 available)
+12:51:47    vector_math 2.2.0 (2.4.2 available)
+12:51:47    win32 5.15.0 (6.4.0 available)
+12:51:47    xml 6.6.1 (7.0.1 available)
+12:51:47  Got dependencies!
+12:51:47  8 packages have newer versions incompatible with dependency constraints.
+12:51:47  Try `flutter pub outdated` for more information.
+12:51:52  Analyzing Release_Manager...                                    
+12:51:52  
+12:51:52  warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:425:7 - unused_field
+12:51:52     info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:540:8 - prefer_final_fields
+12:51:52  warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:542:7 - unused_field
+12:51:52  warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:543:7 - unused_field
+12:51:52  warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:544:10 - unused_field
+12:51:52     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1039:7 - use_build_context_synchronously
+12:51:52  warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:12699:11 - unused_local_variable
+12:51:52  warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:12773:12 - unused_element
+12:51:52     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:13013:38 - unnecessary_brace_in_string_interps
+12:51:52     info - The local variable '_exportPortableNewPcBackup' starts with an underscore. Try renaming the variable to not start with an underscore - lib\main.dart:13398:18 - no_leading_underscores_for_local_identifiers
+12:51:52    error - The getter 'platform' isn't defined for the type 'FilePicker'. Try importing the library that defines 'platform', correcting the name to the name of an existing getter, or defining a getter or field named 'platform' - lib\main.dart:13401:42 - undefined_getter
+12:51:52    error - Undefined name 'AppVersion'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:13434:34 - undefined_identifier
+12:51:52    error - The method '_writeDiagnosticReport' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_writeDiagnosticReport' - lib\main.dart:13506:13 - undefined_method
+12:51:52  
+12:51:52  CHYBA: 13 issues found. (ran in 3.9s)
+12:51:52  ✖ Flutter analyze zlyhal. Návratový kód: 1.

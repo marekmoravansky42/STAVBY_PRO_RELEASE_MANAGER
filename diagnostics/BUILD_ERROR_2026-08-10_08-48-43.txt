@@ -1,0 +1,126 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX044 AI COMPLETION CENTER RESTORE
+Dátum a čas: 2026-08-10T08:48:43.008311
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 26 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+   info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:529:8 - prefer_final_fields
+warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:531:7 - unused_field
+warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:532:7 - unused_field
+warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:533:10 - unused_field
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1022:7 - use_build_context_synchronously
+  error - The property 'branch' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') - lib\main.dart:1077:42 - unchecked_use_of_nullable_value
+warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:12315:11 - unused_local_variable
+warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:12389:12 - unused_element
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12629:38 - unnecessary_brace_in_string_interps
+
+9 issues found. (ran in 3.8s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+08:43:42  Release Manager 8.0.0 RC1 Build 257 RC1 DEV001 FIX044 AI COMPLETION CENTER RESTORE je pripravený.
+08:43:42  Štart aplikácie: Flutter binding: 0 ms • pred runApp: 0 ms • prvý frame: 25 ms
+08:43:42  Obnovený posledný Git workspace: C:\SP\Release_Manager
+08:43:42  GitHub nastavenie bolo bezpečne načítané.
+08:43:42  Testujem GitHub pripojenie pre marekmoravansky42/stavby-pro-updates...
+08:43:42  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+08:43:42  Git workspace: dev, 26 zmien.
+08:43:42  Predvolený priečinok pre Android APK Release: C:\SP\praca Stavby PRO app-release
+08:43:42  Predvolený priečinok pre STAVBY PRO Windows Release: C:\SP\Export Release win a android
+08:43:42  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+08:43:42  Project Profile obnovený: stavby_pro_release_manager
+08:43:42  Načítavam projekt: C:\SP\Release_Manager
+08:43:42  Načítanie projektu – Načítanie pubspec.yaml...
+08:43:42  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+08:43:42  Projekt otvorený: stavby_pro_release_manager
+08:43:42  Načítaná verzia 8.0.0+257.
+08:43:42  Načítanie projektu – Načítanie histórie vydaní...
+08:43:42  Načítanie projektu – Načítanie histórie vydaní dokončené.
+08:43:42  Načítanie projektu – Kontrola pripravenosti projektu...
+08:43:42  Kontrolujem pripravenosť projektu...
+08:43:43  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+08:43:43  Kontrolujem aktualizáciu Release Managera na GitHube...
+08:43:43  Používaš najnovšiu verziu.
+08:43:44  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+08:43:44  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+08:43:44  Načítanie projektu – Automatická analýza APK...
+08:43:44  Hľadám release APK...
+08:43:44  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+08:43:44  Načítanie projektu – Automatická analýza APK dokončené.
+08:47:48  === WORKSPACE SYNC ===
+08:47:48  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX045_GIT_BUILD_PUBLISHER_PREFLIGHT.zip
+08:47:48  Workspace: C:\SP\Release_Manager
+08:48:22  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-10T08-47-48-629250.zip
+08:48:22  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-09T23-24-20-466096.zip (85.4 MB).
+08:48:22  Backup Manager: automaticky uvoľnené 85.4 MB (1 starých záloh).
+08:48:22  Backup Manager: 10 záloh, 854.4 MB.
+08:48:22  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+08:48:22  Overená identita workspace: 8.0.0+257 DEV.
+08:48:22  Dashboard projekt obnovený po synchronizácii: 8.0.0+257.
+08:48:22  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+08:48:22  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+08:48:22  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+08:48:23  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+08:48:23  Git workspace: dev, 24 zmien.
+08:48:23  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX045_GIT_BUILD_PUBLISHER_PREFLIGHT.zip. Git eviduje 24 zmien.
+08:48:36  One Click Build identita: 8.0.0+257 DEV.
+08:48:36  === ZAČÍNA FAST DEV BUILD ===
+08:48:36  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+08:48:36  ▶ flutter analyze
+08:48:37  Resolving dependencies...
+08:48:37  Downloading packages...
+08:48:37    flutter_lints 5.0.0 (6.0.0 available)
+08:48:37    lints 5.1.1 (6.1.0 available)
+08:48:37    matcher 0.12.19 (0.12.20 available)
+08:48:37    meta 1.18.0 (1.19.0 available)
+08:48:37    test_api 0.7.11 (0.7.13 available)
+08:48:37    vector_math 2.2.0 (2.4.2 available)
+08:48:37    win32 5.15.0 (6.4.0 available)
+08:48:37    xml 6.6.1 (7.0.1 available)
+08:48:37  Got dependencies!
+08:48:37  8 packages have newer versions incompatible with dependency constraints.
+08:48:37  Try `flutter pub outdated` for more information.
+08:48:42  Analyzing Release_Manager...                                    
+08:48:42  
+08:48:42     info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:529:8 - prefer_final_fields
+08:48:42  warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:531:7 - unused_field
+08:48:42  warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:532:7 - unused_field
+08:48:42  warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:533:10 - unused_field
+08:48:42     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1022:7 - use_build_context_synchronously
+08:48:42    error - The property 'branch' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!') - lib\main.dart:1077:42 - unchecked_use_of_nullable_value
+08:48:42  warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:12315:11 - unused_local_variable
+08:48:42  warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:12389:12 - unused_element
+08:48:42     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12629:38 - unnecessary_brace_in_string_interps
+08:48:42  
+08:48:42  CHYBA: 9 issues found. (ran in 3.8s)
+08:48:43  ✖ Flutter analyze zlyhal. Návratový kód: 1.
