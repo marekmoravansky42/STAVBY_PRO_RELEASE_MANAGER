@@ -1,0 +1,140 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX069B NULLABLE WINDOWS EXE PATH FIX
+Dátum a čas: 2026-08-11T12:05:23.952671
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: stavby_pro_release_manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Release APK build
+Príkaz: flutter build apk --release
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 16 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+CHYBA: Flutter failed to read file at "C:\SP\Release_Manager\android\app\build.gradle". The file or directory could not be found.
+CHYBA: PathNotFoundException: Cannot open file, path = 'C:\SP\Release_Manager\android\app\build.gradle' (OS Error: The system cannot find the path specified, errno = 3)
+CHYBA: This can sometimes happen if the file was deleted or moved while the tool was running. Try running "flutter clean" and try again.
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+12:03:50    win32 5.15.0 (6.4.0 available)
+12:03:50    xml 6.6.1 (7.0.1 available)
+12:03:50  Got dependencies!
+12:03:50  8 packages have newer versions incompatible with dependency constraints.
+12:03:50  Try `flutter pub outdated` for more information.
+12:03:51  00:00 +0: loading C:/SP/Release_Manager/test/execution_history_service_test.dart
+12:04:00  00:00 +0: C:/SP/Release_Manager/test/execution_history_service_test.dart: damaged history does not prevent loading project
+12:04:00  00:00 +1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:01  00:00 +2: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:01 +3: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:01 +4: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:01 +5: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:01 +6: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:01 +7: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:02 +8: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:02 +9: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:02 +10: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+12:04:02  00:02 +11: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:02 +12: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:02 +13: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:02 +14: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:02 +15: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:02 +16: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:03 +17: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:03 +18: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:03 +19: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:03  00:03 +20: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +21: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +22: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +23: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +24: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +25: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +26: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:03 +27: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:04  00:04 +28: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +29: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +30: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +31: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +32: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +33: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +34: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +35: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +36: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:05  00:04 +37: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:06  00:05 +38: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:06  00:05 +39: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:06  00:05 +40: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:06  00:05 +41: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:06  00:05 +42: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:06  00:05 +43: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:07  00:06 +44: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:07  00:06 +45: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +46: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +47: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +48: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +49: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +50: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +51: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:08  00:07 +52: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+12:04:12  00:11 +53: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+12:04:13  00:12 +54: All tests passed!
+12:04:13  ✔ Flutter test bol úspešne dokončený.
+12:04:13  === RELEASE WIZARD 3.0: Windows Release build ===
+12:04:13  ▶ flutter build windows --release
+12:04:14  Resolving dependencies...
+12:04:15  Downloading packages...
+12:04:15    flutter_lints 5.0.0 (6.0.0 available)
+12:04:15    lints 5.1.1 (6.1.0 available)
+12:04:15    matcher 0.12.19 (0.12.20 available)
+12:04:15    meta 1.18.0 (1.19.0 available)
+12:04:15    test_api 0.7.11 (0.7.13 available)
+12:04:15    vector_math 2.2.0 (2.4.2 available)
+12:04:15    win32 5.15.0 (6.4.0 available)
+12:04:15    xml 6.6.1 (7.0.1 available)
+12:04:15  Got dependencies!
+12:04:15  8 packages have newer versions incompatible with dependency constraints.
+12:04:15  Try `flutter pub outdated` for more information.
+12:05:21  Building Windows application...                                    65,9s
+12:05:21  âš Built build\windows\x64\runner\Release\stavby_pro_release_manager.exe
+12:05:21  ✔ Windows Release build bol úspešne dokončený.
+12:05:21  ✔ Windows EXE nájdené: C:\SP\Release_Manager\build\windows\x64\runner\Release\stavby_pro_release_manager.exe
+12:05:21  === RELEASE WIZARD 3.0: Release APK build ===
+12:05:21  ▶ flutter build apk --release
+12:05:22  Resolving dependencies...
+12:05:22  Downloading packages...
+12:05:22    flutter_lints 5.0.0 (6.0.0 available)
+12:05:22    lints 5.1.1 (6.1.0 available)
+12:05:22    matcher 0.12.19 (0.12.20 available)
+12:05:22    meta 1.18.0 (1.19.0 available)
+12:05:22    test_api 0.7.11 (0.7.13 available)
+12:05:22    vector_math 2.2.0 (2.4.2 available)
+12:05:22    win32 5.15.0 (6.4.0 available)
+12:05:22    xml 6.6.1 (7.0.1 available)
+12:05:22  Got dependencies!
+12:05:22  8 packages have newer versions incompatible with dependency constraints.
+12:05:22  Try `flutter pub outdated` for more information.
+12:05:23  CHYBA: Flutter failed to read file at "C:\SP\Release_Manager\android\app\build.gradle". The file or directory could not be found.
+12:05:23  CHYBA: PathNotFoundException: Cannot open file, path = 'C:\SP\Release_Manager\android\app\build.gradle' (OS Error: The system cannot find the path specified, errno = 3)
+12:05:23  CHYBA: This can sometimes happen if the file was deleted or moved while the tool was running. Try running "flutter clean" and try again.
+12:05:23  ✖ Release APK build zlyhal. Návratový kód: 1.

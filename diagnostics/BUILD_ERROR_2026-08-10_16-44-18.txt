@@ -1,0 +1,154 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX069 RELEASE RECIPES V1
+Dátum a čas: 2026-08-10T16:44:18.199658
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 30 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:432:7 - unused_field
+   info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:547:8 - prefer_final_fields
+warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:549:7 - unused_field
+warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:550:7 - unused_field
+warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:551:10 - unused_field
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1161:44 - unnecessary_non_null_assertion
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1171:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:5931:7 - use_build_context_synchronously
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\main.dart:8007:38 - argument_type_not_assignable
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:8065:46 - unnecessary_non_null_assertion
+warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:14010:11 - unused_local_variable
+warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:14084:12 - unused_element
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:14324:38 - unnecessary_brace_in_string_interps
+
+13 issues found. (ran in 2.2s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+16:42:57  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-10T13-33-25-232621.zip (85.5 MB).
+16:42:57  Backup Manager: automaticky uvoľnené 85.5 MB (1 starých záloh).
+16:42:57  Backup Manager: 10 záloh, 855.1 MB.
+16:42:57  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+16:42:57  Overená identita workspace: 8.0.0+257 DEV.
+16:42:57  Dashboard projekt obnovený po synchronizácii: 8.0.0+257.
+16:42:57  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+16:42:57  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+16:42:57  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+16:42:57  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+16:42:57  Git workspace: dev, 17 zmien.
+16:42:57  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX069A_WINDOWS_EXE_AUTO_DETECTION.zip. Git eviduje 17 zmien.
+16:43:18  One Click Build identita: 8.0.0+257 DEV.
+16:43:18  === ZAČÍNA FAST DEV BUILD ===
+16:43:18  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+16:43:18  ▶ flutter analyze
+16:43:20  Resolving dependencies...
+16:43:20  Downloading packages...
+16:43:20    flutter_lints 5.0.0 (6.0.0 available)
+16:43:20    lints 5.1.1 (6.1.0 available)
+16:43:20    matcher 0.12.19 (0.12.20 available)
+16:43:20    meta 1.18.0 (1.19.0 available)
+16:43:20    test_api 0.7.11 (0.7.13 available)
+16:43:20    vector_math 2.2.0 (2.4.2 available)
+16:43:20    win32 5.15.0 (6.4.0 available)
+16:43:20    xml 6.6.1 (7.0.1 available)
+16:43:20  Got dependencies!
+16:43:20  8 packages have newer versions incompatible with dependency constraints.
+16:43:20  Try `flutter pub outdated` for more information.
+16:43:25  Analyzing Release_Manager...                                    
+16:43:25  
+16:43:25  warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:432:7 - unused_field
+16:43:25     info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:547:8 - prefer_final_fields
+16:43:25  warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:549:7 - unused_field
+16:43:25  warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:550:7 - unused_field
+16:43:25  warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:551:10 - unused_field
+16:43:25  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1161:44 - unnecessary_non_null_assertion
+16:43:25     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1171:7 - use_build_context_synchronously
+16:43:25     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:5931:7 - use_build_context_synchronously
+16:43:25    error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\main.dart:8007:38 - argument_type_not_assignable
+16:43:25  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:8065:46 - unnecessary_non_null_assertion
+16:43:25  warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:14010:11 - unused_local_variable
+16:43:25  warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:14084:12 - unused_element
+16:43:25     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:14324:38 - unnecessary_brace_in_string_interps
+16:43:25  
+16:43:25  CHYBA: 13 issues found. (ran in 3.8s)
+16:43:25  ✖ Flutter analyze zlyhal. Návratový kód: 1.
+16:43:25  Diagnostický report bol automaticky uložený: C:\SP\Release_Manager\diagnostics\BUILD_ERROR_2026-08-10_16-43-25.txt
+16:43:28  Diagnostické okno bolo zatvorené.
+16:43:37  === WORKSPACE SYNC ===
+16:43:37  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX069A_WINDOWS_EXE_AUTO_DETECTION.zip
+16:43:37  Workspace: C:\SP\Release_Manager
+16:44:06  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-10T16-43-37-598759.zip
+16:44:06  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-10T13-36-00-341169.zip (85.5 MB).
+16:44:06  Backup Manager: automaticky uvoľnené 85.5 MB (1 starých záloh).
+16:44:06  Backup Manager: 10 záloh, 855.1 MB.
+16:44:06  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+16:44:06  Overená identita workspace: 8.0.0+257 DEV.
+16:44:06  Dashboard projekt obnovený po synchronizácii: 8.0.0+257.
+16:44:06  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+16:44:06  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+16:44:06  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+16:44:06  ProjectVersionProvider: 8.0.0+257 DEV (C:\SP\Release_Manager).
+16:44:06  Git workspace: dev, 18 zmien.
+16:44:06  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX069A_WINDOWS_EXE_AUTO_DETECTION.zip. Git eviduje 18 zmien.
+16:44:13  One Click Build identita: 8.0.0+257 DEV.
+16:44:13  === ZAČÍNA FAST DEV BUILD ===
+16:44:13  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+16:44:13  ▶ flutter analyze
+16:44:14  Resolving dependencies...
+16:44:14  Downloading packages...
+16:44:14    flutter_lints 5.0.0 (6.0.0 available)
+16:44:14    lints 5.1.1 (6.1.0 available)
+16:44:14    matcher 0.12.19 (0.12.20 available)
+16:44:14    meta 1.18.0 (1.19.0 available)
+16:44:14    test_api 0.7.11 (0.7.13 available)
+16:44:14    vector_math 2.2.0 (2.4.2 available)
+16:44:14    win32 5.15.0 (6.4.0 available)
+16:44:14    xml 6.6.1 (7.0.1 available)
+16:44:14  Got dependencies!
+16:44:14  8 packages have newer versions incompatible with dependency constraints.
+16:44:14  Try `flutter pub outdated` for more information.
+16:44:18  Analyzing Release_Manager...                                    
+16:44:18  
+16:44:18  warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:432:7 - unused_field
+16:44:18     info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:547:8 - prefer_final_fields
+16:44:18  warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:549:7 - unused_field
+16:44:18  warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:550:7 - unused_field
+16:44:18  warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:551:10 - unused_field
+16:44:18  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1161:44 - unnecessary_non_null_assertion
+16:44:18     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1171:7 - use_build_context_synchronously
+16:44:18     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:5931:7 - use_build_context_synchronously
+16:44:18    error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\main.dart:8007:38 - argument_type_not_assignable
+16:44:18  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:8065:46 - unnecessary_non_null_assertion
+16:44:18  warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:14010:11 - unused_local_variable
+16:44:18  warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:14084:12 - unused_element
+16:44:18     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:14324:38 - unnecessary_brace_in_string_interps
+16:44:18  
+16:44:18  CHYBA: 13 issues found. (ran in 2.2s)
+16:44:18  ✖ Flutter analyze zlyhal. Návratový kód: 1.

@@ -1,0 +1,17 @@
+STAVBY PRO RELEASE WIZARD 3.0 – REPORT
+=======================================
+Release Manager: 8.0.0 RC1 Build 257 RC1 DEV001 FIX069B NULLABLE WINDOWS EXE PATH FIX
+Projekt: C:\SP\Release_Manager
+Začiatok: 2026-08-11T12:03:39.464453
+OK: Verzia zostala 8.0.0+257
+OK: Flutter clean
+OK: Flutter pub get
+OK: Flutter analyze
+OK: Flutter test
+OK: Windows Release build
+CHYBA: Release APK build
+Koniec: 2026-08-11T12:05:55.515275
+Výsledok: NEÚSPEŠNÝ
+Windows EXE: C:\SP\Release_Manager\build\windows\x64\runner\Release\stavby_pro_release_manager.exe
+APK: nevytvorené
+AAB: nevytvorené

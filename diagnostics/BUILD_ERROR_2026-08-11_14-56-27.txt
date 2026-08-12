@@ -1,0 +1,142 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX084 PUBLISH GATE MANIFEST BIND
+Dátum a čas: 2026-08-11T14:56:27.660776
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Pravdepodobná príčina: nekompatibilné API balíka alebo nesprávny názov metódy či vlastnosti.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 34 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+8 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:441:7 - unused_field
+   info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:556:8 - prefer_final_fields
+warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:558:7 - unused_field
+warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:559:7 - unused_field
+warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:560:10 - unused_field
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1204:44 - unnecessary_non_null_assertion
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1214:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:5974:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9369:7 - use_build_context_synchronously
+warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:14669:11 - unused_local_variable
+warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:14743:12 - unused_element
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:14983:38 - unnecessary_brace_in_string_interps
+  error - The method '_sha256File' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_sha256File' - lib\main.dart:16320:37 - undefined_method
+  error - The method '_sha256File' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_sha256File' - lib\main.dart:16408:35 - undefined_method
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17233:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17453:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17525:46 - unnecessary_non_null_assertion
+
+17 issues found. (ran in 4.0s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+14:54:21  Release Manager 8.0.0 RC1 Build 257 RC1 DEV001 FIX084 PUBLISH GATE MANIFEST BIND je pripravený.
+14:54:21  Štart aplikácie: Flutter binding: 0 ms • pred runApp: 0 ms • prvý frame: 29 ms
+14:54:21  Obnovený posledný Git workspace: C:\SP\Release_Manager
+14:54:21  GitHub nastavenie bolo bezpečne načítané.
+14:54:21  Testujem GitHub pripojenie pre marekmoravansky42/stavby-pro-updates...
+14:54:22  ProjectVersionProvider: 8.0.0+257 RC1 (C:\SP\Release_Manager).
+14:54:22  Git workspace: dev, 58 zmien.
+14:54:22  Predvolený priečinok pre Android APK Release: C:\SP\praca Stavby PRO app-release
+14:54:22  Predvolený priečinok pre STAVBY PRO Windows Release: C:\SP\Export Release win a android
+14:54:22  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+14:54:22  Project Profile obnovený: stavby_pro_release_manager
+14:54:22  Načítavam projekt: C:\SP\Release_Manager
+14:54:22  Načítanie projektu – Načítanie pubspec.yaml...
+14:54:22  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+14:54:22  Projekt otvorený: stavby_pro_release_manager
+14:54:22  Načítaná verzia 8.0.0+257.
+14:54:22  Načítanie projektu – Načítanie histórie vydaní...
+14:54:22  Načítanie projektu – Načítanie histórie vydaní dokončené.
+14:54:22  Načítanie projektu – Kontrola pripravenosti projektu...
+14:54:22  Kontrolujem pripravenosť projektu...
+14:54:22  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+14:54:22  Kontrolujem aktualizáciu Release Managera na GitHube...
+14:54:23  Používaš najnovšiu verziu.
+14:54:23  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+14:54:23  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+14:54:23  Načítanie projektu – Automatická analýza APK...
+14:54:23  Hľadám release APK...
+14:54:23  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+14:54:23  Načítanie projektu – Automatická analýza APK dokončené.
+14:55:33  === WORKSPACE SYNC ===
+14:55:33  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX085_PUBLISH_GATE_MANIFEST_FINGERPRINT.zip
+14:55:33  Workspace: C:\SP\Release_Manager
+14:56:14  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-11T14-55-33-480539.zip
+14:56:14  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-11T14-00-12-234405.zip (85.6 MB).
+14:56:14  Backup Manager: automaticky uvoľnené 85.6 MB (1 starých záloh).
+14:56:14  Backup Manager: 10 záloh, 855.6 MB.
+14:56:14  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+14:56:15  Overená identita workspace: 8.0.0+257 RC1.
+14:56:15  Dashboard projekt obnovený po synchronizácii: 8.0.0+257.
+14:56:15  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+14:56:15  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+14:56:15  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+14:56:16  ProjectVersionProvider: 8.0.0+257 RC1 (C:\SP\Release_Manager).
+14:56:16  Git workspace: dev, 61 zmien.
+14:56:16  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_257_DEV001_FIX085_PUBLISH_GATE_MANIFEST_FINGERPRINT.zip. Git eviduje 61 zmien.
+14:56:20  One Click Build identita: 8.0.0+257 RC1.
+14:56:20  === ZAČÍNA FAST DEV BUILD ===
+14:56:20  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+14:56:20  ▶ flutter analyze
+14:56:22  Resolving dependencies...
+14:56:22  Downloading packages...
+14:56:22    flutter_lints 5.0.0 (6.0.0 available)
+14:56:22    lints 5.1.1 (6.1.0 available)
+14:56:22    matcher 0.12.19 (0.12.20 available)
+14:56:22    meta 1.18.0 (1.19.0 available)
+14:56:22    test_api 0.7.11 (0.7.13 available)
+14:56:22    vector_math 2.2.0 (2.4.2 available)
+14:56:22    win32 5.15.0 (6.4.0 available)
+14:56:22    xml 6.6.1 (7.0.1 available)
+14:56:22  Got dependencies!
+14:56:22  8 packages have newer versions incompatible with dependency constraints.
+14:56:22  Try `flutter pub outdated` for more information.
+14:56:27  Analyzing Release_Manager...                                    
+14:56:27  
+14:56:27  warning - The value of the field '_oneClickBuildCompletedSteps' isn't used. Try removing the field, or using it - lib\main.dart:441:7 - unused_field
+14:56:27     info - The private field _strictAnalyzeMode could be 'final'. Try making the field 'final' - lib\main.dart:556:8 - prefer_final_fields
+14:56:27  warning - The value of the field '_lastAnalyzeWarnings' isn't used. Try removing the field, or using it - lib\main.dart:558:7 - unused_field
+14:56:27  warning - The value of the field '_lastAnalyzeInfos' isn't used. Try removing the field, or using it - lib\main.dart:559:7 - unused_field
+14:56:27  warning - The value of the field '_lastAnalyzeStatus' isn't used. Try removing the field, or using it - lib\main.dart:560:10 - unused_field
+14:56:27  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1204:44 - unnecessary_non_null_assertion
+14:56:27     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1214:7 - use_build_context_synchronously
+14:56:27     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:5974:7 - use_build_context_synchronously
+14:56:27     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9369:7 - use_build_context_synchronously
+14:56:27  warning - The value of the local variable 'sections' isn't used. Try removing the variable or using it - lib\main.dart:14669:11 - unused_local_variable
+14:56:27  warning - The declaration 'statusPill' isn't referenced. Try removing the declaration of 'statusPill' - lib\main.dart:14743:12 - unused_element
+14:56:27     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:14983:38 - unnecessary_brace_in_string_interps
+14:56:27    error - The method '_sha256File' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_sha256File' - lib\main.dart:16320:37 - undefined_method
+14:56:27    error - The method '_sha256File' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_sha256File' - lib\main.dart:16408:35 - undefined_method
+14:56:27  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17233:49 - unnecessary_non_null_assertion
+14:56:27  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17453:45 - unnecessary_non_null_assertion
+14:56:27  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17525:46 - unnecessary_non_null_assertion
+14:56:27  
+14:56:27  CHYBA: 17 issues found. (ran in 4.0s)
+14:56:27  ✖ Flutter analyze zlyhal. Návratový kód: 1.
