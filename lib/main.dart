@@ -16,6 +16,7 @@ import 'core/performance/startup_performance.dart';
 import 'core/config/configuration_manager.dart';
 import 'core/projects/project_profile.dart';
 import 'core/remote_agents/agent_api.dart';
+import 'core/remote_agents/local_agent_controller.dart';
 import 'core/remote_agents/remote_agent_service.dart';
 import 'core/services/project_service.dart';
 import 'core/services/workspace_manager_service.dart';
@@ -337,7 +338,51 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
 
   final GitService _gitService = const GitService();
   final RemoteAgentService _dashboardAgentService = const RemoteAgentService();
+  final LocalAgentController _startupLocalAgent = LocalAgentController();
   Timer? _dashboardAgentHeartbeatTimer;
+  bool _startupAgentBootstrapRunning = false;
+  bool _startupAgentBootstrapSucceeded = false;
+  int _startupAgentAttemptCount = 0;
+  DateTime? _startupAgentConnectedAt;
+  DateTime? _dashboardAgentOfflineSince;
+  bool _agentReconnectScheduled = false;
+  DateTime? _lastAgentRecoveryAttemptAt;
+  int _agentRecoverySuccessCount = 0;
+  String _dashboardReleaseIntegrityStatus = 'NEOVERENÉ';
+  Timer? _releaseIntegrityDashboardTimer;
+  DateTime? _dashboardReleaseIntegrityCheckedAt;
+  String? _dashboardReleaseIntegrityHint;
+
+  String get _dashboardPublishGateStatus =>
+      _dashboardReleaseIntegrityStatus == 'INTEGRITY OK'
+          ? 'POVOLENÉ'
+          : 'BLOKOVANÉ';
+
+  String get _dashboardPublishGateDetail =>
+      _dashboardPublishGateStatus == 'POVOLENÉ'
+          ? 'Release môže pokračovať do publish fázy.'
+          : 'Publish čaká na platnú Release Integrity.';
+
+  String _releaseRecipe = 'DEV';
+  String? _releaseRecipeBackupPubspec;
+
+  String? _releaseDistributionTargetPath;
+  DateTime? _lastReleaseDistributionAt;
+  String _releaseDistributionStatus = 'NEPUBLIKOVANÉ';
+
+  String get _dashboardReleaseReadiness =>
+      _dashboardPublishGateStatus == 'POVOLENÉ'
+          ? 'PRIPRAVENÉ NA PUBLISH'
+          : 'NIE JE PRIPRAVENÉ';
+
+  String get _dashboardReleaseIntegrityFreshness {
+    final checkedAt = _dashboardReleaseIntegrityCheckedAt;
+    if (checkedAt == null) return 'NEOVERENÉ';
+    final age = DateTime.now().difference(checkedAt);
+    if (age < const Duration(minutes: 2)) return 'AKTUÁLNE';
+    if (age < const Duration(minutes: 5)) return 'ČERSTVÉ';
+    return 'OBNOVUJE SA';
+  }
   bool _dashboardLocalAgentOnline = false;
   int? _dashboardAgentLatencyMs;
   final PubspecService _pubspecService = const PubspecService();
@@ -413,6 +458,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   bool _snapshotRunning = false;
   bool _projectCloneRunning = false;
   String _selectedReleaseRecipe = 'DEV';
+  String _oneClickReleaseMode = 'DEV';
   bool _releaseRecipeRunning = false;
   bool _finalReleaseChecked = false;
   bool _finalReleaseRunning = false;
@@ -607,6 +653,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   void _startFlutterStepProgress(String label) {
     _flutterStepProgressTimer?.cancel();
     _dashboardAgentHeartbeatTimer?.cancel();
+    _releaseIntegrityDashboardTimer?.cancel();
     _flutterStepStartedAt = DateTime.now();
     _flutterStepEstimatedProgress = 0.03;
 
@@ -726,6 +773,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     final detailController = TextEditingController();
     final message = await showDialog<String>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: <Widget>[
@@ -915,6 +963,10 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
         'ProjectVersionProvider: ${identity.version}+${identity.build} '
         '${identity.stage.toUpperCase()} ($workspace).',
       );
+    final integrityRoot = _resolveDashboardIntegrityRoot();
+    if (integrityRoot != null) {
+      unawaited(_refreshDashboardReleaseIntegrityStatus(integrityRoot));
+    }
     } else {
       _addLog('ProjectVersionProvider: identitu projektu sa nepodarilo načítať ($workspace).');
     }
@@ -944,6 +996,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     final messageController = TextEditingController(text: 'STAVBY PRO $suggested');
     final data = await showDialog<({String tag, String message})>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(children: <Widget>[Icon(Icons.sell_rounded, color: Color(0xFFF9A825)), SizedBox(width: 10), Text('Vytvoriť tag buildu')]),
         content: SizedBox(width: 500, child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -968,11 +1021,38 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     if (data == null || !mounted) return;
     setState(() => _gitTagRunning = true);
     try {
-      final result = await _gitService.createTag(workspace, tagName: data.tag, message: data.message);
+      final releaseRoot = await _requireCurrentPublishReleaseRoot('Git tag');
+      if (releaseRoot == null) return;
+
+      var tagSuccess = false;
+      String tagMessage = 'Git tag bol zablokovaný.';
+      final executed = await _runWithReleasePublishGate(
+        releaseRoot,
+        actionName: 'Git tag ${data.tag}',
+        action: () async {
+          final result = await _gitService.createTag(
+            workspace,
+            tagName: data.tag,
+            message: data.message,
+          );
+          tagSuccess = result.success;
+          tagMessage = result.message;
+          if (!result.success) throw StateError(result.message);
+        },
+      );
       if (!mounted) return;
-      _addLog(result.message);
-      _rememberDashboardOperationResult('Uložiť build do Gitu', result.success);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.message), backgroundColor: result.success ? const Color(0xFF2E7D32) : Theme.of(context).colorScheme.error));
+      if (executed) {
+        _addLog(tagMessage);
+        _rememberDashboardOperationResult('Uložiť build do Gitu', tagSuccess);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tagMessage),
+            backgroundColor: tagSuccess
+                ? const Color(0xFF2E7D32)
+                : Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _gitTagRunning = false);
       await _refreshGitWorkspace();
@@ -1212,6 +1292,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     }
     final confirmed = await showDialog<({String message, String tag})>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) => AlertDialog(
         title: const Row(children: <Widget>[
@@ -1430,6 +1511,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
       if (result.success) {
         await showDialog<void>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Row(children: <Widget>[
               Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32)),
@@ -1518,6 +1600,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
 
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(children: <Widget>[
           Icon(Icons.difference_rounded, color: Color(0xFF7B1FA2)),
@@ -1612,6 +1695,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     if (status.changedFiles.isNotEmpty) {
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Row(children: <Widget>[
             Icon(Icons.warning_amber_rounded, color: Color(0xFFF57C00)),
@@ -1632,6 +1716,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
 
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(children: <Widget>[
           Icon(Icons.restore_rounded, color: Color(0xFF1565C0)),
@@ -1696,6 +1781,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     if (workspace == null || workspace.trim().isEmpty) return;
     setState(() {
       _gitWorkspacePath = workspace;
+      _resetDashboardReleaseIntegrityStatus();
       _gitWorkspaceLoading = true;
     });
     final status = await _gitService.inspect(workspace);
@@ -2132,6 +2218,138 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     );
   }
 
+  Future<void> _bootstrapStartupLocalAgent() async {
+    if (_startupAgentBootstrapRunning || _startupAgentBootstrapSucceeded || !mounted) {
+      return;
+    }
+    _startupAgentBootstrapRunning = true;
+
+    try {
+      for (var attempt = 1; attempt <= 6 && mounted; attempt++) {
+        _startupAgentAttemptCount = attempt;
+        try {
+          final existing = await _dashboardAgentService.readStatus(
+            '127.0.0.1',
+            port: AgentApi.defaultPort,
+          );
+          if (existing.isOnline &&
+              existing.supportsAnalyze &&
+              existing.supportsTest &&
+              existing.supportsWindowsBuild) {
+            _startupAgentBootstrapSucceeded = true;
+            _startupAgentConnectedAt = DateTime.now();
+            _addLog(
+              'Local Agent startup health: CONNECTED • pokus $_startupAgentAttemptCount/6 • '
+              '${_startupAgentConnectedAt!.toIso8601String()}',
+            );
+            _addLog('Local Agent startup: spojenie automaticky obnovené.');
+            await _refreshDashboardAgentHeartbeat();
+            return;
+          }
+        } catch (_) {
+          // Agent ešte nie je pripravený; pokúsime sa ho spustiť.
+        }
+
+        try {
+          if (!_startupLocalAgent.isRunning) {
+            final projectRoot = _gitWorkspacePath ?? _project?.projectPath;
+            _addLog(
+              'Local Agent startup: automatický pokus $attempt/6'
+              '${projectRoot == null ? '' : ' • workspace: $projectRoot'}',
+            );
+            await _startupLocalAgent.start(
+              port: AgentApi.defaultPort,
+              projectRoot: projectRoot,
+              onOutput: (line) {
+                final value = line.trim();
+                if (value.isNotEmpty && mounted) {
+                  _addLog('Local Agent: $value');
+                }
+              },
+              onExit: (exitCode) {
+                _startupAgentBootstrapSucceeded = false;
+                if (mounted) {
+                  _addLog(
+                    'Local Agent startup: proces sa ukončil (kód $exitCode). '
+                    'Automatické obnovenie zostáva aktívne.',
+                  );
+                }
+              },
+            );
+          }
+
+          for (var probe = 0; probe < 16 && mounted; probe++) {
+            await Future<void>.delayed(const Duration(milliseconds: 500));
+            try {
+              final agent = await _dashboardAgentService.readStatus(
+                '127.0.0.1',
+                port: AgentApi.defaultPort,
+              );
+              if (agent.isOnline) {
+                _startupAgentBootstrapSucceeded = true;
+                _startupAgentConnectedAt = DateTime.now();
+                _addLog(
+                  'Local Agent startup health: CONNECTED • pokus $_startupAgentAttemptCount/6 • '
+                  '${_startupAgentConnectedAt!.toIso8601String()}',
+                );
+                _addLog(
+                  'Local Agent startup: Agent je pripojený automaticky '
+                  'bez otvorenia stránky Agent.',
+                );
+                _addLog(
+                  'AGENT RECOVERY v1: startup auto-connect, health, self-healing '
+                  'a reconnect stability sú aktívne.',
+
+                );
+                await _refreshDashboardAgentHeartbeat();
+                return;
+              }
+            } catch (_) {}
+          }
+        } catch (error) {
+          _addLog('Local Agent startup: pokus $attempt/6 zlyhal – $error');
+        }
+
+        if (attempt < 6) {
+          await Future<void>.delayed(const Duration(seconds: 2));
+        }
+      }
+
+      if (mounted && !_startupAgentBootstrapSucceeded) {
+        _addLog(
+          'Local Agent startup health: NOT CONNECTED • pokusov: $_startupAgentAttemptCount/6',
+        );
+        _addLog(
+          'Local Agent startup: automatické pripojenie zatiaľ nebolo úspešné. '
+          'Heartbeat bude spojenie ďalej kontrolovať.',
+        );
+      }
+    } finally {
+      _startupAgentBootstrapRunning = false;
+    }
+  }
+
+  void _scheduleAgentReconnectRecovery() {
+    if (_agentReconnectScheduled || !mounted) return;
+    final now = DateTime.now();
+    final lastAttempt = _lastAgentRecoveryAttemptAt;
+    if (lastAttempt != null &&
+        now.difference(lastAttempt) < const Duration(seconds: 10)) {
+      return;
+    }
+    _lastAgentRecoveryAttemptAt = now;
+    _agentReconnectScheduled = true;
+    unawaited(
+      Future<void>.delayed(const Duration(seconds: 3)).then((_) async {
+        _agentReconnectScheduled = false;
+        if (!mounted || _dashboardLocalAgentOnline) return;
+        _addLog('Local Agent recovery: spojenie je stále offline – spúšťam self-healing.');
+        _startupAgentBootstrapSucceeded = false;
+        await _bootstrapStartupLocalAgent();
+      }),
+    );
+  }
+
   Future<void> _refreshDashboardAgentHeartbeat() async {
     var online = false;
     int? latencyMs;
@@ -2154,6 +2372,22 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     }
 
     if (!mounted) return;
+    if (online) {
+      if (_dashboardAgentOfflineSince != null) {
+        _agentRecoverySuccessCount++;
+        _addLog(
+          'Local Agent recovery: spojenie bolo obnovené • úspešné recovery: '
+          '$_agentRecoverySuccessCount.',
+        );
+      }
+      _dashboardAgentOfflineSince = null;
+      _lastAgentRecoveryAttemptAt = null;
+    } else {
+      _dashboardAgentOfflineSince ??= DateTime.now();
+      if (!_startupAgentBootstrapRunning) {
+        _scheduleAgentReconnectRecovery();
+      }
+    }
     if (_dashboardLocalAgentOnline != online ||
         _dashboardAgentLatencyMs != latencyMs) {
       setState(() {
@@ -2181,12 +2415,41 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
       _addLog(StartupPerformance.summary());
       unawaited(_checkPreviousCrashLog());
       unawaited(_loadGitHubSettings());
-      unawaited(_loadAppSettings());
+      unawaited(
+        _loadAppSettings().whenComplete(() {
+          if (mounted) unawaited(_bootstrapStartupLocalAgent());
+        }),
+      );
       unawaited(_loadBuildHistory());
+      unawaited(
+        _refreshDistributionCenterFromDisk().whenComplete(() {
+          final restoredIntegrityRoot = _resolveDashboardIntegrityRoot();
+          if (restoredIntegrityRoot != null && mounted) {
+            unawaited(
+              _refreshDashboardReleaseIntegrityStatus(restoredIntegrityRoot),
+            );
+          }
+        }),
+      );
+      final integrityRoot = _resolveDashboardIntegrityRoot();
+      if (integrityRoot != null) {
+        unawaited(_refreshDashboardReleaseIntegrityStatus(integrityRoot));
+      }
       unawaited(_refreshDashboardAgentHeartbeat());
       _dashboardAgentHeartbeatTimer ??= Timer.periodic(
         const Duration(seconds: 5),
         (_) => unawaited(_refreshDashboardAgentHeartbeat()),
+      );
+      _releaseIntegrityDashboardTimer ??= Timer.periodic(
+        const Duration(minutes: 1),
+        (_) {
+          final integrityRoot = _resolveDashboardIntegrityRoot();
+          if (integrityRoot != null) {
+            unawaited(_refreshDashboardReleaseIntegrityStatus(integrityRoot));
+          } else {
+            _resetDashboardReleaseIntegrityStatus();
+          }
+        },
       );
     });
   }
@@ -2368,6 +2631,7 @@ Future<void> _loadAppSettings() async {
         ..addAll(settings.recentGitWorkspacePaths);
       _gitWorkspacePath = settings.lastGitWorkspacePath;
       _developerMode = settings.developerMode;
+      _oneClickReleaseMode = settings.oneClickReleaseMode;
       final restoredPage = settings.lastSelectedPage.clamp(0, 12);
       _selectedPage = !_developerMode && <int>{4, 7, 8, 9, 10, 11}.contains(restoredPage)
           ? 0
@@ -2801,6 +3065,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     if (!mounted || version == null || build == null) return;
     final action = await showDialog<String>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Dostupná nová verzia'),
         content: Text(
@@ -2886,6 +3151,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       if (!mounted) return;
       final overwrite = await showDialog<bool>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Súbor už existuje'),
           content: Text(
@@ -2947,6 +3213,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       if (!mounted) return;
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Aktualizácia stiahnutá'),
           content: SelectableText(
@@ -3101,6 +3368,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     final settings = _currentGitHubSettings;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Aktualizovať version.json na GitHube?'),
         content: ConstrainedBox(
@@ -3220,6 +3488,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     final releaseName = 'STAVBY PRO ${project.version}';
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Vytvoriť GitHub Release?'),
         content: ConstrainedBox(
@@ -3340,6 +3609,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     final tagName = 'v${project.version}';
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Nahrať APK do GitHub Release?'),
         content: Text(
@@ -3387,6 +3657,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         );
         final replace = await showDialog<bool>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Text('APK už existuje'),
             content: Text(
@@ -3501,6 +3772,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
 
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Publikovať celé vydanie na GitHub?'),
         content: ConstrainedBox(
@@ -3600,6 +3872,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         );
         final replace = await showDialog<bool>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Text('APK už existuje'),
             content: Text(
@@ -3656,6 +3929,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
           (publishStopwatch.elapsedMilliseconds / 1000).toStringAsFixed(1);
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           icon: const Icon(Icons.check_circle_outline),
           title: const Text('Publikovanie dokončené'),
@@ -3786,7 +4060,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       }
 
       final pubspecText = await pubspec.readAsString();
-      final versionMatch = RegExp(r'^version:\s*(\d+\.\d+\.\d+)\+(\d+)\s*$', multiLine: true)
+      final versionMatch = RegExp(r'^version:\s*(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\+(\d+)\s*$', multiLine: true)
           .firstMatch(pubspecText);
       setState(() {
         _managerProjectPath = selectedPath;
@@ -4148,7 +4422,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
 
       final pubspecText = await extractedPubspec.readAsString();
       final versionMatch = RegExp(
-        r'^version:\s*(\d+\.\d+\.\d+)\+(\d+)\s*$',
+        r'^version:\s*(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\+(\d+)\s*$',
         multiLine: true,
       ).firstMatch(pubspecText);
 
@@ -4738,8 +5012,8 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     try {
       await showDialog<void>(
         context: rootContext,
-        useRootNavigator: true,
         barrierDismissible: false,
+        useRootNavigator: true,
         builder: (dialogContext) => AlertDialog(
           icon: const Icon(Icons.error_outline, size: 42),
           title: const Text('BUILD ZLYHAL – DIAGNOSTIKA'),
@@ -5052,6 +5326,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
 
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Spustiť kompletný Windows build?'),
         content: Text(
@@ -5430,6 +5705,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Publikovať Release Manager?'),
         content: Text(
@@ -5517,6 +5793,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       if (!mounted) return;
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Release Manager publikovaný'),
           content: SelectableText(
@@ -5569,6 +5846,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
   Future<void> _clearGitHubSettings() async {
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Odstrániť GitHub pripojenie?'),
         content: const Text(
@@ -5852,6 +6130,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         ..addAll(activated);
       _activeProjectProfileId = profile.id;
       _gitWorkspacePath = profile.projectPath;
+      _resetDashboardReleaseIntegrityStatus();
     });
     await _persistProjectProfiles();
     await _rememberGitWorkspace(profile.projectPath);
@@ -5863,6 +6142,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     final controller = TextEditingController(text: initialValue);
     final value = await showDialog<String>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: Text(title),
         content: TextField(
@@ -5972,6 +6252,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
 
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: <Widget>[
@@ -6070,6 +6351,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       if (!mounted) return;
       final activate = await showDialog<bool>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Row(
             children: <Widget>[
@@ -6130,6 +6412,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
   Future<void> _deleteProjectProfile(ProjectProfile profile) async {
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Odstrániť Project Profile?'),
         content: Text('Profil „${profile.name}“ bude odstránený. Projektové súbory zostanú nedotknuté.'),
@@ -6446,6 +6729,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     if (!mounted) return;
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
@@ -8174,6 +8458,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
   Future<void> _clearBuildHistory() async {
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Vymazať históriu buildov?'),
         content: const Text('Táto operácia odstráni lokálnu históriu buildov Release Managera.'),
@@ -8722,6 +9007,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     if (!mounted) return false;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: <Widget>[
@@ -8806,6 +9092,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       if (mounted) {
         await showDialog<void>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Row(
               children: <Widget>[
@@ -8862,6 +9149,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: <Widget>[
@@ -8975,6 +9263,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       if (mounted) {
         final publishNow = await showDialog<bool>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Row(
               children: <Widget>[
@@ -9367,6 +9656,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         : configuredReleaseDestination;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: <Widget>[
@@ -10290,6 +10580,7 @@ SHA256: $hash''';
     if (!mounted) return;
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('História buildov'),
         content: SizedBox(
@@ -10796,6 +11087,7 @@ SHA256: $hash''';
 
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: Row(
           children: <Widget>[
@@ -10866,6 +11158,7 @@ SHA256: $hash''';
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Odstrániť snapshot?'),
         content: Text(
@@ -10938,6 +11231,7 @@ SHA256: $hash''';
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: <Widget>[
@@ -11152,6 +11446,7 @@ SHA256: $hash''';
       if (!mounted) return;
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Row(
             children: <Widget>[
@@ -11370,6 +11665,7 @@ SHA256: $hash''';
 
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           final overLimit = stats.count > _backupStorageMaxCount ||
@@ -11432,6 +11728,7 @@ SHA256: $hash''';
                     : () async {
                         final confirmed = await showDialog<bool>(
                           context: context,
+                          barrierDismissible: false,
                           builder: (confirmContext) => AlertDialog(
                             title: const Text('Vyčistiť staré zálohy?'),
                             content: Text(
@@ -11622,6 +11919,7 @@ SHA256: $hash''';
       if (!mounted) return;
       final confirmed = await showDialog<bool>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Row(children: <Widget>[
             Icon(Icons.sync_rounded, color: Color(0xFF1565C0)),
@@ -11917,6 +12215,7 @@ SHA256: $hash''';
       if (!mounted) return;
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Row(children: <Widget>[
             Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32)),
@@ -12089,12 +12388,18 @@ SHA256: $hash''';
   }
 
 
-  Future<File> _createOneClickReleaseZip(String projectPath) async {
-    final releaseDirectory = Directory(
+  Future<File> _createOneClickReleaseZip(
+    String projectPath, {
+    void Function(double progress, String step)? onProgress,
+  }) async {
+    onProgress?.call(0.02, 'Kontrolujem Windows Release...');
+    final windowsReleaseDirectory = Directory(
       path.join(projectPath, 'build', 'windows', 'x64', 'runner', 'Release'),
     );
-    if (!await releaseDirectory.exists()) {
-      throw StateError('Windows Release priečinok neexistuje: ${releaseDirectory.path}');
+    if (!await windowsReleaseDirectory.exists()) {
+      throw StateError(
+        'Windows Release priečinok neexistuje: ${windowsReleaseDirectory.path}',
+      );
     }
 
     final identity = await _readGitBuildIdentity(projectPath);
@@ -12113,30 +12418,144 @@ SHA256: $hash''';
     final exportDirectory = Directory(exportRoot);
     await exportDirectory.create(recursive: true);
 
-    final zipFile = File(path.join(
-      exportDirectory.path,
-      '${projectName}_${version}_${stage.isEmpty ? 'DEV' : stage}_BUILD_${build}_WINDOWS_RELEASE.zip',
-    ));
-    if (await zipFile.exists()) await zipFile.delete();
+    final apkFile = await _findReleaseApk(projectPath);
+    final hasAndroidApk = apkFile != null && await apkFile.exists();
+    final androidSupported =
+        await Directory(path.join(projectPath, 'android')).exists();
 
-    final escapedSource = releaseDirectory.path.replaceAll("'", "''");
-    final escapedDestination = zipFile.path.replaceAll("'", "''");
-    final result = await Process.run(
-      'powershell.exe',
-      <String>[
-        '-NoProfile',
-        '-NonInteractive',
-        '-Command',
-        "Compress-Archive -Path '$escapedSource\\*' -DestinationPath '$escapedDestination' -CompressionLevel Optimal -Force",
-      ],
-      workingDirectory: projectPath,
-      runInShell: false,
-    );
-    if (result.exitCode != 0 || !await zipFile.exists()) {
-      throw StateError('Export Release ZIP sa nepodarilo vytvoriť: ${result.stderr}');
+    if (androidSupported && !hasAndroidApk) {
+      throw StateError(
+        'Projekt podporuje Android, ale Release APK nebolo nájdené. '
+        'Spoločný Windows + Android export sa nevytvorí neúplný.',
+      );
     }
-    _addLog('Export Release ZIP bol vytvorený: ${zipFile.path}');
-    return zipFile;
+
+    final packageName =
+        '${projectName}_${version}_${stage.isEmpty ? 'DEV' : stage}_BUILD_${build}'
+        '${hasAndroidApk ? '_WINDOWS_ANDROID_RELEASE' : '_WINDOWS_RELEASE'}';
+
+    onProgress?.call(0.10, 'Pripravujem exportný balík...');
+    final stagingDirectory = Directory(
+      path.join(exportDirectory.path, '.${packageName}_STAGING'),
+    );
+    if (await stagingDirectory.exists()) {
+      await stagingDirectory.delete(recursive: true);
+    }
+    await stagingDirectory.create(recursive: true);
+
+    try {
+      onProgress?.call(0.18, 'Kopírujem Windows súbory...');
+      final windowsTarget =
+          Directory(path.join(stagingDirectory.path, 'Windows'));
+      await windowsTarget.create(recursive: true);
+
+      await for (final entity in windowsReleaseDirectory.list(
+        recursive: true,
+        followLinks: false,
+      )) {
+        final relative = path.relative(
+          entity.path,
+          from: windowsReleaseDirectory.path,
+        );
+        final targetPath = path.join(windowsTarget.path, relative);
+        if (entity is Directory) {
+          await Directory(targetPath).create(recursive: true);
+        } else if (entity is File) {
+          final targetFile = File(targetPath);
+          await targetFile.parent.create(recursive: true);
+          await entity.copy(targetFile.path);
+        }
+      }
+
+      final windowsExecutables = windowsTarget
+          .listSync(recursive: true, followLinks: false)
+          .whereType<File>()
+          .where((file) => file.path.toLowerCase().endsWith('.exe'))
+          .toList();
+      if (windowsExecutables.isEmpty) {
+        throw StateError(
+          'Windows export staging neobsahuje žiadne EXE. '
+          'Export bol zastavený pred vytvorením ZIP.',
+        );
+      }
+
+      onProgress?.call(0.48, 'Windows časť pripravená.');
+      if (hasAndroidApk) {
+        onProgress?.call(0.54, 'Pridávam Android APK...');
+        final androidTarget =
+            Directory(path.join(stagingDirectory.path, 'Android'));
+        await androidTarget.create(recursive: true);
+
+        final currentProject = await _pubspecService.readProject(projectPath);
+        final androidFile = File(
+          path.join(androidTarget.path, '${currentProject.releaseFileStem}.apk'),
+        );
+        await apkFile.copy(androidFile.path);
+
+        _addLog(
+          'Export Release: Android APK pridané do balíka → '
+          '${androidFile.path}',
+        );
+      }
+
+      final zipFile = File(
+        path.join(exportDirectory.path, '$packageName.zip'),
+      );
+      if (await zipFile.exists()) await zipFile.delete();
+
+      final escapedStaging = stagingDirectory.path.replaceAll("'", "''");
+      final escapedDestination = zipFile.path.replaceAll("'", "''");
+      onProgress?.call(0.62, 'Vytváram ZIP – komprimujem Windows + Android...');
+      final process = await Process.start(
+        'powershell.exe',
+        <String>[
+          '-NoProfile',
+          '-NonInteractive',
+          '-Command',
+          "Compress-Archive -Path '$escapedStaging\\*' "
+              "-DestinationPath '$escapedDestination' "
+              "-CompressionLevel Optimal -Force",
+        ],
+        workingDirectory: projectPath,
+        runInShell: false,
+      );
+      final stderrBuffer = StringBuffer();
+      final stderrDone = process.stderr
+          .transform(systemEncoding.decoder)
+          .listen(stderrBuffer.write)
+          .asFuture<void>();
+      final stdoutDone = process.stdout.drain<void>();
+
+      var zipProgress = 0.64;
+      final progressTimer = Timer.periodic(
+        const Duration(milliseconds: 450),
+        (_) {
+          if (zipProgress < 0.90) {
+            zipProgress = (zipProgress + 0.025).clamp(0.0, 0.90);
+            onProgress?.call(zipProgress, 'Vytváram ZIP – kompresia prebieha...');
+          }
+        },
+      );
+      final exitCode = await process.exitCode;
+      progressTimer.cancel();
+      await Future.wait<void>(<Future<void>>[stderrDone, stdoutDone]);
+      if (exitCode != 0 || !await zipFile.exists()) {
+        throw StateError(
+          'Export Release ZIP sa nepodarilo vytvoriť: $stderrBuffer',
+        );
+      }
+      onProgress?.call(0.94, 'ZIP vytvorený – overujem výsledný súbor...');
+      onProgress?.call(1.0, 'Export ZIP dokončený.');
+      _addLog(
+        'Export Release ZIP bol vytvorený: ${zipFile.path} '
+        '• Windows=ÁNO • Android=${hasAndroidApk ? 'ÁNO' : 'NIE'}',
+      );
+      return zipFile;
+    } finally {
+      if (await stagingDirectory.exists()) {
+        await stagingDirectory.delete(recursive: true);
+      }
+    }
   }
 
   Future<void> _selectFileInExplorer(String filePath) async {
@@ -12325,7 +12744,8 @@ SHA256: $hash''';
         if (mounted) {
           setState(() {
             _dashboardOperationProgress = 0.35;
-            _dashboardOperationStep = 'Kontrolujem Windows Release...';
+            _dashboardOperationStep =
+                'Kontrolujem Windows Release a dostupné Android APK...';
           });
         }
         await Future<void>.delayed(const Duration(milliseconds: 120));
@@ -12459,7 +12879,7 @@ SHA256: $hash''';
     }
   }
 
-  Future<void> _runOneClickBuild({required bool fastMode}) async {
+  Future<void> _runOneClickBuild({required bool fastMode, bool exportReleaseZip = true, bool showCompletionDialog = true}) async {
     if (_oneClickBuildRunning) return;
     if (!await _waitForWorkspaceSyncBeforeBuild()) return;
     final workspace = _gitWorkspacePath;
@@ -12586,25 +13006,34 @@ SHA256: $hash''';
       );
       File? releaseZipFile;
       Object? releaseZipError;
-      try {
-        releaseZipFile = await _createOneClickReleaseZip(workspace);
-        if (mounted) {
-          setState(() => _dashboardBuildExportOk = true);
+      if (exportReleaseZip) {
+        try {
+          releaseZipFile = await _createOneClickReleaseZip(workspace);
+          if (mounted) {
+            setState(() => _dashboardBuildExportOk = true);
+          }
+        } catch (error, stackTrace) {
+          releaseZipError = error;
+          _addLog('Export Release ZIP sa nepodarilo vytvoriť: $error');
+          await _writeCrashLog(
+            error,
+            stackTrace,
+            step: 'One Click Build – Export Release ZIP',
+            projectPath: workspace,
+          );
         }
-      } catch (error, stackTrace) {
-        releaseZipError = error;
-        _addLog('Export Release ZIP sa nepodarilo vytvoriť: $error');
-        await _writeCrashLog(
-          error,
-          stackTrace,
-          step: 'One Click Build – Export Release ZIP',
-          projectPath: workspace,
+      } else {
+        _addLog(
+          'One Click Build: predbežný Export Release ZIP preskočený; '
+          'ONE CLICK RELEASE ho vytvorí až po Android APK builde.',
         );
       }
       final buildDuration = DateTime.now().difference(buildStartedAt);
       if (!mounted) return;
-      await showDialog<void>(
+      if (showCompletionDialog) {
+        await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: Row(children: <Widget>[
             const Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32)),
@@ -12693,6 +13122,7 @@ SHA256: $hash''';
           ],
         ),
       );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -13306,6 +13736,12 @@ SHA256: $hash''';
       if (step == 'Analyze') {
         return _lastAnalyzeErrors == 0 ? 'OK' : 'CHYBA';
       }
+      if (step == 'APK Build') {
+        final apk = _apkPath;
+        return apk != null && apk.trim().isNotEmpty && File(apk).existsSync()
+            ? 'OK'
+            : '—';
+      }
       return 'OK';
     }
 
@@ -13316,6 +13752,10 @@ SHA256: $hash''';
       stepOk = _dashboardBuildTestOk;
     } else if (step == 'Windows Build') {
       stepOk = _dashboardBuildWindowsOk;
+    } else if (step == 'APK Build') {
+      final apk = _apkPath;
+      stepOk =
+          apk != null && apk.trim().isNotEmpty && File(apk).existsSync();
     } else if (step == 'Export ZIP') {
       stepOk = _dashboardBuildExportOk;
     }
@@ -13331,6 +13771,9 @@ SHA256: $hash''';
       currentStepMatches = currentStepText.contains('test');
     } else if (step == 'Windows Build') {
       currentStepMatches = currentStepText.contains('windows');
+    } else if (step == 'APK Build') {
+      currentStepMatches =
+          currentStepText.contains('android') || currentStepText.contains('apk');
     } else if (step == 'Export ZIP') {
       currentStepMatches =
           currentStepText.contains('export') || currentStepText.contains('zip');
@@ -13348,6 +13791,9 @@ SHA256: $hash''';
       failedStepMatches = failedStepText.contains('test');
     } else if (step == 'Windows Build') {
       failedStepMatches = failedStepText.contains('windows');
+    } else if (step == 'APK Build') {
+      failedStepMatches =
+          failedStepText.contains('android') || failedStepText.contains('apk');
     } else if (step == 'Export ZIP') {
       failedStepMatches =
           failedStepText.contains('export') || failedStepText.contains('zip');
@@ -13356,6 +13802,9 @@ SHA256: $hash''';
       return 'CHYBA';
     }
 
+    if (step == 'APK Build') {
+      return '—';
+    }
     return 'ČAKÁ';
   }
 
@@ -13505,7 +13954,49 @@ Widget _buildProjectDashboardCard() {
       title: 'Informácie o projekte',
       child: Column(
         children: <Widget>[
-          row('Projekt', projectName, icon: Icons.folder_rounded),
+          Container(
+            height: 35,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            margin: const EdgeInsets.only(bottom: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: 0.20),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Row(
+              children: <Widget>[
+                const Icon(
+                  Icons.folder_open_rounded,
+                  size: 17,
+                  color: Color(0xFF31C653),
+                ),
+                const SizedBox(width: 9),
+                const Expanded(child: Text('Projekt')),
+                const Icon(
+                  Icons.circle,
+                  size: 10,
+                  color: Color(0xFF31C653),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Tooltip(
+                    message: projectName,
+                    child: Text(
+                      projectName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF31C653),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 4),
           row('Cesta', workspace, icon: Icons.route_rounded),
           const SizedBox(height: 4),
@@ -14365,8 +14856,8 @@ Widget _buildProjectDashboardCard() {
       unawaited(
         showDialog<void>(
           context: context,
-          useRootNavigator: true,
           barrierDismissible: false,
+          useRootNavigator: true,
           builder: (dialogContext) {
             progressDialogOpened = true;
             return PopScope(
@@ -14435,12 +14926,23 @@ Widget _buildProjectDashboardCard() {
 
       if (options['tag'] == true) {
         await step('Git tag', () async {
-          final result = await _gitService.createTag(
-            workspace,
-            tagName: (data['tagName'] as String?)?.trim() ?? '',
-            message: (data['commitMessage'] as String?)?.trim(),
+          final releaseRoot = await _requireCurrentPublishReleaseRoot('Git tag');
+          if (releaseRoot == null) {
+            throw StateError('Git tag zablokoval Publish Gate.');
+          }
+          final executed = await _runWithReleasePublishGate(
+            releaseRoot,
+            actionName: 'Git tag ${(data['tagName'] as String?)?.trim() ?? ''}',
+            action: () async {
+              final result = await _gitService.createTag(
+                workspace,
+                tagName: (data['tagName'] as String?)?.trim() ?? '',
+                message: (data['commitMessage'] as String?)?.trim(),
+              );
+              if (!result.success) throw StateError(result.message);
+            },
           );
-          if (!result.success) throw StateError(result.message);
+          if (!executed) throw StateError('Git tag zablokoval Publish Gate.');
         });
       }
 
@@ -14462,25 +14964,44 @@ Widget _buildProjectDashboardCard() {
         });
 
         await step('Git push', () async {
-          final branch = (data['branch'] as String?)?.trim();
-          if (branch == null || branch.isEmpty) throw StateError('Git vetva nie je známa.');
-          final pushBranch = await Process.run(
-            'git', <String>['push', '-u', 'origin', branch],
-            workingDirectory: workspace, runInShell: true,
+          final releaseRoot = await _requireCurrentPublishReleaseRoot('Git push');
+          if (releaseRoot == null) {
+            throw StateError('Git push zablokoval Publish Gate.');
+          }
+          final executed = await _runWithReleasePublishGate(
+            releaseRoot,
+            actionName: 'Git push',
+            action: () async {
+              final branch = (data['branch'] as String?)?.trim();
+              if (branch == null || branch.isEmpty) {
+                throw StateError('Git vetva nie je známa.');
+              }
+              final pushBranch = await Process.run(
+                'git', <String>['push', '-u', 'origin', branch],
+                workingDirectory: workspace,
+                runInShell: true,
+              );
+              if (pushBranch.exitCode != 0) {
+                throw StateError(
+                  'Push vetvy zlyhal: ${pushBranch.stderr.toString().trim()}',
+                );
+              }
+              if (options['tag'] == true) {
+                final tag = (data['tagName'] as String?)?.trim() ?? '';
+                final pushTag = await Process.run(
+                  'git', <String>['push', 'origin', tag],
+                  workingDirectory: workspace,
+                  runInShell: true,
+                );
+                if (pushTag.exitCode != 0) {
+                  throw StateError(
+                    'Push tagu zlyhal: ${pushTag.stderr.toString().trim()}',
+                  );
+                }
+              }
+            },
           );
-          if (pushBranch.exitCode != 0) {
-            throw StateError('Push vetvy zlyhal: ${pushBranch.stderr.toString().trim()}');
-          }
-          if (options['tag'] == true) {
-            final tag = (data['tagName'] as String?)?.trim() ?? '';
-            final pushTag = await Process.run(
-              'git', <String>['push', 'origin', tag],
-              workingDirectory: workspace, runInShell: true,
-            );
-            if (pushTag.exitCode != 0) {
-              throw StateError('Push tagu zlyhal: ${pushTag.stderr.toString().trim()}');
-            }
-          }
+          if (!executed) throw StateError('Git push zablokoval Publish Gate.');
         });
       }
 
@@ -14571,8 +15092,8 @@ Widget _buildProjectDashboardCard() {
     try {
       await showDialog<void>(
       context: context,
-      useRootNavigator: true,
       barrierDismissible: false,
+      useRootNavigator: true,
       builder: (dialogContext) => AlertDialog(
         title: Row(children: <Widget>[
           Icon(success ? Icons.check_circle_rounded : Icons.error_rounded,
@@ -14849,7 +15370,14 @@ Widget _buildSectionOverviewDashboard() {
                   subtitle: 'Rýchly build bez clean a pub get',
                   color: const Color(0xFF31C653),
                   onTap: repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning)
-                      ? () => _runOneClickBuild(fastMode: true)
+                      ? () async {
+                          final restoreRecipe = _releaseRecipe != 'DEV';
+                          try {
+                            await _runOneClickBuild(fastMode: true);
+                          } finally {
+                            if (restoreRecipe) await _restoreDevelopmentRecipe();
+                          }
+                        }
                       : null,
                 ),
               ),
@@ -14861,11 +15389,71 @@ Widget _buildSectionOverviewDashboard() {
                   subtitle: 'Plný build s clean a pub get',
                   color: const Color(0xFF2196F3),
                   onTap: repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning)
-                      ? () => _runOneClickBuild(fastMode: false)
+                      ? () async {
+                          final restoreRecipe = _releaseRecipe != 'DEV';
+                          try {
+                            await _runOneClickBuild(fastMode: false);
+                          } finally {
+                            if (restoreRecipe) await _restoreDevelopmentRecipe();
+                          }
+                        }
                       : null,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: <Widget>[
+              const Text(
+                'ONE CLICK:',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(width: 8),
+              for (final mode in const <String>['DEV', 'RC', 'FINAL']) ...<Widget>[
+                Expanded(
+                  child: ChoiceChip(
+                    label: Text(mode),
+                    selected: _oneClickReleaseMode == mode,
+                    onSelected: _oneClickBuildRunning ||
+                            _workspaceSyncRunning ||
+                            _gitBuildPublishRunning ||
+                            _dashboardOperationRunning ||
+                            _busy
+                        ? null
+                        : (_) async {
+                            if (_oneClickReleaseMode == mode) return;
+                            setState(() => _oneClickReleaseMode = mode);
+                            await _appSettingsService
+                                .saveOneClickReleaseMode(mode);
+                            _addLog(
+                              'ONE CLICK RELEASE režim nastavený na $mode.',
+                            );
+                          },
+                  ),
+                ),
+                if (mode != 'FINAL') const SizedBox(width: 6),
+              ],
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: repositoryReady &&
+                      !(_oneClickBuildRunning ||
+                          _workspaceSyncRunning ||
+                          _gitBuildPublishRunning ||
+                          _dashboardOperationRunning ||
+                          _busy)
+                  ? _runOneClickReleaseComplete
+                  : null,
+              icon: const Icon(Icons.rocket_launch_rounded),
+              label: Text(
+                'ONE CLICK RELEASE • $_oneClickReleaseMode',
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
           ),
           const SizedBox(height: 12),
           Row(
@@ -14923,6 +15511,26 @@ Widget _buildSectionOverviewDashboard() {
                   Icons.auto_awesome_rounded,
                   'AI Build Assistant / Completion Center',
                   repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? _showBuildCompletionCenter : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.cloud_upload_rounded,
+                  'Publikovať na domáci server',
+                  (_busy || _oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning)
+                      ? null
+                      : _publishReleaseToHomeServer,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: smallAction(
+                  Icons.receipt_long_rounded,
+                  'Release Recipe: $_releaseRecipe',
+                  (_busy || _oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning)
+                      ? null
+                      : _selectReleaseRecipe,
                 ),
               ),
             ],
@@ -14989,6 +15597,66 @@ Widget _buildSectionOverviewDashboard() {
               );
             },
           ),
+          _dashboardInfoRow(
+            Icons.verified_user_rounded,
+            'Release Integrity',
+            '$_dashboardReleaseIntegrityStatus • AUTOMATICKY',
+          ),
+          _dashboardInfoRow(
+            Icons.publish_rounded,
+            'Publish Gate',
+            _dashboardPublishGateStatus,
+          ),
+          _dashboardInfoRow(
+            Icons.rule_rounded,
+            'Publish pripravenosť',
+            _dashboardPublishGateDetail,
+          ),
+          _dashboardInfoRow(
+            Icons.task_alt_rounded,
+            'Release stav',
+            _dashboardReleaseReadiness,
+          ),
+          _dashboardInfoRow(
+            Icons.security_rounded,
+            'Publish ochrana',
+            'AKTÍVNA • Git tag/push cez Publish Gate',
+          ),
+          _dashboardInfoRow(
+            Icons.dns_rounded,
+            'Release Distribution',
+            _releaseDistributionStatus,
+          ),
+          _dashboardInfoRow(
+            Icons.receipt_long_rounded,
+            'Release Recipe',
+            '$_releaseRecipe • DEV / RC / FINAL',
+          ),
+          _dashboardInfoRow(
+            Icons.rocket_launch_rounded,
+            'One Click Release',
+            'Analyze → Test → Windows + Android APK → spoločný ZIP → Integrity → Publish Gate',
+          ),
+          _dashboardInfoRow(
+            Icons.health_and_safety_rounded,
+            'RC1 stabilizácia',
+            'AKTÍVNA • stav po RC/FINAL sa automaticky synchronizuje',
+          ),
+
+
+          _dashboardInfoRow(
+            Icons.schedule_rounded,
+            'Integrity kontrola',
+            _dashboardReleaseIntegrityCheckedAt == null
+                ? 'zatiaľ neprebehla'
+                : '${_dashboardReleaseIntegrityCheckedAt!.toLocal().toString().split('.').first} • $_dashboardReleaseIntegrityFreshness',
+          ),
+          if (_dashboardReleaseIntegrityHint != null)
+            _dashboardInfoRow(
+              Icons.info_outline_rounded,
+              'Integrity akcia',
+              _dashboardReleaseIntegrityHint!,
+            ),
           _dashboardInfoRow(
             Icons.storage_rounded,
             'Projekt',
@@ -15207,6 +15875,7 @@ Widget _buildSectionOverviewDashboard() {
               Expanded(child: _dashboardBuildMetric('Analyze', _dashboardBuildStepStatus('Analyze'))),
               Expanded(child: _dashboardBuildMetric('Test', _dashboardBuildStepStatus('Test'))),
               Expanded(child: _dashboardBuildMetric('Windows Build', _dashboardBuildStepStatus('Windows Build'))),
+              Expanded(child: _dashboardBuildMetric('APK Build', _dashboardBuildStepStatus('APK Build'))),
               Expanded(child: _dashboardBuildMetric('Export ZIP', _dashboardBuildStepStatus('Export ZIP'))),
             ],
           ),
@@ -15268,23 +15937,6 @@ Widget _buildSectionOverviewDashboard() {
               ],
             );
           },
-        ),
-        const SizedBox(height: 10),
-        RMSectionCard(
-          title: 'Posledné udalosti',
-          child: Column(
-            children: <Widget>[
-              _dashboardEventRow(Icons.check_circle_rounded, 'Flutter Analyze', _dashboardBuildStepStatus('Analyze')),
-              _dashboardEventRow(Icons.check_circle_rounded, 'Flutter Test', _dashboardBuildStepStatus('Test')),
-              _dashboardEventRow(Icons.window_rounded, 'Windows Release Build', _dashboardBuildStepStatus('Windows Build')),
-              _dashboardEventRow(Icons.folder_zip_rounded, 'Export Release ZIP', _dashboardBuildStepStatus('Export ZIP')),
-              _dashboardEventRow(
-                Icons.sync_rounded,
-                'Workspace Sync',
-                _dashboardWorkspaceStatus(),
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -15428,6 +16080,7 @@ Widget _buildSectionOverviewDashboard() {
           : 'Import dokončený. ${missingPaths.length} profilov potrebuje na tomto PC vybrať novú cestu.';
       await showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
           title: const Text('New PC Restore dokončený'),
           content: Text(
@@ -16103,6 +16756,7 @@ Widget _buildSectionOverviewDashboard() {
       _addLog(
         'Distribution Center: obnovený posledný release z disku: ${latest.path}',
       );
+      unawaited(_refreshDashboardReleaseIntegrityStatus(latest));
       if (detectedExe != null) {
         _addLog('Distribution Center: Windows EXE: $detectedExe');
       }
@@ -16117,7 +16771,9 @@ Widget _buildSectionOverviewDashboard() {
     }
   }
 
-  Future<void> _createCurrentReleaseIntegrityManifest() async {
+  Future<void> _createCurrentReleaseIntegrityManifest({
+    bool showSuccessDialog = true,
+  }) async {
     final releasePath = _releaseWizardReleaseDirectory;
     if (releasePath == null || releasePath.trim().isEmpty) {
       _showError('Najprv musí byť dostupný release balík.');
@@ -16139,9 +16795,21 @@ Widget _buildSectionOverviewDashboard() {
 
       final manifest = File(path.join(root.path, 'Reports', 'SHA256SUMS.txt'));
       final manifestPath = path.normalize(manifest.path).toLowerCase();
-      final payloadFiles = files
-          .where((file) => path.normalize(file.path).toLowerCase() != manifestPath)
-          .toList();
+      const integrityGeneratedFiles = <String>{
+        'reports/release_integrity_report.json',
+        'reports/release_integrity_report.txt',
+        'reports/release_integrity_status.json',
+        'reports/release_audit_trail.jsonl',
+      };
+      final payloadFiles = files.where((file) {
+        final normalized = path.normalize(file.path).toLowerCase();
+        if (normalized == manifestPath) return false;
+        final relative = path
+            .relative(file.path, from: root.path)
+            .replaceAll(r'\', '/')
+            .toLowerCase();
+        return !integrityGeneratedFiles.contains(relative);
+      }).toList();
 
       if (payloadFiles.isEmpty) {
         _showError('Release balík neobsahuje žiadne súbory pre SHA-256 manifest.');
@@ -16177,9 +16845,10 @@ Widget _buildSectionOverviewDashboard() {
       );
       _rememberDashboardOperationResult('Release Integrity Manifest', true);
 
-      if (mounted) {
+      if (mounted && showSuccessDialog) {
         await showDialog<void>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Row(
               children: <Widget>[
@@ -16217,12 +16886,897 @@ Widget _buildSectionOverviewDashboard() {
     }
   }
 
+  Future<String> _releasePublishGateUiStatus(Directory root) async {
+    final statusFile = File(path.join(root.path, 'Reports', 'RELEASE_INTEGRITY_STATUS.json'));
+    if (!await statusFile.exists()) {
+      return 'NEOVERENÉ';
+    }
+
+    try {
+      final decoded = jsonDecode(await statusFile.readAsString());
+      if (decoded is! Map<String, dynamic>) {
+        return 'BLOKOVANÉ';
+      }
+      if (decoded['publishAllowed'] != true || decoded['status'] != 'PASSED') {
+        return 'BLOKOVANÉ';
+      }
+      final validUntil = DateTime.tryParse(decoded['gateValidUntil']?.toString() ?? '');
+      if (validUntil == null || DateTime.now().isAfter(validUntil)) {
+        return 'EXPIROVANÉ';
+      }
+      final validationError = await _validateReleasePublishGate(root);
+      return validationError == null ? 'INTEGRITY OK' : 'BLOKOVANÉ';
+    } catch (_) {
+      return 'BLOKOVANÉ';
+    }
+  }
+
+  void _resetDashboardReleaseIntegrityStatus() {
+    if (!mounted || _dashboardReleaseIntegrityStatus == 'NEOVERENÉ') return;
+    setState(() {
+      _dashboardReleaseIntegrityStatus = 'NEOVERENÉ';
+      _dashboardReleaseIntegrityCheckedAt = null;
+      _dashboardReleaseIntegrityHint = null;
+    });
+  }
+
+  Directory? _resolveDashboardIntegrityRoot() {
+    final releaseRoot = _releaseWizardReleaseDirectory;
+    if (releaseRoot != null && releaseRoot.trim().isNotEmpty) {
+      return Directory(releaseRoot);
+    }
+
+    // Ak Distribution Center ešte neobnovil posledný release, nepoužívame
+    // workspace ako falošný release root. Dashboard zostane NEOVERENÉ,
+    // kým sa reálny release nenájde/nevytvorí.
+    return null;
+  }
+
+  // Internal verifier retained for automatic integrity workflows.
+  // ignore: unused_element
+  Future<void> _verifyProjectFromDashboard() async {
+    if (_busy) return;
+
+    if (_releaseWizardReleaseDirectory == null ||
+        _releaseWizardReleaseDirectory!.trim().isEmpty) {
+      await _refreshDistributionCenterFromDisk();
+    }
+
+    final releaseRoot = _resolveDashboardIntegrityRoot();
+    if (releaseRoot == null || !await releaseRoot.exists()) {
+      if (mounted) {
+        _showError(
+          'Pre aktuálny projekt nebol nájdený release balík na overenie.',
+        );
+      }
+      return;
+    }
+
+    final manifest = File(
+      path.join(releaseRoot.path, 'Reports', 'SHA256SUMS.txt'),
+    );
+    _addLog(
+      'Dashboard Overiť projekt: obnovujem SHA-256 manifest bez '
+      'interných Release Integrity reportov.',
+    );
+    await _createCurrentReleaseIntegrityManifest(showSuccessDialog: false);
+
+    if (!await manifest.exists()) return;
+
+    _addLog(
+      'Dashboard Overiť projekt: spúšťam Release Integrity pre '
+      '${releaseRoot.path}.',
+    );
+    await _verifyCurrentReleaseIntegrity();
+
+    // Give filesystem writes and the dialog flow a moment to fully settle,
+    // then force a fresh status read from the exact release root.
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    _resetDashboardReleaseIntegrityStatus();
+    await _refreshDashboardReleaseIntegrityStatus(releaseRoot);
+
+    // One more refresh on the next event-loop turn prevents stale UI state
+    // when setState from the verification dialog completed in the same frame.
+    await Future<void>.delayed(Duration.zero);
+    await _refreshDashboardReleaseIntegrityStatus(releaseRoot);
+
+    final finalStatus = await _releasePublishGateUiStatus(releaseRoot);
+    final verificationOk = finalStatus == 'INTEGRITY OK';
+    _rememberDashboardOperationResult(
+      'Overiť projekt',
+      verificationOk,
+    );
+    _addLog(
+      'Dashboard OVERIŤ PROJEKT: one-click kontrola projektu bola dokončená '
+      'a Dashboard bol obnovený • výsledok: $finalStatus • '
+      'Publish Gate: $_dashboardPublishGateStatus.',
+    );
+  }
+
+  Future<void> _refreshDashboardReleaseIntegrityStatus(Directory root) async {
+    if (!await root.exists()) {
+      _resetDashboardReleaseIntegrityStatus();
+      return;
+    }
+    final status = await _releasePublishGateUiStatus(root);
+    if (!mounted) return;
+    final checkedAt = DateTime.now();
+    final hint = switch (status) {
+      'EXPIROVANÉ' => 'Spusti nové overenie Release Integrity.',
+      'BLOKOVANÉ' => 'Skontroluj Release Integrity report a oprav blokujúci stav.',
+      'NEOVERENÉ' => 'Vytvor manifest a spusti overenie Release Integrity.',
+      _ => null,
+    };
+    if (_dashboardReleaseIntegrityStatus == status &&
+        _dashboardReleaseIntegrityHint == hint) {
+      setState(() {
+        _dashboardReleaseIntegrityCheckedAt = checkedAt;
+      });
+      return;
+    }
+    setState(() {
+      _dashboardReleaseIntegrityStatus = status;
+      _dashboardReleaseIntegrityCheckedAt = checkedAt;
+      _dashboardReleaseIntegrityHint = hint;
+    });
+    _addLog(
+      'RELEASE INTEGRITY DASHBOARD v1: $status • $_dashboardReleaseIntegrityFreshness '
+      '• automatická kontrola aktívna.',
+    );
+  }
+
+  Future<void> _appendReleaseAuditEvent(
+    Directory root, {
+    required String event,
+    required bool allowed,
+    String? reason,
+  }) async {
+    try {
+      final auditFile = File(path.join(root.path, 'Reports', 'RELEASE_AUDIT_TRAIL.jsonl'));
+      await auditFile.parent.create(recursive: true);
+      final record = <String, dynamic>{
+        'timestamp': DateTime.now().toIso8601String(),
+        'event': event,
+        'allowed': allowed,
+        'reason': reason,
+        'projectProfileId': _activeProjectProfileId,
+        'releaseRoot': root.path,
+      };
+      await auditFile.writeAsString(
+        '${jsonEncode(record)}\n',
+        mode: FileMode.append,
+        flush: true,
+      );
+    } catch (e) {
+      _addLog('Release Audit Trail: zápis zlyhal – $e');
+    }
+  }
+
+  Future<void> _runOneClickReleaseComplete() async {
+    if (_busy ||
+        _oneClickBuildRunning ||
+        _workspaceSyncRunning ||
+        _gitBuildPublishRunning ||
+        _dashboardOperationRunning) {
+      return;
+    }
+
+    final workspace = _gitWorkspacePath ?? _project?.projectPath;
+    if (workspace == null || workspace.trim().isEmpty) {
+      _showError('Najprv vyber projekt.');
+      return;
+    }
+
+    final selected = _oneClickReleaseMode;
+    _addLog('=== ONE CLICK RELEASE • $selected ===');
+
+    var success = false;
+    File? finalReleaseZip;
+    final releaseStartedAt = DateTime.now();
+    if (mounted) {
+      setState(() {
+        _dashboardOperationRunning = true;
+        _dashboardOperationProgress = 0.01;
+        _dashboardOperationTitle = 'ONE CLICK RELEASE • $selected';
+        _dashboardOperationStep = 'Pripravujem release...';
+      });
+    }
+    var phaseStartedAt = releaseStartedAt;
+
+    void logPhaseDuration(String phase) {
+      final now = DateTime.now();
+      final elapsed = now.difference(phaseStartedAt);
+      _addLog(
+        'ONE CLICK RELEASE ČAS: $phase = '
+        '${elapsed.inMinutes}m ${elapsed.inSeconds.remainder(60)}s',
+      );
+      phaseStartedAt = now;
+    }
+
+    try {
+      final recipeOk = await _applyReleaseRecipe(selected);
+      if (!recipeOk) throw StateError('Release Recipe $selected zlyhal.');
+
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.08;
+          _dashboardOperationStep = 'Release Recipe $selected pripravený.';
+        });
+      }
+      _addLog('ONE CLICK RELEASE: 1/6 Recipe $selected OK.');
+      logPhaseDuration('Recipe');
+      final fastDevRelease = selected == 'DEV';
+      _addLog(
+        fastDevRelease
+            ? 'ONE CLICK RELEASE DEV FAST: flutter clean a pub get sa preskočia.'
+            : 'ONE CLICK RELEASE $selected SAFE: používa sa plný clean + pub get.',
+      );
+      await _runOneClickBuild(
+        fastMode: fastDevRelease,
+        exportReleaseZip: false,
+        showCompletionDialog: false,
+      );
+      if (_oneClickBuildFailedLabel != null) {
+        final failureDetail = _oneClickBuildFailedOutput.isEmpty
+            ? (_oneClickBuildFailedError?.toString() ??
+                'Návratový kód: ${_oneClickBuildFailedExitCode ?? 'neznámy'}')
+            : _oneClickBuildFailedOutput.take(12).join('\n');
+        throw StateError(
+          '${_oneClickBuildFailedLabel!} zlyhal.\n$failureDetail',
+        );
+      }
+      if (!_dashboardBuildAnalyzeOk ||
+          !_dashboardBuildTestOk ||
+          !_dashboardBuildWindowsOk) {
+        throw StateError(
+          '${fastDevRelease ? 'FAST DEV BUILD' : 'FULL BUILD'} nebol úspešne dokončený. '
+          'Analyze=${_dashboardBuildAnalyzeOk ? 'OK' : 'CHYBA'}, '
+          'Test=${_dashboardBuildTestOk ? 'OK' : 'CHYBA'}, '
+          'Windows=${_dashboardBuildWindowsOk ? 'OK' : 'CHYBA'}.',
+        );
+      }
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.42;
+          _dashboardOperationStep = 'Windows build hotový – pokračujem Android APK...';
+        });
+      }
+      _addLog('ONE CLICK RELEASE: 2/6 Analyze/Test/Windows Build dokončený – pokračujem Android APK bez medzidialógu.');
+      logPhaseDuration(fastDevRelease ? 'FAST DEV Windows pipeline' : 'FULL Windows pipeline');
+
+      final androidProject =
+          await Directory(path.join(workspace, 'android')).exists();
+      if (androidProject) {
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 0.46;
+            _dashboardOperationStep = 'Kompilujem Android Release APK...';
+          });
+        }
+        _addLog('ONE CLICK RELEASE: 3/6 Spúšťam Android Release APK build...');
+        final apkOk = await _runWorkspaceFlutterStep(
+          workspace,
+          <String>['build', 'apk', '--release'],
+          'Android Release APK build',
+        );
+        if (!apkOk) {
+          throw StateError(
+            'Android Release APK build zlyhal. One Click Release bol zastavený.',
+          );
+        }
+
+        final apkFile = await _findReleaseApk(workspace);
+        if (apkFile == null || !await apkFile.exists()) {
+          throw StateError(
+            'Flutter APK build skončil bez nájdeného app-release.apk.',
+          );
+        }
+
+        final apkSize = await apkFile.length();
+        final apkDigest = await sha256.bind(apkFile.openRead()).first;
+        if (mounted) {
+          setState(() {
+            _apkPath = apkFile.path;
+            _apkSizeBytes = apkSize;
+            _apkSha256 = apkDigest.toString();
+            _completedApkBuildSteps.add('Release APK build');
+          });
+        }
+        _addLog(
+          'ONE CLICK RELEASE: Android APK vytvorené → ${apkFile.path} '
+          '(${_formatMb(apkSize)} MB).',
+        );
+
+        final androidExport = _androidReleaseExportDirectory?.trim();
+        if (androidExport != null && androidExport.isNotEmpty) {
+          final currentProject = await _pubspecService.readProject(workspace);
+          if (mounted) setState(() => _project = currentProject);
+
+          final outputDirectory = Directory(androidExport);
+          await outputDirectory.create(recursive: true);
+          final outputFile = File(
+            path.join(outputDirectory.path, '${currentProject.releaseFileStem}.apk'),
+          );
+          if (await outputFile.exists()) await outputFile.delete();
+          await apkFile.copy(outputFile.path);
+          if (mounted) {
+            setState(() => _androidExportedApkPath = outputFile.path);
+          }
+          _addLog(
+            'ONE CLICK RELEASE: Android APK exportované → ${outputFile.path}',
+          );
+        } else {
+          _addLog(
+            'ONE CLICK RELEASE: Android export priečinok nie je nastavený; '
+            'APK zostáva v build/app/outputs/flutter-apk.',
+          );
+        }
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 0.62;
+            _dashboardOperationStep = 'Pripravujem spoločný export ZIP...';
+          });
+        }
+        final combinedReleaseZip = await _createOneClickReleaseZip(
+          workspace,
+          onProgress: (progress, step) {
+            if (!mounted) return;
+            setState(() {
+              _dashboardOperationProgress = 0.62 + (progress * 0.18);
+              _dashboardOperationStep = step;
+            });
+          },
+        );
+        finalReleaseZip = combinedReleaseZip;
+        if (!await combinedReleaseZip.exists()) {
+          throw StateError(
+            'Spoločný Windows + Android ZIP po exporte neexistuje: '
+            '${combinedReleaseZip.path}',
+          );
+        }
+        if (mounted) {
+          setState(() {
+            _dashboardBuildExportOk = true;
+            _oneClickBuildCurrentStep = 'Export ZIP OK';
+          });
+        }
+        _addLog(
+          'ONE CLICK RELEASE: spoločný Windows + Android export vytvorený → '
+          '${combinedReleaseZip.path}',
+        );
+        _addLog('ONE CLICK RELEASE: 3/6 Android APK + export dokončené.');
+        logPhaseDuration('Android APK + spoločný export');
+      } else {
+        _addLog(
+          'ONE CLICK RELEASE: 3/6 Android platforma nie je v projekte – '
+          'APK krok preskočený.',
+        );
+      }
+
+      await _refreshDistributionCenterFromDisk();
+      final releaseRoot = _resolveDashboardIntegrityRoot();
+      if (releaseRoot == null || !await releaseRoot.exists()) {
+        throw StateError('Po builde nebol nájdený release balík.');
+      }
+
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.82;
+          _dashboardOperationStep = 'Vytváram SHA-256 manifest...';
+        });
+      }
+      await _createCurrentReleaseIntegrityManifest(showSuccessDialog: false);
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.88;
+          _dashboardOperationStep = 'Overujem SHA-256 integritu release...';
+        });
+      }
+      await _verifyCurrentReleaseIntegrity(showSuccessDialog: false);
+      await _refreshDashboardReleaseIntegrityStatus(releaseRoot);
+      final gateError = await _validateReleasePublishGate(releaseRoot);
+      if (gateError != null) {
+        throw StateError('Release Integrity / Publish Gate: $gateError');
+      }
+      _addLog('ONE CLICK RELEASE: 4/6 Release Integrity + Publish Gate OK.');
+      logPhaseDuration('Integrity + Publish Gate');
+
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 0.95;
+          _dashboardOperationStep = 'Obnovujem Git a finálny stav...';
+        });
+      }
+      await _refreshGitWorkspace();
+      _addLog('ONE CLICK RELEASE: 5/6 Git workspace pripravený.');
+      logPhaseDuration('Git refresh');
+      final totalReleaseDuration = DateTime.now().difference(releaseStartedAt);
+      _addLog(
+        'ONE CLICK RELEASE CELKOVÝ ČAS: '
+        '${totalReleaseDuration.inMinutes}m '
+        '${totalReleaseDuration.inSeconds.remainder(60)}s.',
+      );
+
+      success = true;
+      _rememberDashboardOperationResult('One Click Release', true);
+      _addLog(
+        'ONE CLICK RELEASE COMPLETE: release je pripravený na Git tag/push '
+        'a distribúciu na domáci server.',
+      );
+
+      if (mounted) {
+        setState(() {
+          _dashboardOperationProgress = 1.0;
+          _dashboardOperationStep = 'ONE CLICK RELEASE dokončený.';
+        });
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('One Click Release dokončený'),
+            content: Text(
+              'Profil: $selected\n'
+              'Windows build: OK\n'
+              'Android APK: OK\n'
+              'Export ZIP: OK\n'
+              'SHA-256 manifest: OK\n'
+              'Release Integrity: INTEGRITY OK\n'
+              'Publish Gate: POVOLENÉ\n\n'
+              '${finalReleaseZip == null ? '' : 'Export:\n${finalReleaseZip!.path}\n\n'}'
+              '${selected == 'DEV' ? 'DEV release je pripravený na interné testovanie.' : 'Release je pripravený na publikovanie.'}\n\n'
+              '${selected == 'DEV' ? 'Projekt zostáva v DEV konfigurácii.' : 'Po zatvorení tohto okna sa pracovný projekt automaticky vráti do DEV konfigurácie.'}',
+            ),
+            actions: <Widget>[
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('POKRAČOVAŤ'),
+              ),
+            ],
+          ),
+        );
+      }
+      _addLog('ONE CLICK RELEASE: 6/6 COMPLETE.');
+    } catch (error, stackTrace) {
+      _rememberDashboardOperationResult('One Click Release', false);
+      final message = error.toString();
+      _addLog('ONE CLICK RELEASE: ZLYHANIE – $message');
+      await _writeCrashLog(
+        error,
+        stackTrace,
+        step: 'One Click Release • $selected',
+        projectPath: workspace,
+      );
+      if (mounted) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => AlertDialog(
+            title: const Row(
+              children: <Widget>[
+                Icon(Icons.error_rounded, color: Color(0xFFE53935)),
+                SizedBox(width: 10),
+                Expanded(child: Text('ONE CLICK RELEASE ZLYHAL')),
+              ],
+            ),
+            content: SizedBox(
+              width: 680,
+              child: SelectableText(
+                'Profil: $selected\n\n'
+                'Workflow bol ZASTAVENÝ. Ďalšie release kroky sa nespustili.\n\n'
+                'Presná chyba:\n$message',
+              ),
+            ),
+            actions: <Widget>[
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _dashboardOperationRunning = false;
+          _dashboardOperationProgress = success ? 1.0 : 0.0;
+          _dashboardOperationTitle =
+              success ? 'ONE CLICK RELEASE dokončený' : 'ONE CLICK RELEASE zlyhal';
+          _dashboardOperationStep =
+              success ? 'Všetky kroky dokončené.' : 'Workflow bol zastavený.';
+        });
+      }
+      if (selected != 'DEV') {
+        await _restoreDevelopmentRecipe();
+      }
+
+      // RC1 stabilization: after FINAL/RC the source tree is restored to DEV,
+      // then every Dashboard source is refreshed so no stale release state remains.
+      await _refreshGitWorkspace();
+      await _refreshDistributionCenterFromDisk();
+      final stabilizedReleaseRoot = _resolveDashboardIntegrityRoot();
+      if (stabilizedReleaseRoot != null &&
+          await stabilizedReleaseRoot.exists()) {
+        await _refreshDashboardReleaseIntegrityStatus(stabilizedReleaseRoot);
+      } else {
+        _resetDashboardReleaseIntegrityStatus();
+      }
+
+      if (success) {
+        _addLog(
+          'ONE CLICK RELEASE: DEV konfigurácia obnovená a RC1 stav '
+          'Dashboardu synchronizovaný.',
+        );
+      }
+    }
+  }
+
+  Future<bool> _applyReleaseRecipe(String recipe) async {
+    final workspace = _gitWorkspacePath ?? _project?.projectPath;
+    if (workspace == null || workspace.trim().isEmpty) return false;
+    final pubspec = File(path.join(workspace, 'pubspec.yaml'));
+    if (!await pubspec.exists()) {
+      _addLog('RELEASE RECIPES: pubspec.yaml nebol nájdený.');
+      return false;
+    }
+
+    final original = await pubspec.readAsString();
+    _releaseRecipeBackupPubspec ??= original;
+    final match = RegExp(
+      r'^version:\s*([^+\s]+)\+(\d+)\s*$',
+      multiLine: true,
+    ).firstMatch(original);
+    if (match == null) {
+      _addLog('RELEASE RECIPES: verzia v pubspec.yaml nebola rozpoznaná.');
+      return false;
+    }
+
+    final baseVersion = match.group(1)!;
+    final build = match.group(2)!;
+    final normalized = recipe.toUpperCase();
+    final recipeVersion = switch (normalized) {
+      'RC' => baseVersion.replaceAll(RegExp(r'-(?:dev|rc)[.\-0-9]*$', caseSensitive: false), '') + '-rc.1',
+      'FINAL' => baseVersion.replaceAll(RegExp(r'-(?:dev|rc)[.\-0-9]*$', caseSensitive: false), ''),
+      _ => baseVersion.contains(RegExp(r'-dev', caseSensitive: false))
+          ? baseVersion
+          : baseVersion.replaceAll(RegExp(r'-(?:rc)[.\-0-9]*$', caseSensitive: false), '') + '-dev.1',
+    };
+
+    final updated = original.replaceFirst(
+      RegExp(r'^version:\s*[^+\s]+\+\d+\s*$', multiLine: true),
+      'version: $recipeVersion+$build',
+    );
+    await pubspec.writeAsString(updated, flush: true);
+
+    final verify = await pubspec.readAsString();
+    final expected = 'version: $recipeVersion+$build';
+    if (!verify.contains(expected)) {
+      _addLog('RELEASE RECIPES: validácia $normalized zlyhala.');
+      return false;
+    }
+
+    if (mounted) setState(() => _releaseRecipe = normalized);
+    _addLog('RELEASE RECIPES v1: profil $normalized aplikovaný a overený → $expected');
+    return true;
+  }
+
+  Future<void> _restoreDevelopmentRecipe() async {
+    final workspace = _gitWorkspacePath ?? _project?.projectPath;
+    final backup = _releaseRecipeBackupPubspec;
+    if (workspace == null || backup == null) return;
+    final pubspec = File(path.join(workspace, 'pubspec.yaml'));
+    await pubspec.writeAsString(backup, flush: true);
+    _releaseRecipeBackupPubspec = null;
+    if (mounted) setState(() => _releaseRecipe = 'DEV');
+    _addLog('RELEASE RECIPES v1: vývojová konfigurácia bola automaticky obnovená.');
+  }
+
+  Future<void> _selectReleaseRecipe() async {
+    final selected = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Release Recipe'),
+        content: const Text(
+          'Vyber profil buildu. RC a FINAL sa aplikujú iba na build a '
+          'po dokončení sa projekt automaticky vráti do DEV konfigurácie.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('ZRUŠIŤ'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.of(dialogContext).pop('DEV'),
+            child: const Text('DEV'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.of(dialogContext).pop('RC'),
+            child: const Text('RC'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop('FINAL'),
+            child: const Text('FINAL'),
+          ),
+        ],
+      ),
+    );
+    if (selected == null) return;
+    await _applyReleaseRecipe(selected);
+  }
+
+  Future<void> _publishReleaseToHomeServer() async {
+    if (_busy) return;
+    final releaseRoot = await _requireCurrentPublishReleaseRoot(
+      'Release Distribution – Home Server',
+    );
+    if (releaseRoot == null) return;
+
+    final controller = TextEditingController(
+      text: _releaseDistributionTargetPath ?? '',
+    );
+    final target = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Publikovať na domáci server'),
+        content: SizedBox(
+          width: 560,
+          child: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Cieľový priečinok / sieťová cesta',
+              hintText: r'\\SERVER\Releases alebo D:\Releases',
+              prefixIcon: Icon(Icons.dns_rounded),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('ZRUŠIŤ'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              final value = controller.text.trim();
+              if (value.isNotEmpty) Navigator.of(dialogContext).pop(value);
+            },
+            icon: const Icon(Icons.cloud_upload_rounded),
+            label: const Text('PUBLIKOVAŤ'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (target == null || target.trim().isEmpty) return;
+
+    final targetRoot = Directory(target.trim());
+    var publishedPath = '';
+    final executed = await _runWithReleasePublishGate(
+      releaseRoot,
+      actionName: 'Release Distribution – Home Server',
+      action: () async {
+        await targetRoot.create(recursive: true);
+        final destination = Directory(
+          path.join(targetRoot.path, path.basename(releaseRoot.path)),
+        );
+        if (await destination.exists()) {
+          await destination.delete(recursive: true);
+        }
+        await destination.create(recursive: true);
+
+        await for (final entity in releaseRoot.list(
+          recursive: true,
+          followLinks: false,
+        )) {
+          final relative = path.relative(entity.path, from: releaseRoot.path);
+          final destinationPath = path.join(destination.path, relative);
+          if (entity is Directory) {
+            await Directory(destinationPath).create(recursive: true);
+          } else if (entity is File) {
+            final file = File(destinationPath);
+            await file.parent.create(recursive: true);
+            await entity.copy(file.path);
+          }
+        }
+
+        final latestFile = File(path.join(targetRoot.path, 'LATEST_STABLE.json'));
+        await latestFile.writeAsString(
+          const JsonEncoder.withIndent('  ').convert(<String, dynamic>{
+            'release': path.basename(releaseRoot.path),
+            'path': destination.path,
+            'publishedAt': DateTime.now().toIso8601String(),
+            'channel': 'stable',
+          }),
+          flush: true,
+        );
+        publishedPath = destination.path;
+      },
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _releaseDistributionTargetPath = target.trim();
+      _lastReleaseDistributionAt = DateTime.now();
+      _releaseDistributionStatus = executed ? 'PUBLIKOVANÉ' : 'BLOKOVANÉ';
+    });
+    _rememberDashboardOperationResult(
+      'Release Distribution',
+      executed,
+    );
+    if (executed) {
+      _addLog(
+        'RELEASE DISTRIBUTION v1: Home Server publikovaný → $publishedPath',
+      );
+    }
+  }
+
+  Future<Directory?> _requireCurrentPublishReleaseRoot(
+    String actionName,
+  ) async {
+    final releaseRoot = _resolveDashboardIntegrityRoot();
+    if (releaseRoot == null || !await releaseRoot.exists()) {
+      _addLog(
+        'PUBLISH SYSTEM: $actionName – BLOKOVANÉ, aktuálny release balík nebol nájdený.',
+      );
+      if (mounted) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Publikovanie je zablokované'),
+            content: const Text(
+              'Aktuálny release balík nebol nájdený. '
+              'Najprv musí byť vytvorený a overený release.',
+            ),
+            actions: <Widget>[
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+      return null;
+    }
+    return releaseRoot;
+  }
+
+  Future<bool> _runWithReleasePublishGate(
+    Directory root, {
+    required String actionName,
+    required Future<void> Function() action,
+  }) async {
+    final allowed = await _requireValidReleasePublishGate(root);
+    if (!allowed) {
+      await _appendReleaseAuditEvent(
+        root,
+        event: 'publish-action-blocked',
+        allowed: false,
+        reason: actionName,
+      );
+      return false;
+    }
+
+    _addLog('PUBLISH GATE ENFORCEMENT: $actionName – spúšťam chránenú publish akciu.');
+    try {
+      await action();
+      await _appendReleaseAuditEvent(
+        root,
+        event: 'publish-action-completed',
+        allowed: true,
+        reason: actionName,
+      );
+      _addLog('PUBLISH GATE ENFORCEMENT: $actionName – dokončené.');
+      return true;
+    } catch (error) {
+      await _appendReleaseAuditEvent(
+        root,
+        event: 'publish-action-failed',
+        allowed: false,
+        reason: '$actionName: $error',
+      );
+      _addLog('PUBLISH GATE ENFORCEMENT: $actionName – chyba: $error');
+      rethrow;
+    }
+  }
+
+  Future<bool> _requireValidReleasePublishGate(Directory root) async {
+    final error = await _validateReleasePublishGate(root);
+    if (error == null) {
+      await _appendReleaseAuditEvent(
+        root,
+        event: 'publish-gate-check',
+        allowed: true,
+        reason: 'Publish Gate je platný.',
+      );
+      _addLog('RELEASE PUBLISH BLOCKING: POVOLENÉ – Publish Gate je platný.');
+      return true;
+    }
+
+    await _appendReleaseAuditEvent(
+      root,
+      event: 'publish-gate-check',
+      allowed: false,
+      reason: error,
+    );
+    _addLog('RELEASE PUBLISH BLOCKING: BLOKOVANÉ – $error');
+    if (mounted) {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Publikovanie je zablokované'),
+          content: Text(
+            '$error\n\nPred publikovaním oprav stav a znovu spusti kontrolu integrity.',
+          ),
+          actions: <Widget>[
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+    return false;
+  }
+
+  Future<String?> _validateReleasePublishGate(Directory root) async {
+    final statusFile = File(path.join(root.path, 'Reports', 'RELEASE_INTEGRITY_STATUS.json'));
+    if (!await statusFile.exists()) {
+      return 'Publish Gate chýba – najprv spusti kontrolu integrity release.';
+    }
+
+    try {
+      final decoded = jsonDecode(await statusFile.readAsString());
+      if (decoded is! Map<String, dynamic>) {
+        return 'Publish Gate má neplatný formát.';
+      }
+      if (decoded['gateContractVersion'] != 1) {
+        return 'Publish Gate používa nepodporovanú verziu kontraktu.';
+      }
+      if (decoded['gateType'] != 'release-integrity') {
+        return 'Publish Gate má nesprávny typ.';
+      }
+      if (decoded['publishAllowed'] != true || decoded['status'] != 'PASSED') {
+        return 'Publish Gate blokuje publikovanie – integrita release neprešla.';
+      }
+
+      final validUntilRaw = decoded['gateValidUntil']?.toString();
+      final validUntil = validUntilRaw == null ? null : DateTime.tryParse(validUntilRaw);
+      if (validUntil == null || DateTime.now().isAfter(validUntil)) {
+        return 'Publish Gate expiroval – spusti nové overenie integrity.';
+      }
+
+      final manifest = File(path.join(root.path, 'Reports', 'SHA256SUMS.txt'));
+      if (!await manifest.exists()) {
+        return 'SHA256SUMS.txt chýba – Publish Gate nie je platný.';
+      }
+      final expectedManifestHash = decoded['manifestSha256']?.toString();
+      final actualManifestHash = await _sha256File(manifest);
+      if (expectedManifestHash == null || expectedManifestHash != actualManifestHash) {
+        return 'SHA-256 manifest sa od vytvorenia Publish Gate zmenil.';
+      }
+
+      if (decoded['projectProfileId'] != _activeProjectProfileId) {
+        return 'Publish Gate patrí inému Project Profile.';
+      }
+
+      return null;
+    } catch (_) {
+      return 'Publish Gate sa nepodarilo načítať alebo overiť.';
+    }
+  }
+
   Future<String> _sha256File(File file) async {
     return sha256.convert(await file.readAsBytes()).toString();
   }
 
 
-  Future<void> _verifyCurrentReleaseIntegrity() async {
+  Future<void> _verifyCurrentReleaseIntegrity({bool showSuccessDialog = true}) async {
     final releasePath = _releaseWizardReleaseDirectory;
     if (releasePath == null || releasePath.trim().isEmpty) {
       _showError('Najprv musí byť dostupný release balík.');
@@ -16319,9 +17873,12 @@ Widget _buildSectionOverviewDashboard() {
         await statusFile.writeAsString(
           jsonEncode(<String, dynamic>{
             'schemaVersion': 1,
+            'releaseIntegrityVersion': 1,
             'gateContractVersion': 1,
             'gateProducer': 'STAVBY PRO Release Manager',
             'gateType': 'release-integrity',
+            'gatePolicy': 'sha256-manifest-required',
+            'gateTtlHours': 24,
             'releaseRoot': root.path,
             'projectPath': root.path,
             'projectProfileId': _activeProjectProfileId,
@@ -16357,6 +17914,7 @@ Widget _buildSectionOverviewDashboard() {
         if (mounted) {
           await showDialog<void>(
             context: context,
+            barrierDismissible: false,
             builder: (dialogContext) => AlertDialog(
               title: const Row(
                 children: <Widget>[
@@ -16418,9 +17976,12 @@ Widget _buildSectionOverviewDashboard() {
       await statusFile.writeAsString(
         jsonEncode(<String, dynamic>{
           'schemaVersion': 1,
+          'releaseIntegrityVersion': 1,
           'gateContractVersion': 1,
           'gateProducer': 'STAVBY PRO Release Manager',
           'gateType': 'release-integrity',
+          'gatePolicy': 'sha256-manifest-required',
+          'gateTtlHours': 24,
           'releaseRoot': root.path,
           'projectPath': root.path,
           'projectProfileId': _activeProjectProfileId,
@@ -16448,11 +18009,26 @@ Widget _buildSectionOverviewDashboard() {
         'Release Integrity Verify: $verified/${entries.length} súborov overených podľa existujúceho SHA-256 manifestu. '
         'Report: ${report.path} (cesta skopírovaná do schránky)',
       );
+      final gateValidationError = await _validateReleasePublishGate(root);
+      final gateUiStatus = await _releasePublishGateUiStatus(root);
+      if (mounted && _dashboardReleaseIntegrityStatus != gateUiStatus) {
+        setState(() => _dashboardReleaseIntegrityStatus = gateUiStatus);
+      }
+      _addLog('RELEASE INTEGRITY UI STATUS: $gateUiStatus');
+      if (gateValidationError == null) {
+        _addLog('RELEASE PUBLISH GATE VALIDATOR: OK – Gate je pripravený pre Publisher.');
+        _addLog('RELEASE PUBLISH BLOCKING: ochranná kontrola je pripravená pre publish akcie.');
+        _addLog('PUBLISH GATE ENFORCEMENT BRIDGE v1: pripravený pre Git/Release Publisher.');
+      } else {
+        _addLog('RELEASE PUBLISH GATE VALIDATOR: BLOKOVANÉ – $gateValidationError');
+      }
       _addLog('RELEASE PUBLISH GATE: POVOLENÉ – integrita release je v poriadku.');
+      _addLog('RELEASE INTEGRITY v1: kontrola, report, Publish Gate, validator, blocking a audit sú pripravené.');
       _rememberDashboardOperationResult('Release Integrity Verify', true);
-      if (mounted) {
+      if (mounted && showSuccessDialog) {
         await showDialog<void>(
           context: context,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             title: const Row(
               children: <Widget>[
@@ -17592,6 +19168,7 @@ Widget _buildSectionOverviewDashboard() {
   Future<void> _showKeyboardShortcutsDialog() async {
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.keyboard_alt_outlined, color: Color(0xFF7E57C2)),
         title: const Text('Klávesové skratky'),

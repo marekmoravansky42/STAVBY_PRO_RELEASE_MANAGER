@@ -1,0 +1,17 @@
+STAVBY PRO – BUILD REPORT
+========================================
+Projekt: Release_Manager
+Cesta: C:\SP\Release_Manager
+Verzia: 8.0.0+257
+Release Manager: 8.0.0 RC1 Build 257 RC1 FINAL CANDIDATE FIX001 STARTUP INTEGRITY REFRESH
+Začiatok: 2026-08-12T19:30:18.236253
+Koniec: 2026-08-12T19:31:25.873744
+Trvanie: 67 s
+
+Režim: FAST DEV BUILD
+
+↷ flutter clean – preskočené
+↷ flutter pub get – preskočené
+✔ flutter analyze
+✔ flutter test
+✔ flutter build windows --release

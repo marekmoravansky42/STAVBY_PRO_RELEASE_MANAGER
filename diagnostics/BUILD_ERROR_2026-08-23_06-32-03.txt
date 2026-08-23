@@ -1,0 +1,217 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 257 RC1 DEV001 FIX126 RC1 STABILIZATION
+Dátum a čas: 2026-08-23T06:32:03.062976
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter test
+Príkaz: flutter test
+Návratový kód: 1
+
+Pravdepodobná príčina: najmenej jeden automatický test neprešiel.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 93 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading C:/SP/Release_Manager/test/app_settings_one_click_release_mode_test.dart
+00:00 +0: C:/SP/Release_Manager/test/app_settings_one_click_release_mode_test.dart: One Click Release defaults to DEV
+00:00 +1: C:/SP/Release_Manager/test/execution_history_service_test.dart: damaged history does not prevent loading project
+00:00 +2: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +3: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +4: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +5: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +5 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +5 -1: C:/SP/Release_Manager/test/one_click_release_fail_fast_contract_test.dart: One Click Release checks FULL BUILD failure before Android [E]
+  Expected: a value greater than or equal to <0>
+    Actual: <-1>
+     Which: is not a value greater than or equal to <0>
+  
+  package:matcher                                           expect
+  package:flutter_test/src/widget_tester.dart 473:18        expect
+  test\one_click_release_fail_fast_contract_test.dart 14:5  main.<fn>
+  
+00:02 +6 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +7 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +8 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +9 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +10 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:02 +11 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +12 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +13 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +14 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +15 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +16 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +17 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +18 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:03 +19 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +20 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +21 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +22 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +23 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +24 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +25 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +26 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +27 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +28 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:04 +29 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +30 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +31 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +32 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +33 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +34 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +35 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +36 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +37 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +38 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +39 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +40 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:05 +41 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +42 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +43 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +44 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +45 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +46 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +47 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +48 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +49 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:06 +50 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:07 +51 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:07 +52 -1: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+00:07 +53 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+00:07 +54 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+00:07 +55 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+00:07 +56 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+00:07 +57 -1: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+00:07 +58 -1: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+00:07 +59 -1: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+00:08 +60 -1: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+00:09 +61 -1: Some tests failed.
+
+Failing tests:
+  C:/SP/Release_Manager/test/one_click_release_fail_fast_contract_test.dart: One Click Release checks FULL BUILD failure before Android
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+06:31:46  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:18854:45 - unnecessary_non_null_assertion
+06:31:46  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:18926:46 - unnecessary_non_null_assertion
+06:31:46  
+06:31:47  CHYBA: 20 issues found. (ran in 15.5s)
+06:31:47  ⚠ Flutter analyze obsahuje iba upozornenia.
+06:31:47  ▶ flutter test
+06:31:48  Resolving dependencies...
+06:31:48  Downloading packages...
+06:31:48    dbus 0.7.14 (0.7.15 available)
+06:31:48    file_picker 11.0.3 (12.0.0 available)
+06:31:48    flutter_lints 5.0.0 (6.0.0 available)
+06:31:48    lints 5.1.1 (6.1.0 available)
+06:31:48    matcher 0.12.19 (0.12.20 available)
+06:31:48    material_color_utilities 0.13.0 (0.13.1 available)
+06:31:48    meta 1.18.0 (1.19.0 available)
+06:31:48    test_api 0.7.11 (0.7.13 available)
+06:31:48    vector_math 2.2.0 (2.4.2 available)
+06:31:48    vm_service 15.2.0 (15.3.0 available)
+06:31:48    win32 5.15.0 (6.4.0 available)
+06:31:48    xml 6.6.1 (7.0.1 available)
+06:31:48  Got dependencies!
+06:31:48  12 packages have newer versions incompatible with dependency constraints.
+06:31:48  Try `flutter pub outdated` for more information.
+06:31:49  00:00 +0: loading C:/SP/Release_Manager/test/app_settings_one_click_release_mode_test.dart
+06:31:53  00:00 +0: C:/SP/Release_Manager/test/app_settings_one_click_release_mode_test.dart: One Click Release defaults to DEV
+06:31:53  00:00 +1: C:/SP/Release_Manager/test/execution_history_service_test.dart: damaged history does not prevent loading project
+06:31:53  00:00 +2: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:54  00:01 +3: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:54  00:01 +4: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:54  00:01 +5: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:55  00:02 +5 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:55  00:02 +5 -1: C:/SP/Release_Manager/test/one_click_release_fail_fast_contract_test.dart: One Click Release checks FULL BUILD failure before Android [E]
+06:31:55    Expected: a value greater than or equal to <0>
+06:31:55      Actual: <-1>
+06:31:55       Which: is not a value greater than or equal to <0>
+06:31:55    
+06:31:55    package:matcher                                           expect
+06:31:55    package:flutter_test/src/widget_tester.dart 473:18        expect
+06:31:55    test\one_click_release_fail_fast_contract_test.dart 14:5  main.<fn>
+06:31:55    
+06:31:55  00:02 +6 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:55  00:02 +7 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:55  00:02 +8 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:55  00:02 +9 -1: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+06:31:55  00:02 +10 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:55  00:02 +11 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:56  00:03 +12 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:56  00:03 +13 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:56  00:03 +14 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:56  00:03 +15 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:56  00:03 +16 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:56  00:03 +17 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:03 +18 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:03 +19 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +20 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +21 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +22 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +23 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +24 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +25 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +26 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +27 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +28 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:57  00:04 +29 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +30 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +31 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +32 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +33 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +34 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +35 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +36 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +37 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +38 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +39 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +40 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:58  00:05 +41 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +42 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +43 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +44 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +45 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +46 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +47 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +48 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +49 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:31:59  00:06 +50 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:32:00  00:07 +51 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:32:00  00:07 +52 -1: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+06:32:00  00:07 +53 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+06:32:00  00:07 +54 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+06:32:00  00:07 +55 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+06:32:00  00:07 +56 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+06:32:00  00:07 +57 -1: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+06:32:00  00:07 +58 -1: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+06:32:00  00:07 +59 -1: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+06:32:01  00:08 +60 -1: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+06:32:02  00:09 +61 -1: Some tests failed.
+06:32:02  
+06:32:02  Failing tests:
+06:32:02    C:/SP/Release_Manager/test/one_click_release_fail_fast_contract_test.dart: One Click Release checks FULL BUILD failure before Android
+06:32:03  ✖ Flutter test zlyhal. Návratový kód: 1.

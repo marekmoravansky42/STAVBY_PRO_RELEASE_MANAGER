@@ -10,5 +10,6 @@ abstract final class ConfigurationKeys {
   static const String recentGitWorkspacePaths = 'recentGitWorkspacePaths';
   static const String lastSelectedPage = 'lastSelectedPage';
   static const String developerMode = 'developerMode';
+  static const String oneClickReleaseMode = 'oneClickReleaseMode';
   static const String updatedAt = 'updatedAt';
 }

@@ -12,6 +12,7 @@ class AppSettings {
     this.recentGitWorkspacePaths = const <String>[],
     this.lastSelectedPage = 0,
     this.developerMode = false,
+    this.oneClickReleaseMode = 'DEV',
   });
 
   final String? managerUpdateDirectory;
@@ -23,6 +24,7 @@ class AppSettings {
   final List<String> recentGitWorkspacePaths;
   final int lastSelectedPage;
   final bool developerMode;
+  final String oneClickReleaseMode;
 }
 
 class AppSettingsService {
@@ -55,6 +57,7 @@ class AppSettingsService {
           ? data[ConfigurationKeys.lastSelectedPage] as int
           : 0,
       developerMode: data[ConfigurationKeys.developerMode] == true,
+      oneClickReleaseMode: _releaseMode(data[ConfigurationKeys.oneClickReleaseMode]),
       recentProjectPaths: (data[ConfigurationKeys.recentProjectPaths] is List)
           ? (data[ConfigurationKeys.recentProjectPaths] as List)
               .map((item) => item.toString().trim())
@@ -136,6 +139,20 @@ class AppSettingsService {
       ConfigurationKeys.recentProjectPaths,
       normalized,
     );
+  }
+
+  Future<void> saveOneClickReleaseMode(String mode) {
+    return _configuration.write(
+      ConfigurationKeys.oneClickReleaseMode,
+      _releaseMode(mode),
+    );
+  }
+
+  String _releaseMode(Object? value) {
+    final normalized = value?.toString().trim().toUpperCase();
+    return const <String>{'DEV', 'RC', 'FINAL'}.contains(normalized)
+        ? normalized!
+        : 'DEV';
   }
 
   String? _optionalString(Object? value) {

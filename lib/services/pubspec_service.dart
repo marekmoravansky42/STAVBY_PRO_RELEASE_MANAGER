@@ -16,7 +16,7 @@ class PubspecService {
     final content = await pubspec.readAsString();
     final nameMatch = RegExp(r'^name:\s*([^\s#]+)', multiLine: true).firstMatch(content);
     final versionMatch = RegExp(
-      r'^version:\s*([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)\s*$',
+      r'^version:\s*([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?)\+([0-9]+)\s*$',
       multiLine: true,
     ).firstMatch(content);
 
@@ -25,7 +25,7 @@ class PubspecService {
     }
     if (versionMatch == null) {
       throw const FormatException(
-        'V pubspec.yaml chýba verzia vo formáte version: 1.2.3+4.',
+        'V pubspec.yaml chýba platná verzia, napr. version: 1.2.3+4 alebo 1.2.3-rc.1+4.',
       );
     }
 
@@ -42,8 +42,12 @@ class PubspecService {
     required String newVersion,
     required int newBuild,
   }) async {
-    if (!RegExp(r'^\d+\.\d+\.\d+$').hasMatch(newVersion)) {
-      throw const FormatException('Verzia musí mať formát napríklad 3.6.0.');
+    if (!RegExp(
+      r'^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$',
+    ).hasMatch(newVersion)) {
+      throw const FormatException(
+        'Verzia musí mať formát napríklad 3.6.0 alebo 3.6.0-rc.1.',
+      );
     }
     if (newBuild <= 0) {
       throw const FormatException('Build musí byť celé číslo väčšie ako nula.');
