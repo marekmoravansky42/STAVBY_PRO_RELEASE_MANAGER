@@ -1,0 +1,140 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 297 RC1 DEV001 FIX180
+Dátum a čas: 2026-08-24T06:40:26.172788
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 29 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9672:7 - use_build_context_synchronously
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15750:38 - unnecessary_brace_in_string_interps
+warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17485:30 - unnecessary_null_comparison
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17781:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19098:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19321:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19407:46 - unnecessary_non_null_assertion
+  error - Undefined name 'error'. Try correcting the name to one that is defined, or defining the name - test\fix181_last_export_corrupt_state_guard_test.dart:31:61 - undefined_identifier
+
+8 issues found. (ran in 5.1s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+06:35:08  Release Manager 8.0.0 RC1 Build 297 RC1 DEV001 FIX180 je pripravený.
+06:35:08  Štart aplikácie: Flutter binding: 0 ms • pred runApp: 0 ms • prvý frame: 27 ms
+06:35:08  Obnovený posledný Git workspace: C:\SP\Release_Manager
+06:35:08  GitHub nastavenie bolo bezpečne načítané.
+06:35:08  Testujem GitHub pripojenie pre marekmoravansky42/stavby-pro-updates...
+06:35:08  ProjectVersionProvider: 8.0.0+297 RC1 (C:\SP\Release_Manager).
+06:35:08  Git workspace: dev, 120 zmien.
+06:35:08  Predvolený priečinok pre Android APK Release: C:\SP\praca Stavby PRO app-release
+06:35:08  Predvolený priečinok pre STAVBY PRO Windows Release: C:\SP\Export Release win a android
+06:35:08  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+06:35:08  Project Profile obnovený: stavby_pro_release_manager
+06:35:08  Načítavam projekt: C:\SP\Release_Manager
+06:35:08  Načítanie projektu – Načítanie pubspec.yaml...
+06:35:08  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+06:35:08  Projekt otvorený: stavby_pro_release_manager
+06:35:08  Načítaná verzia 8.0.0+297.
+06:35:08  Načítanie projektu – Načítanie histórie vydaní...
+06:35:08  Načítanie projektu – Načítanie histórie vydaní dokončené.
+06:35:08  Načítanie projektu – Kontrola pripravenosti projektu...
+06:35:08  Kontrolujem pripravenosť projektu...
+06:35:09  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+06:35:09  Kontrolujem aktualizáciu Release Managera na GitHube...
+06:35:09  Používaš najnovšiu verziu.
+06:35:10  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+06:35:10  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+06:35:10  Načítanie projektu – Automatická analýza APK...
+06:35:10  Hľadám release APK...
+06:35:10  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+06:35:10  Načítanie projektu – Automatická analýza APK dokončené.
+06:35:10  Local Agent startup health: CONNECTED • pokus 1/6 • 2026-08-24T06:35:10.007255
+06:35:10  Local Agent startup: spojenie automaticky obnovené.
+06:35:10  Distribution Center: vybraný kandidát BUILD 297 → C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_297_WINDOWS_RELEASE
+06:35:10  Distribution Center platform detection: Windows=ÁNO, Android=NIE.
+06:35:10  Distribution Center: obnovený posledný release z disku: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_297_WINDOWS_RELEASE
+06:35:10  Distribution Center: Windows EXE: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_297_WINDOWS_RELEASE\Windows\stavby_pro_release_manager.exe
+06:35:10  RELEASE INTEGRITY DASHBOARD v1: NEOVERENÉ • AKTUÁLNE • automatická kontrola aktívna.
+06:35:10  RELEASE INTEGRITY STARTUP RESTORE: NEOVERENÉ • Publish Gate: BLOKOVANÉ • C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_297_WINDOWS_RELEASE
+06:39:31  === WORKSPACE SYNC ===
+06:39:31  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_298_DEV001_FIX181_LAST_EXPORT_CORRUPT_STATE_GUARD.zip
+06:39:31  Workspace: C:\SP\Release_Manager
+06:40:05  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-24T06-39-31-862297.zip
+06:40:05  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-23T20-37-58-545675.zip (98.5 MB).
+06:40:05  Backup Manager: automaticky uvoľnené 98.5 MB (1 starých záloh).
+06:40:05  Backup Manager: 10 záloh, 984.9 MB.
+06:40:05  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+06:40:05  Overená identita workspace: 8.0.0+298 RC1.
+06:40:05  Dashboard projekt obnovený po synchronizácii: 8.0.0+298.
+06:40:05  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+06:40:05  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+06:40:05  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+06:40:05  ProjectVersionProvider: 8.0.0+298 RC1 (C:\SP\Release_Manager).
+06:40:05  Git workspace: dev, 125 zmien.
+06:40:05  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_298_DEV001_FIX181_LAST_EXPORT_CORRUPT_STATE_GUARD.zip. Git eviduje 125 zmien.
+06:40:18  One Click Build identita: 8.0.0+298 RC1.
+06:40:18  === ZAČÍNA FAST DEV BUILD ===
+06:40:18  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+06:40:18  ▶ flutter analyze
+06:40:19  Resolving dependencies...
+06:40:19  Downloading packages...
+06:40:19    dbus 0.7.14 (0.7.15 available)
+06:40:19    file_picker 11.0.3 (12.0.0 available)
+06:40:19    flutter_lints 5.0.0 (6.0.0 available)
+06:40:19    lints 5.1.1 (6.1.0 available)
+06:40:19    matcher 0.12.19 (0.12.20 available)
+06:40:19    material_color_utilities 0.13.0 (0.13.1 available)
+06:40:19    meta 1.18.0 (1.19.0 available)
+06:40:19    test_api 0.7.11 (0.7.13 available)
+06:40:19    vector_math 2.2.0 (2.4.2 available)
+06:40:19    vm_service 15.2.0 (15.3.0 available)
+06:40:19    win32 5.15.0 (6.4.0 available)
+06:40:19    xml 6.6.1 (7.0.1 available)
+06:40:19  Got dependencies!
+06:40:19  12 packages have newer versions incompatible with dependency constraints.
+06:40:19  Try `flutter pub outdated` for more information.
+06:40:25  Analyzing Release_Manager...                                    
+06:40:25  
+06:40:25     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9672:7 - use_build_context_synchronously
+06:40:25     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15750:38 - unnecessary_brace_in_string_interps
+06:40:25  warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17485:30 - unnecessary_null_comparison
+06:40:25     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17781:7 - use_build_context_synchronously
+06:40:25  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19098:49 - unnecessary_non_null_assertion
+06:40:25  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19321:45 - unnecessary_non_null_assertion
+06:40:25  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19407:46 - unnecessary_non_null_assertion
+06:40:25    error - Undefined name 'error'. Try correcting the name to one that is defined, or defining the name - test\fix181_last_export_corrupt_state_guard_test.dart:31:61 - undefined_identifier
+06:40:25  
+06:40:26  CHYBA: 8 issues found. (ran in 5.1s)
+06:40:26  ✖ Flutter analyze zlyhal. Návratový kód: 1.

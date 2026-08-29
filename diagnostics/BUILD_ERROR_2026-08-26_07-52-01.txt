@@ -1,0 +1,163 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 316 RC1 DEV001 FIX263
+Dátum a čas: 2026-08-26T07:52:01.673563
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 39 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9733:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:13676:44 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:13917:34 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:13918:32 - unnecessary_non_null_assertion
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:16309:38 - unnecessary_brace_in_string_interps
+warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:18044:30 - unnecessary_null_comparison
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:18350:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19667:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19890:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19976:46 - unnecessary_non_null_assertion
+  error - Undefined name 'version'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:48 - undefined_identifier
+  error - Undefined name 'channel'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:57 - undefined_identifier
+  error - Undefined name 'build'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:74 - undefined_identifier
+  error - Undefined name 'stage'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:83 - undefined_identifier
+  error - Undefined name 'version'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:47 - undefined_identifier
+  error - Undefined name 'channel'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:56 - undefined_identifier
+  error - Undefined name 'build'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:71 - undefined_identifier
+  error - Undefined name 'stage'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:78 - undefined_identifier
+
+18 issues found. (ran in 6.1s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+07:48:28  ProjectVersionProvider: 3.8.97+471 DEV (C:\SP\STAVBY_PRO).
+07:48:28  Git workspace: develop, 89 zmien.
+07:48:28  Distribution Center: vybraný kandidát BUILD 471 → C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_FINAL_BUILD_471_WINDOWS_ANDROID_RELEASE
+07:48:28  Distribution Center platform detection: Windows=ÁNO, Android=ÁNO.
+07:48:28  Distribution Center: obnovený posledný release z disku: C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_FINAL_BUILD_471_WINDOWS_ANDROID_RELEASE
+07:48:28  Distribution Center: Windows EXE: C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_FINAL_BUILD_471_WINDOWS_ANDROID_RELEASE\Windows\stavby_pro_dev.exe
+07:48:28  Distribution Center: Android APK: C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_FINAL_BUILD_471_WINDOWS_ANDROID_RELEASE\Android\STAVBY_PRO_3.8.97_BUILD_471.apk
+07:48:28  RELEASE INTEGRITY DASHBOARD v1: INTEGRITY OK • AKTUÁLNE • automatická kontrola aktívna.
+07:48:28  ONE CLICK RELEASE: DEV konfigurácia obnovená a RC1 stav Dashboardu synchronizovaný.
+07:50:02  Načítavam projekt: C:\SP\Release_Manager
+07:50:02  Načítanie projektu – Načítanie pubspec.yaml...
+07:50:02  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+07:50:02  Projekt otvorený: stavby_pro_release_manager
+07:50:02  Načítaná verzia 8.0.0+316.
+07:50:02  Načítanie projektu – Git a identita projektu...
+07:50:02  ProjectVersionProvider: 8.0.0+316 RC1 (C:\SP\Release_Manager).
+07:50:02  Git workspace: dev, 250 zmien.
+07:50:02  Načítanie projektu – Git a identita projektu dokončené.
+07:50:02  FIX253 PROJECT SWITCH IDENTITY: stavby_pro_release_manager • 8.0.0+316 RC1 • C:\SP\Release_Manager.
+07:50:02  Načítanie projektu – Posledný synchronizovaný ZIP...
+07:50:02  Načítanie projektu – Posledný synchronizovaný ZIP dokončené.
+07:50:02  Načítanie projektu – Posledný export ZIP...
+07:50:02  RELEASE INTEGRITY DASHBOARD v1: BLOKOVANÉ • AKTUÁLNE • automatická kontrola aktívna.
+07:50:02  Načítanie projektu – Posledný export ZIP dokončené.
+07:50:02  FIX251 PROJECT ZIP METADATA: stavby_pro_release_manager • sync=STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_316_DEV001_FIX263_FIXTURE_SCOPE_FIX.zip • export=STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE.zip.
+07:50:02  Načítanie projektu – Načítanie histórie vydaní...
+07:50:02  Načítanie projektu – Načítanie histórie vydaní dokončené.
+07:50:02  Načítanie projektu – Kontrola pripravenosti projektu...
+07:50:02  Kontrolujem pripravenosť projektu...
+07:50:04  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+07:50:04  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+07:50:04  Načítanie projektu – Automatická analýza APK...
+07:50:04  Hľadám release APK...
+07:50:04  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+07:50:04  Načítanie projektu – Automatická analýza APK dokončené.
+07:50:04  Distribution Center: vybraný kandidát BUILD 316 → C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE
+07:50:04  Distribution Center platform detection: Windows=ÁNO, Android=NIE.
+07:50:04  Distribution Center: obnovený posledný release z disku: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE
+07:50:04  Distribution Center: Windows EXE: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE\Windows\stavby_pro_release_manager.exe
+07:50:04  RELEASE INTEGRITY DASHBOARD v1: NEOVERENÉ • AKTUÁLNE • automatická kontrola aktívna.
+07:50:15  === WORKSPACE SYNC ===
+07:50:15  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_317_DEV001_FIX264_BUILD_IDENTITY_SYNC.zip
+07:50:15  Workspace: C:\SP\Release_Manager
+07:51:48  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-26T07-50-15-236915.zip
+07:51:48  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-26T06-08-34-968331.zip (98.7 MB).
+07:51:48  Backup Manager: automaticky uvoľnené 98.7 MB (1 starých záloh).
+07:51:48  Backup Manager: 10 záloh, 1.16 GB.
+07:51:48  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+07:51:48  Overená identita workspace: 8.0.0+317 RC1.
+07:51:48  Dashboard projekt obnovený po synchronizácii: 8.0.0+317.
+07:51:48  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+07:51:48  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+07:51:48  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+07:51:49  ProjectVersionProvider: 8.0.0+317 RC1 (C:\SP\Release_Manager).
+07:51:49  Git workspace: dev, 255 zmien.
+07:51:49  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_317_DEV001_FIX264_BUILD_IDENTITY_SYNC.zip. Git eviduje 255 zmien.
+07:51:52  One Click Build identita: 8.0.0+317 RC1.
+07:51:52  === ZAČÍNA FAST DEV BUILD ===
+07:51:52  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+07:51:52  ▶ flutter analyze
+07:51:54  Resolving dependencies...
+07:51:54  Downloading packages...
+07:51:54    dbus 0.7.14 (0.7.15 available)
+07:51:54    file_picker 11.0.3 (12.0.0 available)
+07:51:54    flutter_lints 5.0.0 (6.0.0 available)
+07:51:54    lints 5.1.1 (6.1.0 available)
+07:51:54    matcher 0.12.19 (0.12.20 available)
+07:51:54    material_color_utilities 0.13.0 (0.13.1 available)
+07:51:54    meta 1.18.0 (1.19.0 available)
+07:51:54    test_api 0.7.11 (0.7.13 available)
+07:51:54    vector_math 2.2.0 (2.4.2 available)
+07:51:54    vm_service 15.2.0 (15.3.0 available)
+07:51:54    win32 5.15.0 (6.4.0 available)
+07:51:54    xml 6.6.1 (7.0.1 available)
+07:51:54  Got dependencies!
+07:51:54  12 packages have newer versions incompatible with dependency constraints.
+07:51:54  Try `flutter pub outdated` for more information.
+07:52:01  Analyzing Release_Manager...                                    
+07:52:01  
+07:52:01     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9733:7 - use_build_context_synchronously
+07:52:01  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:13676:44 - unnecessary_non_null_assertion
+07:52:01  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:13917:34 - unnecessary_non_null_assertion
+07:52:01  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:13918:32 - unnecessary_non_null_assertion
+07:52:01     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:16309:38 - unnecessary_brace_in_string_interps
+07:52:01  warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:18044:30 - unnecessary_null_comparison
+07:52:01     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:18350:7 - use_build_context_synchronously
+07:52:01  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19667:49 - unnecessary_non_null_assertion
+07:52:01  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19890:45 - unnecessary_non_null_assertion
+07:52:01  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19976:46 - unnecessary_non_null_assertion
+07:52:01    error - Undefined name 'version'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:48 - undefined_identifier
+07:52:01    error - Undefined name 'channel'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:57 - undefined_identifier
+07:52:01    error - Undefined name 'build'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:74 - undefined_identifier
+07:52:01    error - Undefined name 'stage'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:20:83 - undefined_identifier
+07:52:01    error - Undefined name 'version'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:47 - undefined_identifier
+07:52:01    error - Undefined name 'channel'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:56 - undefined_identifier
+07:52:01    error - Undefined name 'build'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:71 - undefined_identifier
+07:52:01    error - Undefined name 'stage'. Try correcting the name to one that is defined, or defining the name - test\fix264_release_manager_build_identity_sync_test.dart:24:78 - undefined_identifier
+07:52:01  
+07:52:01  CHYBA: 18 issues found. (ran in 6.1s)
+07:52:01  ✖ Flutter analyze zlyhal. Návratový kód: 1.

@@ -1,0 +1,150 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 304 RC1 DEV001 FIX196-199
+Dátum a čas: 2026-08-24T11:59:23.820683
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 34 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9672:7 - use_build_context_synchronously
+  error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11829:7 - undefined_identifier
+warning - Unnecessary type check; the result is always 'true'. Try correcting the type check, or removing the type check - lib\main.dart:11885:29 - unnecessary_type_check
+  error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11889:9 - undefined_identifier
+warning - Unnecessary type check; the result is always 'true'. Try correcting the type check, or removing the type check - lib\main.dart:11896:25 - unnecessary_type_check
+  error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11911:9 - undefined_identifier
+  error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11919:7 - undefined_identifier
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15827:38 - unnecessary_brace_in_string_interps
+warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17562:30 - unnecessary_null_comparison
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17858:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19175:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19398:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19484:46 - unnecessary_non_null_assertion
+
+13 issues found. (ran in 5.4s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+11:54:53  Release Manager 8.0.0 RC1 Build 304 RC1 DEV001 FIX196-199 je pripravený.
+11:54:53  Štart aplikácie: Flutter binding: 0 ms • pred runApp: 0 ms • prvý frame: 32 ms
+11:54:53  Obnovený posledný Git workspace: C:\SP\Release_Manager
+11:54:53  GitHub nastavenie bolo bezpečne načítané.
+11:54:53  Testujem GitHub pripojenie pre marekmoravansky42/stavby-pro-updates...
+11:54:53  ProjectVersionProvider: 8.0.0+304 RC1 (C:\SP\Release_Manager).
+11:54:53  Git workspace: dev, 146 zmien.
+11:54:53  Predvolený priečinok pre Android APK Release: C:\SP\praca Stavby PRO app-release
+11:54:53  Predvolený priečinok pre STAVBY PRO Windows Release: C:\SP\Export Release win a android
+11:54:53  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+11:54:53  Project Profile obnovený: stavby_pro_release_manager
+11:54:53  Načítavam projekt: C:\SP\Release_Manager
+11:54:53  Načítanie projektu – Načítanie pubspec.yaml...
+11:54:53  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+11:54:53  Projekt otvorený: stavby_pro_release_manager
+11:54:53  Načítaná verzia 8.0.0+304.
+11:54:53  Načítanie projektu – Načítanie histórie vydaní...
+11:54:53  Načítanie projektu – Načítanie histórie vydaní dokončené.
+11:54:53  Načítanie projektu – Kontrola pripravenosti projektu...
+11:54:53  Kontrolujem pripravenosť projektu...
+11:54:54  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+11:54:54  Kontrolujem aktualizáciu Release Managera na GitHube...
+11:54:54  Používaš najnovšiu verziu.
+11:54:55  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+11:54:55  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+11:54:55  Načítanie projektu – Automatická analýza APK...
+11:54:55  Hľadám release APK...
+11:54:55  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+11:54:55  Načítanie projektu – Automatická analýza APK dokončené.
+11:54:55  Local Agent startup health: CONNECTED • pokus 1/6 • 2026-08-24T11:54:55.403354
+11:54:55  Local Agent startup: spojenie automaticky obnovené.
+11:54:55  Distribution Center: vybraný kandidát BUILD 304 → C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_304_WINDOWS_RELEASE
+11:54:55  Distribution Center platform detection: Windows=ÁNO, Android=NIE.
+11:54:55  Distribution Center: obnovený posledný release z disku: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_304_WINDOWS_RELEASE
+11:54:55  Distribution Center: Windows EXE: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_304_WINDOWS_RELEASE\Windows\stavby_pro_release_manager.exe
+11:54:55  RELEASE INTEGRITY DASHBOARD v1: NEOVERENÉ • AKTUÁLNE • automatická kontrola aktívna.
+11:54:55  RELEASE INTEGRITY STARTUP RESTORE: NEOVERENÉ • Publish Gate: BLOKOVANÉ • C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_304_WINDOWS_RELEASE
+11:56:45  === WORKSPACE SYNC ===
+11:56:45  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_305_DEV001_FIX200_203_LAST_EXPORT_STATE_CLEANUP_BATCH.zip
+11:56:45  Workspace: C:\SP\Release_Manager
+11:57:25  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-24T11-56-45-630696.zip
+11:57:25  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-24T11-10-34-209354.zip (98.5 MB).
+11:57:25  Backup Manager: automaticky uvoľnené 98.5 MB (1 starých záloh).
+11:57:25  Backup Manager: 10 záloh, 985.3 MB.
+11:57:25  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+11:57:25  Overená identita workspace: 8.0.0+305 RC1.
+11:57:25  Dashboard projekt obnovený po synchronizácii: 8.0.0+305.
+11:57:25  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+11:57:25  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+11:57:25  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+11:57:26  ProjectVersionProvider: 8.0.0+305 RC1 (C:\SP\Release_Manager).
+11:57:26  Git workspace: dev, 150 zmien.
+11:57:26  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_305_DEV001_FIX200_203_LAST_EXPORT_STATE_CLEANUP_BATCH.zip. Git eviduje 150 zmien.
+11:59:15  One Click Build identita: 8.0.0+305 RC1.
+11:59:15  === ZAČÍNA FAST DEV BUILD ===
+11:59:15  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+11:59:15  ▶ flutter analyze
+11:59:16  Resolving dependencies...
+11:59:16  Downloading packages...
+11:59:16    dbus 0.7.14 (0.7.15 available)
+11:59:16    file_picker 11.0.3 (12.0.0 available)
+11:59:16    flutter_lints 5.0.0 (6.0.0 available)
+11:59:16    lints 5.1.1 (6.1.0 available)
+11:59:16    matcher 0.12.19 (0.12.20 available)
+11:59:16    material_color_utilities 0.13.0 (0.13.1 available)
+11:59:16    meta 1.18.0 (1.19.0 available)
+11:59:16    test_api 0.7.11 (0.7.13 available)
+11:59:16    vector_math 2.2.0 (2.4.2 available)
+11:59:16    vm_service 15.2.0 (15.3.0 available)
+11:59:16    win32 5.15.0 (6.4.0 available)
+11:59:16    xml 6.6.1 (7.0.1 available)
+11:59:16  Got dependencies!
+11:59:16  12 packages have newer versions incompatible with dependency constraints.
+11:59:16  Try `flutter pub outdated` for more information.
+11:59:23  Analyzing Release_Manager...                                    
+11:59:23  
+11:59:23     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9672:7 - use_build_context_synchronously
+11:59:23    error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11829:7 - undefined_identifier
+11:59:23  warning - Unnecessary type check; the result is always 'true'. Try correcting the type check, or removing the type check - lib\main.dart:11885:29 - unnecessary_type_check
+11:59:23    error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11889:9 - undefined_identifier
+11:59:23  warning - Unnecessary type check; the result is always 'true'. Try correcting the type check, or removing the type check - lib\main.dart:11896:25 - unnecessary_type_check
+11:59:23    error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11911:9 - undefined_identifier
+11:59:23    error - Undefined name '_lastVerifiedExportZipPath'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:11919:7 - undefined_identifier
+11:59:23     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15827:38 - unnecessary_brace_in_string_interps
+11:59:23  warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17562:30 - unnecessary_null_comparison
+11:59:23     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17858:7 - use_build_context_synchronously
+11:59:23  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19175:49 - unnecessary_non_null_assertion
+11:59:23  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19398:45 - unnecessary_non_null_assertion
+11:59:23  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19484:46 - unnecessary_non_null_assertion
+11:59:23  
+11:59:23  CHYBA: 13 issues found. (ran in 5.4s)
+11:59:23  ✖ Flutter analyze zlyhal. Návratový kód: 1.

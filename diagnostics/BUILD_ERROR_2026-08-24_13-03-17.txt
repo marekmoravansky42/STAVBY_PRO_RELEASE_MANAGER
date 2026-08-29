@@ -1,0 +1,374 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 309 RC1 DEV001 FIX216-219
+Dátum a čas: 2026-08-24T13:03:17.140515
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter test
+Príkaz: flutter test
+Návratový kód: 1
+
+Pravdepodobná príčina: najmenej jeden automatický test neprešiel.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 250 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+              '          ),\n'
+              '          const SizedBox(width: 10),\n'
+              '          Expanded(\n'
+              '            child: Column(\n'
+              '              crossAxisAlignment: CrossAxisAlignment.start,\n'
+              '              children: <Widget>[\n'
+              '                Text(\n'
+              '                  title,\n'
+              '                  maxLines: 1,\n'
+              '                  overflow: TextOverflow.ellipsis,\n'
+              '                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),\n'
+              '                ),\n'
+              '                const SizedBox(height: 1),\n'
+              '                Text(\n'
+              '                  detail,\n'
+              '                  maxLines: 1,\n'
+              '                  overflow: TextOverflow.ellipsis,\n'
+              '                  style: Theme.of(context).textTheme.bodySmall,\n'
+              '                ),\n'
+              '                if (progress != null) ...<Widget>[\n'
+              '                  const SizedBox(height: 3),\n'
+              '                  LinearProgressIndicator(\n'
+              '                    value: progress,\n'
+              '                    minHeight: 4,\n'
+              '                    borderRadius: BorderRadius.circular(999),\n'
+              '                  ),\n'
+              '                ],\n'
+              '              ],\n'
+              '            ),\n'
+              '          ),\n'
+              '          const SizedBox(width: 10),\n'
+              '          action,\n'
+              '        ],\n'
+              '      ),\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              '\n'
+              'class _InfoRow extends StatelessWidget {\n'
+              '  const _InfoRow({required this.label, required this.value});\n'
+              '\n'
+              '  final String label;\n'
+              '  final String value;\n'
+              '\n'
+              '  @override\n'
+              '  Widget build(BuildContext context) {\n'
+              '    return Padding(\n'
+              '      padding: const EdgeInsets.symmetric(vertical: 5),\n'
+              '      child: Row(\n'
+              '        crossAxisAlignment: CrossAxisAlignment.start,\n'
+              '        children: <Widget>[\n'
+              '          SizedBox(\n'
+              '            width: 90,\n'
+              '            child: Text(\n'
+              '              \'$label:\',\n'
+              '              style: const TextStyle(fontWeight: FontWeight.bold),\n'
+              '            ),\n'
+              '          ),\n'
+              '          Expanded(child: SelectableText(value)),\n'
+              '        ],\n'
+              '      ),\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              '\n'
+              'class _StatusChip extends StatelessWidget {\n'
+              '  const _StatusChip({\n'
+              '    required this.icon,\n'
+              '    required this.label,\n'
+              '    required this.color,\n'
+              '  });\n'
+              '\n'
+              '  final IconData icon;\n'
+              '  final String label;\n'
+              '  final Color color;\n'
+              '\n'
+              '  @override\n'
+              '  Widget build(BuildContext context) {\n'
+              '    return Container(\n'
+              '      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),\n'
+              '      decoration: BoxDecoration(\n'
+              '        color: color.withValues(alpha: 0.10),\n'
+              '        border: Border.all(color: color.withValues(alpha: 0.35)),\n'
+              '        borderRadius: BorderRadius.circular(999),\n'
+              '      ),\n'
+              '      child: Row(\n'
+              '        mainAxisSize: MainAxisSize.min,\n'
+              '        children: <Widget>[\n'
+              '          Icon(icon, size: 18, color: color),\n'
+              '          const SizedBox(width: 8),\n'
+              '          Text(\n'
+              '            label,\n'
+              '            style: TextStyle(color: color, fontWeight: FontWeight.w700),\n'
+              '          ),\n'
+              '        ],\n'
+              '      ),\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              ''
+     Which: does not contain 'PoslednĂ˝ export ZIP uĹľ na disku neexistuje'
+  
+  package:matcher                                              expect
+  package:flutter_test/src/widget_tester.dart 473:18           expect
+  test\fix180_last_export_persistence_contract_test.dart 21:5  main.<fn>
+  
+00:07 +61 -1: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (setUpAll)
+00:07 +61 -1: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: last export metadata save is guarded against filesystem failures
+00:07 +62 -1: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: verified export persistence remains best effort at all call sites
+00:07 +63 -1: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (tearDownAll)
+00:07 +63 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (setUpAll)
+00:07 +63 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX184 removes orphan temp before a new metadata write
+00:07 +64 -1: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: last export metadata is written through a temporary file
+00:07 +65 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX185 recovers temp metadata after interrupted atomic replace
+00:07 +66 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX185 recovers temp metadata after interrupted atomic replace
+00:07 +67 -1: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (tearDownAll)
+00:07 +67 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX186 removes stale temp when canonical metadata is available
+00:07 +68 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps Release Manager identity in the canonical version source
+00:07 +69 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (tearDownAll)
+00:08 +69 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: (setUpAll)
+00:08 +69 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX188 persists a metadata schema version
+00:08 +70 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX189 validates temporary metadata before recovery
+00:08 +71 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX190 safely ignores unsupported future metadata schema
+00:08 +72 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX191 corrupt canonical metadata is removed after failed load
+00:08 +73 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX188-191 uses the canonical Release Manager identity source
+00:08 +74 -1: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: (tearDownAll)
+00:08 +74 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: (setUpAll)
+00:08 +74 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX192 legacy metadata defaults to schema 1
+00:08 +75 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX193 non-object metadata is rejected
+00:08 +76 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX194 recovered temp metadata requires existing ZIP
+00:08 +77 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX195 invalid temp metadata cleanup is explicit
+00:08 +78 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX192-195 keeps identity in the canonical version source
+00:08 +79 -1: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: (tearDownAll)
+00:08 +79 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: (setUpAll)
+00:08 +79 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX196 persists absolute export ZIP path
+00:08 +80 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX197 normalizes recovered temporary ZIP path
+00:08 +81 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX198 normalizes restored canonical ZIP path
+00:08 +82 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX199 removes stale metadata when ZIP disappeared
+00:08 +83 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX196-199 keeps identity in the canonical version source
+00:08 +84 -1: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: (tearDownAll)
+00:08 +84 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: (setUpAll)
+00:08 +84 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX200 clears stale in-memory export when ZIP disappeared
+00:08 +85 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX201 clears in-memory export when canonical metadata is corrupt
+00:08 +86 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX202 unsupported future schema clears previous in-memory export
+00:08 +87 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX203 successful persistence synchronizes canonical in-memory path
+00:08 +88 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX200-203 keeps identity in the canonical version source
+00:08 +89 -1: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: (tearDownAll)
+00:08 +89 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: (setUpAll)
+00:09 +89 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX204 future schema clears dashboard state through setState
+00:09 +90 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX205 stale ZIP cleanup updates dashboard state safely
+00:09 +91 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX206 corrupt metadata cleanup is mounted-safe
+00:09 +92 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX207 successful persistence refreshes dashboard state
+00:09 +93 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX204-207 keeps identity in the canonical version source
+00:09 +94 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: (tearDownAll)
+00:09 +94 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: (setUpAll)
+00:09 +94 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX208 persists metadata timestamp in UTC
+00:09 +95 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX209 unsupported future schema removes stale temp metadata
+00:09 +96 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX210 normalized restored path is explicitly logged
+00:09 +97 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX211 successful metadata persistence logs canonical path
+00:09 +98 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX208-211 keeps identity in the canonical version source
+00:09 +99 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: (tearDownAll)
+00:09 +99 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: (setUpAll)
+00:09 +99 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX212 persists explicit metadata kind
+00:09 +100 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX213 validates canonical metadata kind
+00:09 +101 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX214 validates recovered temporary metadata kind
+00:09 +102 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX215 restored target must be a file
+00:09 +103 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX212-215 keeps identity in the canonical version source
+00:09 +104 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: (tearDownAll)
+00:09 +104 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: (setUpAll)
+00:09 +104 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX216 temp recovery target must be a file
+00:09 +105 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX217 temp recovery target must have ZIP extension
+00:09 +106 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX218 canonical restored target must have ZIP extension
+00:09 +107 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX219 persistence rejects non-ZIP input path
+00:09 +108 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX216-219 keeps identity in the canonical version source
+00:09 +109 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: (tearDownAll)
+00:09 +109 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: (setUpAll)
+00:09 +109 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX220 persistence validates ZIP signature
+00:09 +110 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX221 temp recovery validates ZIP signature
+00:09 +111 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX222 canonical restore validates ZIP signature
+00:09 +112 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX223 invalid ZIP cleanup log is explicit
+00:09 +113 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: current batch identity is Build 310 FIX220-223
+00:09 +114 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: (tearDownAll)
+00:10 +114 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:10 +115 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:10 +116 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +117 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +118 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +119 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +120 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +121 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +122 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +123 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +124 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +125 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +126 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +127 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +128 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +129 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +130 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +131 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +132 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +133 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +134 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +135 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +136 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +137 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +138 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +139 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +140 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +141 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +142 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +143 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +144 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +145 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +146 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +147 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +148 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +149 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +150 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +151 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +152 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +153 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +154 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +155 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +156 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +157 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +158 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +159 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +160 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +161 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +162 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +163 -1: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads stable Flutter version
+00:15 +164 -1: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads RC Release Recipe version
+00:15 +165 -1: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads DEV Release Recipe version
+00:15 +166 -1: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: canonical Release Manager identity is Build 310 FIX220-223
+00:15 +167 -1: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: Plugin Marketplace uses canonical Release Manager version
+00:15 +168 -1: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+00:16 +169 -1: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+00:16 +170 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+00:16 +171 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+00:16 +172 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+00:16 +173 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+00:16 +174 -1: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+00:16 +175 -1: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+00:16 +176 -1: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+00:17 +177 -1: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+00:18 +178 -1: Some tests failed.
+
+Failing tests:
+  C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: missing historical ZIP is not shown as valid export
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+13:03:07  00:09 +92 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX207 successful persistence refreshes dashboard state
+13:03:07  00:09 +93 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX204-207 keeps identity in the canonical version source
+13:03:07  00:09 +94 -1: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: (tearDownAll)
+13:03:07  00:09 +94 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: (setUpAll)
+13:03:07  00:09 +94 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX208 persists metadata timestamp in UTC
+13:03:07  00:09 +95 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX209 unsupported future schema removes stale temp metadata
+13:03:07  00:09 +96 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX210 normalized restored path is explicitly logged
+13:03:07  00:09 +97 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX211 successful metadata persistence logs canonical path
+13:03:07  00:09 +98 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX208-211 keeps identity in the canonical version source
+13:03:07  00:09 +99 -1: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: (tearDownAll)
+13:03:08  00:09 +99 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: (setUpAll)
+13:03:08  00:09 +99 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX212 persists explicit metadata kind
+13:03:08  00:09 +100 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX213 validates canonical metadata kind
+13:03:08  00:09 +101 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX214 validates recovered temporary metadata kind
+13:03:08  00:09 +102 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX215 restored target must be a file
+13:03:08  00:09 +103 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX212-215 keeps identity in the canonical version source
+13:03:08  00:09 +104 -1: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: (tearDownAll)
+13:03:08  00:09 +104 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: (setUpAll)
+13:03:08  00:09 +104 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX216 temp recovery target must be a file
+13:03:08  00:09 +105 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX217 temp recovery target must have ZIP extension
+13:03:08  00:09 +106 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX218 canonical restored target must have ZIP extension
+13:03:08  00:09 +107 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX219 persistence rejects non-ZIP input path
+13:03:08  00:09 +108 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX216-219 keeps identity in the canonical version source
+13:03:08  00:09 +109 -1: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: (tearDownAll)
+13:03:08  00:09 +109 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: (setUpAll)
+13:03:08  00:09 +109 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX220 persistence validates ZIP signature
+13:03:08  00:09 +110 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX221 temp recovery validates ZIP signature
+13:03:08  00:09 +111 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX222 canonical restore validates ZIP signature
+13:03:08  00:09 +112 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX223 invalid ZIP cleanup log is explicit
+13:03:08  00:09 +113 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: current batch identity is Build 310 FIX220-223
+13:03:08  00:09 +114 -1: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: (tearDownAll)
+13:03:08  00:10 +114 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:09  00:10 +115 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:09  00:10 +116 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:09  00:11 +117 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:09  00:11 +118 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:11 +119 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:11 +120 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:11 +121 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:11 +122 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:12 +123 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:12 +124 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:10  00:12 +125 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:12 +126 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:12 +127 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:12 +128 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:12 +129 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:12 +130 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:13 +131 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:13 +132 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:13 +133 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:13 +134 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:11  00:13 +135 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +136 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +137 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +138 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +139 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +140 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +141 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +142 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +143 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:13 +144 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:14 +145 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:14 +146 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:12  00:14 +147 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +148 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +149 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +150 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +151 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +152 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +153 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +154 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +155 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:14 +156 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:15 +157 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:13  00:15 +158 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:14  00:15 +159 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:14  00:15 +160 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:14  00:15 +161 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:14  00:15 +162 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+13:03:14  00:15 +163 -1: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads stable Flutter version
+13:03:14  00:15 +164 -1: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads RC Release Recipe version
+13:03:14  00:15 +165 -1: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads DEV Release Recipe version
+13:03:14  00:15 +166 -1: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: canonical Release Manager identity is Build 310 FIX220-223
+13:03:14  00:15 +167 -1: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: Plugin Marketplace uses canonical Release Manager version
+13:03:14  00:15 +168 -1: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+13:03:14  00:16 +169 -1: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+13:03:15  00:16 +170 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+13:03:15  00:16 +171 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+13:03:15  00:16 +172 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+13:03:15  00:16 +173 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+13:03:15  00:16 +174 -1: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+13:03:15  00:16 +175 -1: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+13:03:15  00:16 +176 -1: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+13:03:16  00:17 +177 -1: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+13:03:16  00:18 +178 -1: Some tests failed.
+13:03:16  
+13:03:16  Failing tests:
+13:03:16    C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: missing historical ZIP is not shown as valid export
+13:03:17  ✖ Flutter test zlyhal. Návratový kód: 1.

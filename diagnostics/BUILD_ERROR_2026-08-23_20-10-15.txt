@@ -1,0 +1,166 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 285 RC1 DEV001 FIX168
+Dátum a čas: 2026-08-23T20:10:15.668852
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 42 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1272:44 - unnecessary_non_null_assertion
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1282:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:6259:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9663:7 - use_build_context_synchronously
+warning - The value of the local variable 'identity' isn't used. Try removing the variable or using it - lib\main.dart:12449:11 - unused_local_variable
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12493:75 - unnecessary_brace_in_string_interps
+warning - The declaration '_dashboardEventRow' isn't referenced. Try removing the declaration of '_dashboardEventRow' - lib\main.dart:14043:10 - unused_element
+  error - Undefined name 'releaseType'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:15226:27 - undefined_identifier
+warning - The value of the local variable 'apkReady' isn't used. Try removing the variable or using it - lib\main.dart:15403:11 - unused_local_variable
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15729:38 - unnecessary_brace_in_string_interps
+warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17460:27 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17461:33 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17462:32 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17476:61 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17548:76 - unnecessary_non_null_assertion
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17675:15 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17679:13 - prefer_interpolation_to_compose_strings
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17756:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19073:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19296:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19382:46 - unnecessary_non_null_assertion
+
+21 issues found. (ran in 4.1s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+20:05:47  00:11 +91: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+20:05:47  00:11 +92: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+20:05:47  00:11 +93: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+20:05:47  00:11 +94: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+20:05:48  00:11 +95: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+20:05:48  00:12 +96: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+20:05:48  00:12 +97: All tests passed!
+20:05:49  ✔ Flutter test bol úspešne dokončený.
+20:05:49  ▶ flutter build windows --release
+20:05:50  Resolving dependencies...
+20:05:50  Downloading packages...
+20:05:50    dbus 0.7.14 (0.7.15 available)
+20:05:50    file_picker 11.0.3 (12.0.0 available)
+20:05:50    flutter_lints 5.0.0 (6.0.0 available)
+20:05:50    lints 5.1.1 (6.1.0 available)
+20:05:50    matcher 0.12.19 (0.12.20 available)
+20:05:50    material_color_utilities 0.13.0 (0.13.1 available)
+20:05:50    meta 1.18.0 (1.19.0 available)
+20:05:50    test_api 0.7.11 (0.7.13 available)
+20:05:50    vector_math 2.2.0 (2.4.2 available)
+20:05:50    vm_service 15.2.0 (15.3.0 available)
+20:05:50    win32 5.15.0 (6.4.0 available)
+20:05:50    xml 6.6.1 (7.0.1 available)
+20:05:50  Got dependencies!
+20:05:50  12 packages have newer versions incompatible with dependency constraints.
+20:05:50  Try `flutter pub outdated` for more information.
+20:05:57  Building Windows application...                                     6,3s
+20:05:57  âš Built build\windows\x64\runner\Release\stavby_pro_release_manager.exe
+20:05:57  ✔ Windows Release build bol úspešne dokončený.
+20:05:57  ProjectVersionProvider: 8.0.0+285 RC1 (C:\SP\Release_Manager).
+20:05:57  Git workspace: dev, 83 zmien.
+20:05:57  === FAST DEV BUILD 8.0.0+285 BOL ÚSPEŠNE DOKONČENÝ ===
+20:05:57  Build report bol vytvorený: C:\SP\Release_Manager\BUILD_REPORT_2026-08-23_20-05-57.txt
+20:06:00  Export Release ZIP bol vytvorený: C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_FINAL_BUILD_285_WINDOWS_RELEASE.zip • Windows=ÁNO • Android=NIE
+20:06:00  Release Integrity cache: aktuálny release artefakt zaregistrovaný → C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_FINAL_BUILD_285_WINDOWS_RELEASE
+20:06:00  Export priečinok: ponechaný iba výsledný ZIP → C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_FINAL_BUILD_285_WINDOWS_RELEASE.zip • odstránené staré rozbalené duplikáty: 0
+20:06:00  ONE CLICK BUILD EXPORT OVERENÝ: C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_FINAL_BUILD_285_WINDOWS_RELEASE.zip • 12.8 MB
+20:09:24  === WORKSPACE SYNC ===
+20:09:24  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_286_DEV001_FIX169_EXPLICIT_EXPORT_STAGE.zip
+20:09:24  Workspace: C:\SP\Release_Manager
+20:09:59  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-23T20-09-24-432234.zip
+20:09:59  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-23T16-01-52-676541.zip (85.7 MB).
+20:09:59  Backup Manager: automaticky uvoľnené 85.7 MB (1 starých záloh).
+20:09:59  Backup Manager: 10 záloh, 933.5 MB.
+20:09:59  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+20:09:59  Overená identita workspace: 8.0.0+286 RC1.
+20:09:59  Dashboard projekt obnovený po synchronizácii: 8.0.0+286.
+20:09:59  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+20:09:59  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+20:09:59  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+20:10:00  ProjectVersionProvider: 8.0.0+286 RC1 (C:\SP\Release_Manager).
+20:10:00  Git workspace: dev, 89 zmien.
+20:10:00  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_286_DEV001_FIX169_EXPLICIT_EXPORT_STAGE.zip. Git eviduje 89 zmien.
+20:10:09  One Click Build identita: 8.0.0+286 RC1.
+20:10:09  === ZAČÍNA FAST DEV BUILD ===
+20:10:09  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+20:10:09  ▶ flutter analyze
+20:10:10  Resolving dependencies...
+20:10:10  Downloading packages...
+20:10:10    dbus 0.7.14 (0.7.15 available)
+20:10:10    file_picker 11.0.3 (12.0.0 available)
+20:10:10    flutter_lints 5.0.0 (6.0.0 available)
+20:10:10    lints 5.1.1 (6.1.0 available)
+20:10:10    matcher 0.12.19 (0.12.20 available)
+20:10:10    material_color_utilities 0.13.0 (0.13.1 available)
+20:10:10    meta 1.18.0 (1.19.0 available)
+20:10:10    test_api 0.7.11 (0.7.13 available)
+20:10:10    vector_math 2.2.0 (2.4.2 available)
+20:10:10    vm_service 15.2.0 (15.3.0 available)
+20:10:10    win32 5.15.0 (6.4.0 available)
+20:10:10    xml 6.6.1 (7.0.1 available)
+20:10:10  Got dependencies!
+20:10:10  12 packages have newer versions incompatible with dependency constraints.
+20:10:10  Try `flutter pub outdated` for more information.
+20:10:15  Analyzing Release_Manager...                                    
+20:10:15  
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1272:44 - unnecessary_non_null_assertion
+20:10:15     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1282:7 - use_build_context_synchronously
+20:10:15     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:6259:7 - use_build_context_synchronously
+20:10:15     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9663:7 - use_build_context_synchronously
+20:10:15  warning - The value of the local variable 'identity' isn't used. Try removing the variable or using it - lib\main.dart:12449:11 - unused_local_variable
+20:10:15     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12493:75 - unnecessary_brace_in_string_interps
+20:10:15  warning - The declaration '_dashboardEventRow' isn't referenced. Try removing the declaration of '_dashboardEventRow' - lib\main.dart:14043:10 - unused_element
+20:10:15    error - Undefined name 'releaseType'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:15226:27 - undefined_identifier
+20:10:15  warning - The value of the local variable 'apkReady' isn't used. Try removing the variable or using it - lib\main.dart:15403:11 - unused_local_variable
+20:10:15     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15729:38 - unnecessary_brace_in_string_interps
+20:10:15  warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17460:27 - unnecessary_null_comparison
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17461:33 - unnecessary_non_null_assertion
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17462:32 - unnecessary_non_null_assertion
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17476:61 - unnecessary_non_null_assertion
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17548:76 - unnecessary_non_null_assertion
+20:10:15     info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17675:15 - prefer_interpolation_to_compose_strings
+20:10:15     info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17679:13 - prefer_interpolation_to_compose_strings
+20:10:15     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17756:7 - use_build_context_synchronously
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19073:49 - unnecessary_non_null_assertion
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19296:45 - unnecessary_non_null_assertion
+20:10:15  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19382:46 - unnecessary_non_null_assertion
+20:10:15  
+20:10:15  CHYBA: 21 issues found. (ran in 4.1s)
+20:10:15  ✖ Flutter analyze zlyhal. Návratový kód: 1.

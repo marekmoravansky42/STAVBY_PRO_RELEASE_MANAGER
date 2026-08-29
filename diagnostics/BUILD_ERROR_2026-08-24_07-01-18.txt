@@ -1,0 +1,307 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 300 RC1 DEV001 FIX183
+Dátum a čas: 2026-08-24T07:01:18.160745
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter test
+Príkaz: flutter test
+Návratový kód: 1
+
+Pravdepodobná príčina: najmenej jeden automatický test neprešiel.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 183 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading C:/SP/Release_Manager/test/app_settings_one_click_release_mode_test.dart
+00:00 +0: C:/SP/Release_Manager/test/app_settings_one_click_release_mode_test.dart: One Click Release defaults to DEV
+00:00 +1: C:/SP/Release_Manager/test/execution_history_service_test.dart: damaged history does not prevent loading project
+00:00 +2: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:00 +3: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +4: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +5: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +6: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +7: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +8: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +9: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:01 +10: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +11: C:/SP/Release_Manager/test/execution_history_service_test.dart: history is deduplicated, sorted and limited
+00:02 +12: C:/SP/Release_Manager/test/fix158_export_zip_verification_contract_test.dart: Export ZIP OK requires a physical file
+00:02 +13: C:/SP/Release_Manager/test/fix159_export_location_visibility_contract_test.dart: quick export opens Explorer and shows exact verified path
+00:03 +14: C:/SP/Release_Manager/test/fix161_one_click_build_export_visibility_contract_test.dart: FAST/FULL build verifies export ZIP without auto-opening Explorer
+00:03 +15: C:/SP/Release_Manager/test/fix162_one_click_release_export_gate_contract_test.dart: One Click Release exports ZIP even without Android platform
+00:03 +16: C:/SP/Release_Manager/test/fix162_one_click_release_export_gate_contract_test.dart: Integrity cannot run before physical Export ZIP gate passes
+00:03 +17: C:/SP/Release_Manager/test/fix162_one_click_release_export_gate_contract_test.dart: completion dialog exposes exact Export ZIP in Explorer
+00:03 +18: C:/SP/Release_Manager/test/fix163_export_zip_only_contract_test.dart: unpacked release is kept in internal Integrity cache, not export root
+00:04 +19: C:/SP/Release_Manager/test/fix163_export_zip_only_contract_test.dart: Distribution Center discovers internal Integrity cache after restart
+00:04 +20: C:/SP/Release_Manager/test/fix163_export_zip_only_contract_test.dart: export log explicitly keeps only resulting ZIP in export folder
+00:04 +21: C:/SP/Release_Manager/test/fix164_legacy_unpacked_export_cleanup_contract_test.dart: legacy unpacked duplicate is removed only when paired ZIP exists
+00:04 +22: C:/SP/Release_Manager/test/fix164_legacy_unpacked_export_cleanup_contract_test.dart: cleanup is restricted to historical One Click unpacked package names
+00:04 +23: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: (setUpAll)
+00:04 +23: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: DEV uses fast build while RC and FINAL use full build
+00:04 +24: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: RC and FINAL always restore the workspace back to DEV
+00:04 +25: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: FINAL removes dev/rc suffix and DEV restores dev form
+00:04 +26: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: physical Export ZIP gate runs before Release Integrity
+00:04 +27: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: completion dialog does not falsely claim Android for Windows-only project
+00:04 +28: C:/SP/Release_Manager/test/fix165_one_click_release_modes_audit_test.dart: (tearDownAll)
+00:04 +28: C:/SP/Release_Manager/test/fix166_release_mode_reset_and_filename_contract_test.dart: export filename stage is derived from pubspec version
+00:04 +29: C:/SP/Release_Manager/test/fix166_release_mode_reset_and_filename_contract_test.dart: RC and FINAL reset One Click mode back to DEV
+00:05 +30: C:/SP/Release_Manager/test/fix167_dashboard_export_ux_contract_test.dart: (setUpAll)
+00:05 +30: C:/SP/Release_Manager/test/fix167_dashboard_export_ux_contract_test.dart: Fast Dev Build does not auto-open Explorer after ZIP export
+00:05 +31: C:/SP/Release_Manager/test/fix167_dashboard_export_ux_contract_test.dart: Project Information contains Last Export ZIP
+00:05 +32: C:/SP/Release_Manager/test/fix167_dashboard_export_ux_contract_test.dart: Last build no longer renders full export path
+00:05 +33: C:/SP/Release_Manager/test/fix167_dashboard_export_ux_contract_test.dart: (tearDownAll)
+00:05 +33: C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: (setUpAll)
+00:05 +33: C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: export supports explicit DEV RC FINAL stage
+00:05 +34: C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: FAST/FULL and standalone export are explicitly DEV
+00:05 +35: C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: One Click Release passes selected DEV RC FINAL mode to exporter
+00:05 +36: C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: (tearDownAll)
+00:05 +36: C:/SP/Release_Manager/test/fix170_completion_release_type_scope_contract_test.dart: Build Completion export reads release type from completion data
+00:05 +37: C:/SP/Release_Manager/test/fix170_completion_release_type_scope_contract_test.dart: Fast Dev Build still explicitly exports DEV
+00:06 +38: C:/SP/Release_Manager/test/fix171_low_risk_analyze_cleanup_contract_test.dart: obsolete low-risk analyze warnings stay removed
+00:06 +39: C:/SP/Release_Manager/test/fix172_analyzer_cleanup_contract_test.dart: Git publisher guards context after async work
+00:06 +40: C:/SP/Release_Manager/test/fix172_analyzer_cleanup_contract_test.dart: release package build interpolation is analyzer-clean
+00:06 +41: C:/SP/Release_Manager/test/fix173_release_gate_nullability_contract_test.dart: One Click Release promotes verified ZIP to a non-null local
+00:06 +42: C:/SP/Release_Manager/test/fix173_release_gate_nullability_contract_test.dart: completion UI uses the physically verified ZIP directly
+00:06 +43: C:/SP/Release_Manager/test/fix175_async_context_guards_contract_test.dart: project profile flow checks mounted after async platform detection
+00:07 +44: C:/SP/Release_Manager/test/fix175_async_context_guards_contract_test.dart: project clone checks mounted after async name dialog
+00:07 +45: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: (setUpAll)
+00:07 +45: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: FAST DEV export stays explicitly DEV and does not auto-open Explorer
+00:07 +46: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: One Click Release passes selected DEV RC FINAL stage to exporter
+00:07 +47: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: physical ZIP gate remains before SHA-256 Integrity
+00:07 +48: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: RC FINAL restore project and selector to DEV
+00:07 +49: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: user-facing export folder cleanup remains paired-ZIP safe
+00:07 +50: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: Dashboard keeps Last Export ZIP in Project Information
+00:07 +51: C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: (tearDownAll)
+00:07 +51: C:/SP/Release_Manager/test/fix177_intentional_legacy_fallback_contract_test.dart: (setUpAll)
+00:07 +51: C:/SP/Release_Manager/test/fix177_intentional_legacy_fallback_contract_test.dart: intentional fallback helpers stay documented
+00:07 +52: C:/SP/Release_Manager/test/fix177_intentional_legacy_fallback_contract_test.dart: release workflow remains protected
+00:07 +53: C:/SP/Release_Manager/test/fix177_intentional_legacy_fallback_contract_test.dart: (tearDownAll)
+00:07 +53: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: (setUpAll)
+00:07 +53: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: build identity remains single-source and matches pubspec build
+00:07 +54: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: dashboard export row stays outside Last Build card
+00:07 +55: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: manual export navigation remains available without FAST auto-open
+00:07 +56: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: release stage contract remains explicit
+00:07 +57: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: (tearDownAll)
+00:08 +57: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: (setUpAll)
+00:08 +57: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: last verified export path is persisted per workspace
+00:08 +58: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: last verified export is restored during Git workspace refresh
+00:08 +59: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: missing historical ZIP is not shown as valid export
+00:08 +60: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: (tearDownAll)
+00:08 +60: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: (setUpAll)
+00:08 +60: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: last export state is cleared before workspace metadata is loaded
+00:08 +61: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: metadata read failures are logged without restoring stale state
+00:08 +62: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: (tearDownAll)
+00:08 +62: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (setUpAll)
+00:08 +62: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: last export metadata save is guarded against filesystem failures
+00:08 +63: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: verified export persistence remains best effort at all call sites
+00:08 +64: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (tearDownAll)
+00:08 +64: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (setUpAll)
+00:08 +64: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: last export metadata is written through a temporary file
+00:08 +65: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: completed temporary metadata replaces the canonical state file
+00:08 +66: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (tearDownAll)
+00:09 +66: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (setUpAll)
+00:09 +66: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX184 removes orphan temp before a new metadata write
+00:09 +67: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX185 recovers temp metadata after interrupted atomic replace
+00:09 +68: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX186 removes stale temp when canonical metadata is available
+00:09 +69: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps the whole hardening batch under one build identity
+00:09 +69 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps the whole hardening batch under one build identity [E]
+  PathNotFoundException: Cannot open file, path = 'lib/release_manager_version.dart' (OS Error: The system cannot find the file specified, errno = 2)
+  dart:io                                                      _File.readAsStringSync
+  test\fix184_187_last_export_hardening_batch_test.dart 25:62  main.<fn>
+  
+00:09 +69 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (tearDownAll)
+00:09 +69 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:10 +70 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:10 +71 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:10 +72 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:10 +73 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +74 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +75 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +76 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +77 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:11 +78 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +79 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +80 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +81 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +82 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +83 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +84 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:12 +85 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +86 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +87 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +88 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +89 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +90 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +91 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +92 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +93 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:13 +94 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +95 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +96 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +97 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +98 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +99 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +100 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +101 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:14 +102 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +103 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +104 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +105 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +106 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +107 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +108 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +109 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +110 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +111 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +112 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:15 +113 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +114 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +115 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +116 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +117 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +118 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +119 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +120 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +121 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +122 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:17 +123 -1: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+00:17 +124 -1: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+00:17 +125 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+00:17 +126 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+00:17 +127 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+00:17 +128 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+00:17 +129 -1: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+00:17 +130 -1: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+00:18 +131 -1: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+00:18 +132 -1: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+00:19 +133 -1: Some tests failed.
+
+Failing tests:
+  C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps the whole hardening batch under one build identity
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+07:01:06  00:07 +55: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: manual export navigation remains available without FAST auto-open
+07:01:06  00:07 +56: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: release stage contract remains explicit
+07:01:06  00:07 +57: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: (tearDownAll)
+07:01:06  00:08 +57: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: (setUpAll)
+07:01:06  00:08 +57: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: last verified export path is persisted per workspace
+07:01:06  00:08 +58: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: last verified export is restored during Git workspace refresh
+07:01:06  00:08 +59: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: missing historical ZIP is not shown as valid export
+07:01:06  00:08 +60: C:/SP/Release_Manager/test/fix180_last_export_persistence_contract_test.dart: (tearDownAll)
+07:01:06  00:08 +60: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: (setUpAll)
+07:01:06  00:08 +60: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: last export state is cleared before workspace metadata is loaded
+07:01:06  00:08 +61: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: metadata read failures are logged without restoring stale state
+07:01:06  00:08 +62: C:/SP/Release_Manager/test/fix181_last_export_corrupt_state_guard_test.dart: (tearDownAll)
+07:01:06  00:08 +62: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (setUpAll)
+07:01:06  00:08 +62: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: last export metadata save is guarded against filesystem failures
+07:01:06  00:08 +63: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: verified export persistence remains best effort at all call sites
+07:01:06  00:08 +64: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (tearDownAll)
+07:01:07  00:08 +64: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (setUpAll)
+07:01:07  00:08 +64: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: last export metadata is written through a temporary file
+07:01:07  00:08 +65: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: completed temporary metadata replaces the canonical state file
+07:01:07  00:08 +66: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (tearDownAll)
+07:01:07  00:09 +66: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (setUpAll)
+07:01:07  00:09 +66: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX184 removes orphan temp before a new metadata write
+07:01:07  00:09 +67: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX185 recovers temp metadata after interrupted atomic replace
+07:01:07  00:09 +68: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX186 removes stale temp when canonical metadata is available
+07:01:07  00:09 +69: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps the whole hardening batch under one build identity
+07:01:07  00:09 +69 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps the whole hardening batch under one build identity [E]
+07:01:07    PathNotFoundException: Cannot open file, path = 'lib/release_manager_version.dart' (OS Error: The system cannot find the file specified, errno = 2)
+07:01:07    dart:io                                                      _File.readAsStringSync
+07:01:07    test\fix184_187_last_export_hardening_batch_test.dart 25:62  main.<fn>
+07:01:07    
+07:01:07  00:09 +69 -1: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (tearDownAll)
+07:01:07  00:09 +69 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:08  00:10 +70 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:08  00:10 +71 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:08  00:10 +72 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:09  00:10 +73 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:09  00:11 +74 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:09  00:11 +75 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:09  00:11 +76 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:09  00:11 +77 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:11 +78 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +79 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +80 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +81 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +82 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +83 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +84 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:10  00:12 +85 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:11  00:13 +86 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:11  00:13 +87 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:11  00:13 +88 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:11  00:13 +89 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:11  00:13 +90 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:11  00:13 +91 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:13 +92 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:13 +93 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:13 +94 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +95 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +96 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +97 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +98 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +99 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +100 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +101 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:12  00:14 +102 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +103 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +104 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +105 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +106 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +107 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +108 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +109 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +110 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:13  00:15 +111 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:15 +112 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:15 +113 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +114 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +115 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +116 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +117 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +118 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +119 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:14  00:16 +120 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:15  00:16 +121 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:15  00:16 +122 -1: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+07:01:15  00:17 +123 -1: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+07:01:15  00:17 +124 -1: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+07:01:15  00:17 +125 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+07:01:15  00:17 +126 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+07:01:15  00:17 +127 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+07:01:15  00:17 +128 -1: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+07:01:16  00:17 +129 -1: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+07:01:16  00:17 +130 -1: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+07:01:16  00:18 +131 -1: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+07:01:17  00:18 +132 -1: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+07:01:17  00:19 +133 -1: Some tests failed.
+07:01:17  
+07:01:17  Failing tests:
+07:01:17    C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps the whole hardening batch under one build identity
+07:01:18  ✖ Flutter test zlyhal. Návratový kód: 1.

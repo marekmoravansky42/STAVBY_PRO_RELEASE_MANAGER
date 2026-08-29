@@ -1,0 +1,374 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 316 RC1 DEV001 FIX253
+Dátum a čas: 2026-08-26T06:09:52.748010
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter test
+Príkaz: flutter test
+Návratový kód: 1
+
+Pravdepodobná príčina: najmenej jeden automatický test neprešiel.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 250 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+              '                            ],\n'
+              '                          ),\n'
+              '                        ),\n'
+              '                        Icon(Icons.arrow_forward_rounded, color: enabled ? accent : Colors.grey, size: 18),\n'
+              '                      ],\n'
+              '                    ),\n'
+              '                  ),\n'
+              '                ),\n'
+              '              ),\n'
+              '            );\n'
+              '          }).toList(),\n'
+              '        );\n'
+              '      },\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              '\n'
+              'class _ApkWorkflowStep extends StatelessWidget {\n'
+              '  const _ApkWorkflowStep({\n'
+              '    required this.number,\n'
+              '    required this.title,\n'
+              '    required this.detail,\n'
+              '    required this.action,\n'
+              '    this.completed = false,\n'
+              '    this.active = false,\n'
+              '    this.progress,\n'
+              '    this.accent = const Color(0xFF43A047),\n'
+              '  });\n'
+              '\n'
+              '  final int number;\n'
+              '  final String title;\n'
+              '  final String detail;\n'
+              '  final Widget action;\n'
+              '  final bool completed;\n'
+              '  final bool active;\n'
+              '  final double? progress;\n'
+              '  final Color accent;\n'
+              '\n'
+              '  @override\n'
+              '  Widget build(BuildContext context) {\n'
+              '    final color = completed\n'
+              '        ? accent\n'
+              '        : active\n'
+              '            ? accent\n'
+              '            : accent.withValues(alpha: 0.72);\n'
+              '    return Container(\n'
+              '      margin: const EdgeInsets.only(bottom: 6),\n'
+              '      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),\n'
+              '      decoration: BoxDecoration(\n'
+              '        color: completed\n'
+              '            ? accent.withValues(alpha: 0.10)\n'
+              '            : Theme.of(context).colorScheme.surfaceContainerLow,\n'
+              '        borderRadius: BorderRadius.circular(14),\n'
+              '        border: Border.all(color: color.withValues(alpha: 0.55)),\n'
+              '      ),\n'
+              '      child: Row(\n'
+              '        children: <Widget>[\n'
+              '          Container(\n'
+              '            width: 30,\n'
+              '            height: 30,\n'
+              '            alignment: Alignment.center,\n'
+              '            decoration: BoxDecoration(\n'
+              '              color: color.withValues(alpha: 0.14),\n'
+              '              borderRadius: BorderRadius.circular(10),\n'
+              '            ),\n'
+              '            child: active\n'
+              '                ? const SizedBox.square(\n'
+              '                    dimension: 17,\n'
+              '                    child: CircularProgressIndicator(strokeWidth: 2),\n'
+              '                  )\n'
+              '                : completed\n'
+              '                    ? Icon(Icons.check_rounded, color: color, size: 21)\n'
+              '                    : Text(\n'
+              '                        \'$number\',\n'
+              '                        style: TextStyle(color: color, fontWeight: FontWeight.w800),\n'
+              '                      ),\n'
+              '          ),\n'
+              '          const SizedBox(width: 10),\n'
+              '          Expanded(\n'
+              '            child: Column(\n'
+              '              crossAxisAlignment: CrossAxisAlignment.start,\n'
+              '              children: <Widget>[\n'
+              '                Text(\n'
+              '                  title,\n'
+              '                  maxLines: 1,\n'
+              '                  overflow: TextOverflow.ellipsis,\n'
+              '                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),\n'
+              '                ),\n'
+              '                const SizedBox(height: 1),\n'
+              '                Text(\n'
+              '                  detail,\n'
+              '                  maxLines: 1,\n'
+              '                  overflow: TextOverflow.ellipsis,\n'
+              '                  style: Theme.of(context).textTheme.bodySmall,\n'
+              '                ),\n'
+              '                if (progress != null) ...<Widget>[\n'
+              '                  const SizedBox(height: 3),\n'
+              '                  LinearProgressIndicator(\n'
+              '                    value: progress,\n'
+              '                    minHeight: 4,\n'
+              '                    borderRadius: BorderRadius.circular(999),\n'
+              '                  ),\n'
+              '                ],\n'
+              '              ],\n'
+              '            ),\n'
+              '          ),\n'
+              '          const SizedBox(width: 10),\n'
+              '          action,\n'
+              '        ],\n'
+              '      ),\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              '\n'
+              'class _InfoRow extends StatelessWidget {\n'
+              '  const _InfoRow({required this.label, required this.value});\n'
+              '\n'
+              '  final String label;\n'
+              '  final String value;\n'
+              '\n'
+              '  @override\n'
+              '  Widget build(BuildContext context) {\n'
+              '    return Padding(\n'
+              '      padding: const EdgeInsets.symmetric(vertical: 5),\n'
+              '      child: Row(\n'
+              '        crossAxisAlignment: CrossAxisAlignment.start,\n'
+              '        children: <Widget>[\n'
+              '          SizedBox(\n'
+              '            width: 90,\n'
+              '            child: Text(\n'
+              '              \'$label:\',\n'
+              '              style: const TextStyle(fontWeight: FontWeight.bold),\n'
+              '            ),\n'
+              '          ),\n'
+              '          Expanded(child: SelectableText(value)),\n'
+              '        ],\n'
+              '      ),\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              '\n'
+              'class _StatusChip extends StatelessWidget {\n'
+              '  const _StatusChip({\n'
+              '    required this.icon,\n'
+              '    required this.label,\n'
+              '    required this.color,\n'
+              '  });\n'
+              '\n'
+              '  final IconData icon;\n'
+              '  final String label;\n'
+              '  final Color color;\n'
+              '\n'
+              '  @override\n'
+              '  Widget build(BuildContext context) {\n'
+              '    return Container(\n'
+              '      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),\n'
+              '      decoration: BoxDecoration(\n'
+              '        color: color.withValues(alpha: 0.10),\n'
+              '        border: Border.all(color: color.withValues(alpha: 0.35)),\n'
+              '        borderRadius: BorderRadius.circular(999),\n'
+              '      ),\n'
+              '      child: Row(\n'
+              '        mainAxisSize: MainAxisSize.min,\n'
+              '        children: <Widget>[\n'
+              '          Icon(icon, size: 18, color: color),\n'
+              '          const SizedBox(width: 8),\n'
+              '          Text(\n'
+              '            label,\n'
+              '            style: TextStyle(color: color, fontWeight: FontWeight.w700),\n'
+              '          ),\n'
+              '        ],\n'
+              '      ),\n'
+              '    );\n'
+              '  }\n'
+              '}\n'
+              ''
+     Which: does not contain 'releaseStage: releaseStage'
+  
+  package:matcher                                         expect
+  package:flutter_test/src/widget_tester.dart 473:18      expect
+  test\fix257_fix169_contract_final_update_test.dart 9:5  main.<fn>
+  
+00:16 +177 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +178 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:16 +179 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:17 +180 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:17 +181 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:17 +182 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +183 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +184 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +185 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +186 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +187 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +188 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +189 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +190 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +191 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:18 +192 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +193 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +194 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +195 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +196 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +197 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +198 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +199 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +200 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:19 +201 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +202 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +203 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +204 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +205 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +206 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +207 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +208 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:20 +209 -2: C:/SP/Release_Manager/test/plugin_package_manager_test.dart: updates with backup and uninstalls
+00:20 +210 -2: C:/SP/Release_Manager/test/plugin_rollback_service_test.dart: creates and restores the latest plugin backup
+00:20 +211 -2: C:/SP/Release_Manager/test/plugin_sdk_test.dart: descriptor validates and checks host compatibility
+00:20 +212 -2: C:/SP/Release_Manager/test/plugin_sdk_test.dart: registry rejects duplicate plugin IDs
+00:20 +213 -2: C:/SP/Release_Manager/test/plugin_sdk_test.dart: loader initializes compatible compiled plugin
+00:20 +214 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: default policy denies permissions that were not granted
+00:21 +215 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: explicit deny takes precedence over grant
+00:21 +216 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: manager records allowed and denied checks in audit
+00:21 +217 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: requirePermission throws for unauthorized access
+00:21 +218 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: validator reports unknown and duplicate permissions
+00:21 +219 -2: C:/SP/Release_Manager/test/project_info_test.dart: ProjectInfo.releaseBuild naÄŤĂ­ta MOBILE_UI build z nĂˇzvu prieÄŤinka
+00:21 +220 -2: C:/SP/Release_Manager/test/project_info_test.dart: ProjectInfo.releaseBuild pouĹľije technickĂ˝ build pri beĹľnom Flutter projekte
+00:21 +221 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: detects only complete Flutter platform projects
+00:21 +222 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: detects Android project with Groovy build file
+00:21 +223 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: detects Android project with Kotlin build file
+00:21 +224 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: rejects directory without pubspec.yaml
+00:21 +225 -2: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads stable Flutter version
+00:21 +226 -2: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads RC Release Recipe version
+00:21 +227 -2: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads DEV Release Recipe version
+00:21 +228 -2: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: canonical Release Manager identity is Build 316 FIX254
+00:21 +229 -2: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: Plugin Marketplace uses canonical Release Manager version
+00:22 +230 -2: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+00:22 +231 -2: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+00:22 +232 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+00:22 +233 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+00:22 +234 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+00:22 +235 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+00:22 +236 -2: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+00:22 +237 -2: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+00:23 +238 -2: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+00:23 +239 -2: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+00:23 +240 -2: Some tests failed.
+
+Failing tests:
+  C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: FAST/standalone stay DEV while controlled FULL BUILD may be FINAL
+  C:/SP/Release_Manager/test/fix257_fix169_contract_final_update_test.dart: FIX257 FINAL export contract is stage-aware without breaking DEV export
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+06:09:45                '\n'
+06:09:45                '  @override\n'
+06:09:45                '  Widget build(BuildContext context) {\n'
+06:09:45                '    return Container(\n'
+06:09:45                '      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),\n'
+06:09:45                '      decoration: BoxDecoration(\n'
+06:09:45                '        color: color.withValues(alpha: 0.10),\n'
+06:09:45                '        border: Border.all(color: color.withValues(alpha: 0.35)),\n'
+06:09:45                '        borderRadius: BorderRadius.circular(999),\n'
+06:09:45                '      ),\n'
+06:09:45                '      child: Row(\n'
+06:09:45                '        mainAxisSize: MainAxisSize.min,\n'
+06:09:45                '        children: <Widget>[\n'
+06:09:45                '          Icon(icon, size: 18, color: color),\n'
+06:09:45                '          const SizedBox(width: 8),\n'
+06:09:45                '          Text(\n'
+06:09:45                '            label,\n'
+06:09:45                '            style: TextStyle(color: color, fontWeight: FontWeight.w700),\n'
+06:09:45                '          ),\n'
+06:09:45                '        ],\n'
+06:09:45                '      ),\n'
+06:09:45                '    );\n'
+06:09:45                '  }\n'
+06:09:45                '}\n'
+06:09:45                ''
+06:09:45       Which: does not contain 'releaseStage: releaseStage'
+06:09:45    
+06:09:45    package:matcher                                         expect
+06:09:45    package:flutter_test/src/widget_tester.dart 473:18      expect
+06:09:45    test\fix257_fix169_contract_final_update_test.dart 9:5  main.<fn>
+06:09:45    
+06:09:45  00:16 +177 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:45  00:16 +178 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:45  00:16 +179 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:45  00:17 +180 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:17 +181 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:17 +182 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:18 +183 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:18 +184 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:18 +185 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:18 +186 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:46  00:18 +187 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:18 +188 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:18 +189 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:18 +190 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:18 +191 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:18 +192 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:19 +193 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:19 +194 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:19 +195 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:19 +196 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:47  00:19 +197 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:19 +198 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:19 +199 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:19 +200 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:19 +201 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +202 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +203 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +204 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +205 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +206 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +207 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +208 -2: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+06:09:48  00:20 +209 -2: C:/SP/Release_Manager/test/plugin_package_manager_test.dart: updates with backup and uninstalls
+06:09:48  00:20 +210 -2: C:/SP/Release_Manager/test/plugin_rollback_service_test.dart: creates and restores the latest plugin backup
+06:09:49  00:20 +211 -2: C:/SP/Release_Manager/test/plugin_sdk_test.dart: descriptor validates and checks host compatibility
+06:09:49  00:20 +212 -2: C:/SP/Release_Manager/test/plugin_sdk_test.dart: registry rejects duplicate plugin IDs
+06:09:49  00:20 +213 -2: C:/SP/Release_Manager/test/plugin_sdk_test.dart: loader initializes compatible compiled plugin
+06:09:49  00:20 +214 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: default policy denies permissions that were not granted
+06:09:49  00:21 +215 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: explicit deny takes precedence over grant
+06:09:49  00:21 +216 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: manager records allowed and denied checks in audit
+06:09:49  00:21 +217 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: requirePermission throws for unauthorized access
+06:09:49  00:21 +218 -2: C:/SP/Release_Manager/test/plugin_security_test.dart: validator reports unknown and duplicate permissions
+06:09:49  00:21 +219 -2: C:/SP/Release_Manager/test/project_info_test.dart: ProjectInfo.releaseBuild naÄŤĂ­ta MOBILE_UI build z nĂˇzvu prieÄŤinka
+06:09:49  00:21 +220 -2: C:/SP/Release_Manager/test/project_info_test.dart: ProjectInfo.releaseBuild pouĹľije technickĂ˝ build pri beĹľnom Flutter projekte
+06:09:49  00:21 +221 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: detects only complete Flutter platform projects
+06:09:49  00:21 +222 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: detects Android project with Groovy build file
+06:09:49  00:21 +223 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: detects Android project with Kotlin build file
+06:09:50  00:21 +224 -2: C:/SP/Release_Manager/test/project_workspace_test.dart: rejects directory without pubspec.yaml
+06:09:50  00:21 +225 -2: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads stable Flutter version
+06:09:50  00:21 +226 -2: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads RC Release Recipe version
+06:09:50  00:21 +227 -2: C:/SP/Release_Manager/test/pubspec_service_semver_test.dart: reads DEV Release Recipe version
+06:09:50  00:21 +228 -2: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: canonical Release Manager identity is Build 316 FIX254
+06:09:50  00:21 +229 -2: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: Plugin Marketplace uses canonical Release Manager version
+06:09:50  00:22 +230 -2: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+06:09:50  00:22 +231 -2: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+06:09:51  00:22 +232 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+06:09:51  00:22 +233 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+06:09:51  00:22 +234 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+06:09:51  00:22 +235 -2: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+06:09:51  00:22 +236 -2: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+06:09:51  00:22 +237 -2: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+06:09:51  00:23 +238 -2: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+06:09:51  00:23 +239 -2: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+06:09:52  00:23 +240 -2: Some tests failed.
+06:09:52  
+06:09:52  Failing tests:
+06:09:52    C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: FAST/standalone stay DEV while controlled FULL BUILD may be FINAL
+06:09:52    C:/SP/Release_Manager/test/fix257_fix169_contract_final_update_test.dart: FIX257 FINAL export contract is stage-aware without breaking DEV export
+06:09:52  ✖ Flutter test zlyhal. Návratový kód: 1.

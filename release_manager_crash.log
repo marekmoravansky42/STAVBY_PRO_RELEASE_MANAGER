@@ -8,3 +8,47 @@ Stack trace:
 <asynchronous suspension>
 
 
+============================================================
+Dátum: 2026-08-23T16:06:22.967668
+Verzia: 8.0.0 RC1 Build 275 RC1 DEV001 FIX158
+Krok: One Click Release • DEV
+Chyba: Bad state: Flutter test zlyhal.
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+Stack trace:
+#0      _ReleaseManagerPageState._runOneClickReleaseComplete (package:stavby_pro_release_manager/main.dart:17116)
+<asynchronous suspension>
+
+
+============================================================
+Dátum: 2026-08-23T20:00:01.807331
+Verzia: 8.0.0 RC1 Build 283 RC1 DEV001 FIX166
+Krok: One Click Release • DEV
+Chyba: Bad state: Flutter test zlyhal.
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+Stack trace:
+#0      _ReleaseManagerPageState._runOneClickReleaseComplete (package:stavby_pro_release_manager/main.dart:17268)
+<asynchronous suspension>
+
+

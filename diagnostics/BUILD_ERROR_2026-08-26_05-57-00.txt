@@ -1,0 +1,374 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 316 RC1 DEV001 FIX253
+Dátum a čas: 2026-08-26T05:57:00.451988
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter test
+Príkaz: flutter test
+Návratový kód: 1
+
+Pravdepodobná príčina: najmenej jeden automatický test neprešiel.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 250 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+              '  }\n'
+              '}\n'
+              ''
+     Which: does not contain 'releaseStage: \'DEV\','
+  
+  package:matcher                                                expect
+  package:flutter_test/src/widget_tester.dart 473:18             expect
+  test\fix178_stable_identity_dashboard_contract_test.dart 53:5  main.<fn>
+  
+00:11 +57 -5: C:/SP/Release_Manager/test/fix178_stable_identity_dashboard_contract_test.dart: (tearDownAll)
+00:12 +57 -5: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (setUpAll)
+00:12 +57 -5: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: last export metadata save is guarded against filesystem failures
+00:12 +58 -5: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: verified export persistence remains best effort at all call sites
+00:12 +59 -5: C:/SP/Release_Manager/test/fix182_last_export_persistence_write_guard_test.dart: (tearDownAll)
+00:12 +59 -5: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (setUpAll)
+00:12 +59 -5: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: last export metadata is written through a temporary file
+00:12 +60 -5: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: completed temporary metadata replaces the canonical state file
+00:12 +61 -5: C:/SP/Release_Manager/test/fix183_last_export_atomic_persistence_contract_test.dart: (tearDownAll)
+00:12 +61 -5: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (setUpAll)
+00:12 +61 -5: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX184 removes orphan temp before a new metadata write
+00:12 +62 -5: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX185 recovers temp metadata after interrupted atomic replace
+00:12 +63 -5: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX186 removes stale temp when canonical metadata is available
+00:12 +64 -5: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: FIX187 keeps Release Manager identity in the canonical version source
+00:12 +65 -5: C:/SP/Release_Manager/test/fix184_187_last_export_hardening_batch_test.dart: (tearDownAll)
+00:13 +65 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: (setUpAll)
+00:13 +65 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX188 persists a metadata schema version
+00:13 +66 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX189 validates temporary metadata before recovery
+00:13 +67 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX190 safely ignores unsupported future metadata schema
+00:13 +68 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX191 corrupt canonical metadata is removed after failed load
+00:13 +69 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: FIX188-191 uses the canonical Release Manager identity source
+00:13 +70 -5: C:/SP/Release_Manager/test/fix188_191_last_export_metadata_batch_test.dart: (tearDownAll)
+00:13 +70 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: (setUpAll)
+00:13 +70 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX192 legacy metadata defaults to schema 1
+00:13 +71 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX193 non-object metadata is rejected
+00:13 +72 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX194 recovered temp metadata requires existing ZIP
+00:13 +73 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX195 invalid temp metadata cleanup is explicit
+00:13 +74 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: FIX192-195 keeps identity in the canonical version source
+00:13 +75 -5: C:/SP/Release_Manager/test/fix192_195_last_export_metadata_resilience_batch_test.dart: (tearDownAll)
+00:13 +75 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: (setUpAll)
+00:13 +75 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX196 persists absolute export ZIP path
+00:13 +76 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX197 normalizes recovered temporary ZIP path
+00:13 +77 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX198 normalizes restored canonical ZIP path
+00:13 +78 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX199 removes stale metadata when ZIP disappeared
+00:13 +79 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: FIX196-199 keeps identity in the canonical version source
+00:13 +80 -5: C:/SP/Release_Manager/test/fix196_199_last_export_path_resilience_batch_test.dart: (tearDownAll)
+00:13 +80 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: (setUpAll)
+00:13 +80 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX200 clears stale in-memory export when ZIP disappeared
+00:13 +81 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX201 clears in-memory export when canonical metadata is corrupt
+00:13 +82 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX202 unsupported future schema clears previous in-memory export
+00:13 +83 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX203 successful persistence synchronizes canonical in-memory path
+00:14 +84 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: FIX200-203 keeps identity in the canonical version source
+00:14 +85 -5: C:/SP/Release_Manager/test/fix200_203_last_export_state_cleanup_batch_test.dart: (tearDownAll)
+00:14 +85 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: (setUpAll)
+00:14 +85 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX204 future schema clears dashboard state through setState
+00:14 +86 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX205 stale ZIP cleanup updates dashboard state safely
+00:14 +87 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX206 corrupt metadata cleanup is mounted-safe
+00:14 +88 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX207 successful persistence refreshes dashboard state
+00:14 +89 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: FIX204-207 keeps identity in the canonical version source
+00:14 +90 -5: C:/SP/Release_Manager/test/fix204_207_last_export_ui_state_batch_test.dart: (tearDownAll)
+00:14 +90 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: (setUpAll)
+00:14 +90 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX208 persists metadata timestamp in UTC
+00:14 +91 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX209 unsupported future schema removes stale temp metadata
+00:14 +92 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX210 normalized restored path is explicitly logged
+00:14 +93 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX211 successful metadata persistence logs canonical path
+00:14 +94 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: FIX208-211 keeps identity in the canonical version source
+00:14 +95 -5: C:/SP/Release_Manager/test/fix208_211_last_export_metadata_finalization_batch_test.dart: (tearDownAll)
+00:14 +95 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: (setUpAll)
+00:14 +95 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX212 persists explicit metadata kind
+00:14 +96 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX213 validates canonical metadata kind
+00:14 +97 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX214 validates recovered temporary metadata kind
+00:14 +98 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX215 restored target must be a file
+00:14 +99 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: FIX212-215 keeps identity in the canonical version source
+00:14 +100 -5: C:/SP/Release_Manager/test/fix212_215_last_export_validation_batch_test.dart: (tearDownAll)
+00:14 +100 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: (setUpAll)
+00:14 +100 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX216 temp recovery target must be a file
+00:14 +101 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX217 temp recovery target must have ZIP extension
+00:14 +102 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX218 canonical restored target must have ZIP extension
+00:14 +103 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX219 persistence rejects non-ZIP input path
+00:15 +104 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: FIX216-219 keeps identity in the canonical version source
+00:15 +105 -5: C:/SP/Release_Manager/test/fix216_219_last_export_recovery_validation_batch_test.dart: (tearDownAll)
+00:15 +105 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: (setUpAll)
+00:15 +105 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX220 persistence validates ZIP signature
+00:15 +106 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX221 temp recovery validates ZIP signature
+00:15 +107 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX222 canonical restore validates ZIP signature
+00:15 +108 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX223 invalid ZIP cleanup log is explicit
+00:15 +109 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: FIX220-223 keeps identity in the canonical version source
+00:15 +110 -5: C:/SP/Release_Manager/test/fix220_223_last_export_zip_signature_batch_test.dart: (tearDownAll)
+00:15 +110 -5: C:/SP/Release_Manager/test/fix224_227_cleanup_regression_batch_test.dart: (setUpAll)
+00:15 +110 -5: C:/SP/Release_Manager/test/fix224_227_cleanup_regression_batch_test.dart: FIX224 guards dialog context after async work
+00:15 +111 -5: C:/SP/Release_Manager/test/fix224_227_cleanup_regression_batch_test.dart: FIX225 preserves correct combined ZIP property interpolation
+00:15 +112 -5: C:/SP/Release_Manager/test/fix224_227_cleanup_regression_batch_test.dart: FIX226 historical export cleanup test is wording-neutral
+00:15 +113 -5: C:/SP/Release_Manager/test/fix224_227_cleanup_regression_batch_test.dart: FIX224-227 keeps identity in the canonical version source
+00:15 +114 -5: C:/SP/Release_Manager/test/fix224_227_cleanup_regression_batch_test.dart: (tearDownAll)
+00:15 +114 -5: C:/SP/Release_Manager/test/fix228_231_analyzer_cleanup_batch_test.dart: (setUpAll)
+00:15 +114 -5: C:/SP/Release_Manager/test/fix228_231_analyzer_cleanup_batch_test.dart: FIX228-230 removes redundant Distribution Center non-null assertions
+00:15 +115 -5: C:/SP/Release_Manager/test/fix228_231_analyzer_cleanup_batch_test.dart: FIX228-231 keeps identity in the canonical version source
+00:15 +116 -5: C:/SP/Release_Manager/test/fix228_231_analyzer_cleanup_batch_test.dart: (tearDownAll)
+00:15 +116 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: (setUpAll)
+00:15 +116 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: FIX232 Local Agent startup recovery contract remains present
+00:16 +117 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: FIX233 Release Integrity startup restore contract remains present
+00:16 +118 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: FIX234 Workspace Sync keeps One Click Build reset contract
+00:16 +119 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: FIX235 Workspace Sync SAFE MODE contract remains present
+00:16 +120 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: FIX232-235 keeps identity in the canonical version source
+00:16 +121 -5: C:/SP/Release_Manager/test/fix232_235_startup_integrity_regression_batch_test.dart: (tearDownAll)
+00:16 +121 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: (setUpAll)
+00:16 +121 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: FIX236 Distribution Center contract remains present
+00:16 +122 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: FIX237 Publish Gate contract remains present
+00:16 +123 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: FIX238 platform detection contract remains present
+00:16 +124 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: FIX239 Windows executable detection contract remains present
+00:16 +125 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: FIX236-239 keeps identity in the canonical version source
+00:16 +126 -5: C:/SP/Release_Manager/test/fix236_239_distribution_publish_regression_batch_test.dart: (tearDownAll)
+00:16 +126 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: (setUpAll)
+00:16 +126 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: FIX240 flutter analyze workflow contract remains present
+00:16 +127 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: FIX241 flutter test workflow contract remains present
+00:16 +128 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: FIX242 Windows release build workflow contract remains present
+00:16 +129 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: FIX243 clean/full-build recovery contract remains present
+00:16 +130 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: FIX240-243 keeps identity in the canonical version source
+00:16 +131 -5: C:/SP/Release_Manager/test/fix240_243_release_workflow_regression_batch_test.dart: (tearDownAll)
+00:16 +131 -5: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: (setUpAll)
+00:16 +131 -5: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: FIX244 detects Android support before FULL BUILD steps
+00:16 +132 -5: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: FIX245 FULL BUILD runs Android APK Release build
+00:16 +133 -5: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: FIX246 FULL BUILD export failure is fatal
+00:16 +134 -5: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: FIX247 FULL BUILD completion reports Android step
+00:16 +135 -5: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: current batch identity is Build 316 FIX253
+00:16 +135 -6: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: current batch identity is Build 316 FIX253 [E]
+  Expected: contains 'RC1 DEV001 FIX253'
+    Actual: 'abstract final class ReleaseManagerVersion {\n'
+              '  static const String version = \'8.0.0\';\n'
+              '  static const int build = 316;\n'
+              '  static const String channel = \'RC1\';\n'
+              '  static const String stage = \'RC1 DEV001 FIX254\';\n'
+              '\n'
+              '  static const String label = \'$version $channel Build $build $stage\';\n'
+              '  static const String badge = \'v$version $channel â€˘ Build $build â€˘ $stage\';\n'
+              '  static const String compact = \'$version $channel\\nBUILD $build $stage\';\n'
+              '}\n'
+              ''
+     Which: does not contain 'RC1 DEV001 FIX253'
+  
+  package:matcher                                             expect
+  package:flutter_test/src/widget_tester.dart 473:18          expect
+  test\fix244_247_full_build_android_required_test.dart 31:5  main.<fn>
+  
+00:16 +135 -6: C:/SP/Release_Manager/test/fix244_247_full_build_android_required_test.dart: (tearDownAll)
+00:16 +135 -6: C:/SP/Release_Manager/test/fix248_project_release_profile_reader_test.dart: FIX248 parses STAVBY PRO DEV and FINAL identities
+00:16 +136 -6: C:/SP/Release_Manager/test/fix248_project_release_profile_reader_test.dart: FIX248 FULL BUILD integration is read-only and fail-safe
+00:17 +137 -6: C:/SP/Release_Manager/test/fix249_final_transition_dry_run_test.dart: FIX249 builds deterministic DEV to FINAL transition plan
+00:17 +138 -6: C:/SP/Release_Manager/test/fix249_final_transition_dry_run_test.dart: FIX250 supersedes FIX249 dry-run with explicit preflight gate
+00:17 +139 -6: C:/SP/Release_Manager/test/fix250_android_cmd_launch_fix2_test.dart: FIX250 CMD failure dialog uses valid ProjectInfo projectName getter
+00:17 +140 -6: C:/SP/Release_Manager/test/fix250_android_cmd_launch_fix_test.dart: FIX250 Android APK One Click step uses cmd.exe on Windows
+00:17 +141 -6: C:/SP/Release_Manager/test/fix250_android_cmd_launch_fix_test.dart: FIX250 other One Click steps keep existing Flutter runner
+00:18 +142 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 preflight preview lists every critical DEV to FINAL change
+00:18 +143 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 requires explicit non-dismissible confirmation
+00:18 +144 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 cancellation leaves project unchanged
+00:18 +145 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 still does not write FINAL transition to project
+00:18 +146 -6: C:/SP/Release_Manager/test/fix251_final_transition_config_backup_test.dart: FIX251 transition plan lists critical configuration files
+00:18 +147 -6: C:/SP/Release_Manager/test/fix251_final_transition_config_backup_test.dart: FIX251 backs up configuration before future transition write
+00:18 +148 -6: C:/SP/Release_Manager/test/fix251_final_transition_config_backup_test.dart: FIX251 fails when a mandatory config file is missing
+00:18 +149 -6: C:/SP/Release_Manager/test/fix251_local_agent_sibling_workspace_recovery_test.dart: FIX251 finds Local Agent in sibling Release Manager workspace
+00:18 +150 -6: C:/SP/Release_Manager/test/fix251_project_scoped_last_zips_test.dart: FIX251 project switch clears stale ZIP dashboard metadata
+00:18 +151 -6: C:/SP/Release_Manager/test/fix251_project_scoped_last_zips_test.dart: FIX251 project open reloads sync and export metadata for selected project
+00:19 +152 -6: C:/SP/Release_Manager/test/fix252_final_transition_apply_engine_test.dart: FIX252 engine applies DEV to FINAL only to configuration files
+00:19 +153 -6: C:/SP/Release_Manager/test/fix252_final_transition_apply_engine_test.dart: FIX252 engine is not invoked automatically by FULL BUILD
+00:19 +154 -6: C:/SP/Release_Manager/test/fix253_confirm_apply_final_transition_test.dart: FIX253 applies transition only after explicit preflight confirmation and backup
+00:19 +155 -6: C:/SP/Release_Manager/test/fix253_confirm_apply_final_transition_test.dart: FIX253 applies only target FINAL channel and logs verified changed files
+00:19 +156 -6: C:/SP/Release_Manager/test/fix253_confirm_apply_final_transition_test.dart: FIX253 cancel still exits before backup and apply
+00:19 +157 -6: C:/SP/Release_Manager/test/fix253_defer_final_apply_until_after_tests_test.dart: FIX253 FINAL apply is deferred until after analyze and test
+00:19 +158 -6: C:/SP/Release_Manager/test/fix253_defer_final_apply_until_after_tests_test.dart: FIX253 platform builds happen in FINAL but tests still run in DEV
+00:20 +159 -6: C:/SP/Release_Manager/test/fix253_defer_final_apply_until_after_tests_test.dart: FIX253 failed DEV tests never trigger FINAL apply
+00:20 +160 -6: C:/SP/Release_Manager/test/fix253_final_button_preflight_and_dev_restore_test.dart: FIX253 FINAL dialog button enters controlled FULL BUILD preflight
+00:20 +161 -6: C:/SP/Release_Manager/test/fix253_final_button_preflight_and_dev_restore_test.dart: FIX253 restores DEV configuration after FINAL build or failure
+00:20 +162 -6: C:/SP/Release_Manager/test/fix253_final_button_preflight_and_dev_restore_test.dart: FIX253 restore uses the pre-apply configuration backup
+00:20 +163 -6: C:/SP/Release_Manager/test/fix253_project_switch_identity_fix_test.dart: FIX253 project switch atomically replaces dashboard workspace identity
+00:20 +164 -6: C:/SP/Release_Manager/test/fix253_project_switch_identity_fix_test.dart: FIX253 project switch refreshes Git and identity for selected project
+00:20 +165 -6: C:/SP/Release_Manager/test/fix253_transition_engine_scope_fix_test.dart: FIX253 transition engine remains local to FINAL platform-build gate
+00:20 +166 -6: C:/SP/Release_Manager/test/fix253_transition_engine_scope_fix_test.dart: FIX253 FINAL apply remains deferred until DEV analyze and tests pass
+00:20 +167 -6: C:/SP/Release_Manager/test/fix254_final_report_export_open_fix_test.dart: FIX254 FINAL build report and export use actual release stage
+00:21 +168 -6: C:/SP/Release_Manager/test/fix254_final_report_export_open_fix_test.dart: FIX254 dashboard opens concrete successful build report
+00:21 +169 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:22 +170 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:22 +171 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:22 +172 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:22 +173 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +174 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +175 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +176 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +177 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +178 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +179 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:23 +180 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:24 +181 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:24 +182 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:24 +183 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:24 +184 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:24 +185 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +186 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +187 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +188 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +189 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +190 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +191 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +192 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +193 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +194 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +195 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:25 +196 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +197 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +198 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +199 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +200 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +201 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +202 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +203 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +204 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +205 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:26 +206 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +207 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +208 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +209 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +210 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +211 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +212 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +213 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +214 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +215 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +216 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:27 +217 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:28 +218 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:28 +219 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:28 +220 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+00:28 +221 -6: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: canonical Release Manager identity is Build 316 FIX254
+00:28 +222 -6: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: Plugin Marketplace uses canonical Release Manager version
+00:28 +223 -6: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+00:28 +224 -6: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+00:29 +225 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+00:29 +226 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+00:29 +227 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+00:29 +228 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+00:29 +229 -6: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+00:29 +230 -6: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+00:29 +231 -6: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+00:30 +232 -6: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+00:31 +233 -6: Some tests failed.
+
+Failing tests:
+  C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: FAST/FULL and standalone export are explicitly DEV
+  C:/SP/Release_Manager/test/fix170_completion_release_type_scope_contract_test.dart: Fast Dev Build still explicitly exports DEV
+  C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: FAST DEV export stays explicitly DEV and does not auto-open Explorer
+  C:/SP/Release_Manager/test/fix177_intentional_legacy_fallback_contract_test.dart: release workflow remains protected
+  ... and 2 more
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+05:56:46  00:18 +142 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 preflight preview lists every critical DEV to FINAL change
+05:56:46  00:18 +143 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 requires explicit non-dismissible confirmation
+05:56:46  00:18 +144 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 cancellation leaves project unchanged
+05:56:46  00:18 +145 -6: C:/SP/Release_Manager/test/fix250_final_preflight_confirmation_gate_test.dart: FIX250 still does not write FINAL transition to project
+05:56:46  00:18 +146 -6: C:/SP/Release_Manager/test/fix251_final_transition_config_backup_test.dart: FIX251 transition plan lists critical configuration files
+05:56:46  00:18 +147 -6: C:/SP/Release_Manager/test/fix251_final_transition_config_backup_test.dart: FIX251 backs up configuration before future transition write
+05:56:46  00:18 +148 -6: C:/SP/Release_Manager/test/fix251_final_transition_config_backup_test.dart: FIX251 fails when a mandatory config file is missing
+05:56:46  00:18 +149 -6: C:/SP/Release_Manager/test/fix251_local_agent_sibling_workspace_recovery_test.dart: FIX251 finds Local Agent in sibling Release Manager workspace
+05:56:47  00:18 +150 -6: C:/SP/Release_Manager/test/fix251_project_scoped_last_zips_test.dart: FIX251 project switch clears stale ZIP dashboard metadata
+05:56:47  00:18 +151 -6: C:/SP/Release_Manager/test/fix251_project_scoped_last_zips_test.dart: FIX251 project open reloads sync and export metadata for selected project
+05:56:47  00:19 +152 -6: C:/SP/Release_Manager/test/fix252_final_transition_apply_engine_test.dart: FIX252 engine applies DEV to FINAL only to configuration files
+05:56:47  00:19 +153 -6: C:/SP/Release_Manager/test/fix252_final_transition_apply_engine_test.dart: FIX252 engine is not invoked automatically by FULL BUILD
+05:56:47  00:19 +154 -6: C:/SP/Release_Manager/test/fix253_confirm_apply_final_transition_test.dart: FIX253 applies transition only after explicit preflight confirmation and backup
+05:56:47  00:19 +155 -6: C:/SP/Release_Manager/test/fix253_confirm_apply_final_transition_test.dart: FIX253 applies only target FINAL channel and logs verified changed files
+05:56:48  00:19 +156 -6: C:/SP/Release_Manager/test/fix253_confirm_apply_final_transition_test.dart: FIX253 cancel still exits before backup and apply
+05:56:48  00:19 +157 -6: C:/SP/Release_Manager/test/fix253_defer_final_apply_until_after_tests_test.dart: FIX253 FINAL apply is deferred until after analyze and test
+05:56:48  00:19 +158 -6: C:/SP/Release_Manager/test/fix253_defer_final_apply_until_after_tests_test.dart: FIX253 platform builds happen in FINAL but tests still run in DEV
+05:56:48  00:20 +159 -6: C:/SP/Release_Manager/test/fix253_defer_final_apply_until_after_tests_test.dart: FIX253 failed DEV tests never trigger FINAL apply
+05:56:48  00:20 +160 -6: C:/SP/Release_Manager/test/fix253_final_button_preflight_and_dev_restore_test.dart: FIX253 FINAL dialog button enters controlled FULL BUILD preflight
+05:56:48  00:20 +161 -6: C:/SP/Release_Manager/test/fix253_final_button_preflight_and_dev_restore_test.dart: FIX253 restores DEV configuration after FINAL build or failure
+05:56:48  00:20 +162 -6: C:/SP/Release_Manager/test/fix253_final_button_preflight_and_dev_restore_test.dart: FIX253 restore uses the pre-apply configuration backup
+05:56:48  00:20 +163 -6: C:/SP/Release_Manager/test/fix253_project_switch_identity_fix_test.dart: FIX253 project switch atomically replaces dashboard workspace identity
+05:56:48  00:20 +164 -6: C:/SP/Release_Manager/test/fix253_project_switch_identity_fix_test.dart: FIX253 project switch refreshes Git and identity for selected project
+05:56:49  00:20 +165 -6: C:/SP/Release_Manager/test/fix253_transition_engine_scope_fix_test.dart: FIX253 transition engine remains local to FINAL platform-build gate
+05:56:49  00:20 +166 -6: C:/SP/Release_Manager/test/fix253_transition_engine_scope_fix_test.dart: FIX253 FINAL apply remains deferred until DEV analyze and tests pass
+05:56:49  00:20 +167 -6: C:/SP/Release_Manager/test/fix254_final_report_export_open_fix_test.dart: FIX254 FINAL build report and export use actual release stage
+05:56:49  00:21 +168 -6: C:/SP/Release_Manager/test/fix254_final_report_export_open_fix_test.dart: FIX254 dashboard opens concrete successful build report
+05:56:49  00:21 +169 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:50  00:22 +170 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:50  00:22 +171 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:50  00:22 +172 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:51  00:22 +173 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:51  00:23 +174 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:51  00:23 +175 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:51  00:23 +176 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:51  00:23 +177 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:23 +178 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:23 +179 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:23 +180 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:24 +181 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:24 +182 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:24 +183 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:24 +184 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:52  00:24 +185 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +186 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +187 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +188 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +189 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +190 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +191 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +192 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +193 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:53  00:25 +194 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:25 +195 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:25 +196 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +197 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +198 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +199 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +200 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +201 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +202 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:54  00:26 +203 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:26 +204 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:26 +205 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:26 +206 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +207 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +208 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +209 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +210 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +211 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +212 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:55  00:27 +213 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:27 +214 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:27 +215 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:27 +216 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:27 +217 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:28 +218 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:28 +219 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:28 +220 -6: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+05:56:56  00:28 +221 -6: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: canonical Release Manager identity is Build 316 FIX254
+05:56:56  00:28 +222 -6: C:/SP/Release_Manager/test/release_manager_version_single_source_contract_test.dart: Plugin Marketplace uses canonical Release Manager version
+05:56:56  00:28 +223 -6: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+05:56:57  00:28 +224 -6: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+05:56:57  00:29 +225 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+05:56:57  00:29 +226 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+05:56:57  00:29 +227 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+05:56:57  00:29 +228 -6: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+05:56:57  00:29 +229 -6: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+05:56:57  00:29 +230 -6: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+05:56:58  00:29 +231 -6: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+05:56:58  00:30 +232 -6: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+05:56:59  00:31 +233 -6: Some tests failed.
+05:56:59  
+05:56:59  Failing tests:
+05:56:59    C:/SP/Release_Manager/test/fix169_explicit_export_stage_contract_test.dart: FAST/FULL and standalone export are explicitly DEV
+05:56:59    C:/SP/Release_Manager/test/fix170_completion_release_type_scope_contract_test.dart: Fast Dev Build still explicitly exports DEV
+05:56:59    C:/SP/Release_Manager/test/fix176_stable_release_workflow_regression_test.dart: FAST DEV export stays explicitly DEV and does not auto-open Explorer
+05:56:59    C:/SP/Release_Manager/test/fix177_intentional_legacy_fallback_contract_test.dart: release workflow remains protected
+05:56:59    ... and 2 more
+05:57:00  ✖ Flutter test zlyhal. Návratový kód: 1.

@@ -15,6 +15,8 @@ import 'app/app_version.dart';
 import 'core/performance/startup_performance.dart';
 import 'core/config/configuration_manager.dart';
 import 'core/projects/project_profile.dart';
+import 'core/projects/project_release_profile.dart';
+import 'core/projects/project_release_transition_engine.dart';
 import 'core/remote_agents/agent_api.dart';
 import 'core/remote_agents/local_agent_controller.dart';
 import 'core/remote_agents/remote_agent_service.dart';
@@ -367,7 +369,6 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   String? _releaseRecipeBackupPubspec;
 
   String? _releaseDistributionTargetPath;
-  DateTime? _lastReleaseDistributionAt;
   String _releaseDistributionStatus = 'NEPUBLIKOVANÉ';
 
   String get _dashboardReleaseReadiness =>
@@ -484,7 +485,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   bool _dashboardBuildTestOk = true;
   bool _dashboardBuildWindowsOk = true;
   bool _dashboardBuildExportOk = true;
-  int _oneClickBuildCompletedSteps = 0;
+  String? _dashboardLastVerifiedExportZipPath;
   String _oneClickBuildCurrentStep = 'Čaká';
   int _oneClickBuildResumeIndex = 0;
   String? _oneClickBuildFailedLabel;
@@ -493,6 +494,7 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   int? _oneClickBuildFailedExitCode;
   Object? _oneClickBuildFailedError;
   StackTrace? _oneClickBuildFailedStackTrace;
+  String? _lastSuccessfulBuildReportPath;
   bool get _gitRestoreRunning => _gitWorkspace.restoreRunning;
   set _gitRestoreRunning(bool value) => _gitWorkspace.restoreRunning = value;
   bool get _gitDiffRunning => _gitWorkspace.diffRunning;
@@ -599,12 +601,8 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   double _flutterStepEstimatedProgress = 0;
   DateTime? _flutterStepStartedAt;
   Timer? _flutterStepProgressTimer;
-  bool _strictAnalyzeMode = false;
+  final bool _strictAnalyzeMode = false;
   int _lastAnalyzeErrors = 0;
-  int _lastAnalyzeWarnings = 0;
-  int _lastAnalyzeInfos = 0;
-  String _lastAnalyzeStatus = 'Analýza ešte neprebehla.';
-
   ({int errors, int warnings, int infos}) _parseAnalyzeIssues(List<String> output) {
     var errors = 0;
     var warnings = 0;
@@ -627,13 +625,6 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     if (mounted) {
       setState(() {
         _lastAnalyzeErrors = issues.errors;
-        _lastAnalyzeWarnings = issues.warnings;
-        _lastAnalyzeInfos = issues.infos;
-        _lastAnalyzeStatus = issues.errors > 0
-            ? 'Zlyhanie: ${issues.errors} chýb'
-            : issues.warnings + issues.infos > 0
-                ? 'Dokončené s ${issues.warnings + issues.infos} upozorneniami'
-                : 'Bez problémov';
       });
     }
     if (exitCode == 0) return true;
@@ -761,6 +752,8 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     await _refreshGitWorkspace();
   }
 
+  // Legacy Git commit dialog retained as a fallback for the consolidated
+  // Git Build Publisher workflow. Keep until the publisher is finalized.
   // ignore: unused_element
   Future<void> _showGitCommitDialog() async {
     final status = _gitWorkspaceStatus;
@@ -985,6 +978,8 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     return 'build_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
   }
 
+  // Legacy standalone tag dialog retained as a fallback for the consolidated
+  // Git Build Publisher workflow. Keep until the publisher is finalized.
   // ignore: unused_element
   Future<void> _showCreateGitTagDialog() async {
     final workspace = _gitWorkspacePath;
@@ -1278,10 +1273,12 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
     final defaultTagExists =
         tagCheck.exitCode == 0 && tagCheck.stdout.toString().trim().isNotEmpty;
 
+    if (!mounted) return;
+
     final descriptionController = TextEditingController();
     final tagController = TextEditingController(text: defaultTag);
     final originController = TextEditingController(
-      text: remoteReady ? detectedOriginUrl! : '',
+      text: remoteReady ? detectedOriginUrl : '',
     );
     var dialogRemoteReady = remoteReady;
     String? originSetupMessage;
@@ -1776,9 +1773,11 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
   }
 
   Future<void> _refreshGitWorkspace() async {
-    await _loadLastSynchronizedZipName();
     final workspace = _gitWorkspacePath ?? _project?.projectPath ?? _windowsExtractedProjectPath;
     if (workspace == null || workspace.trim().isEmpty) return;
+    await _loadLastSynchronizedZipName(workspace);
+    await _loadLastVerifiedExportZipPath(workspace);
+    if (!mounted) return;
     setState(() {
       _gitWorkspacePath = workspace;
       _resetDashboardReleaseIntegrityStatus();
@@ -2417,24 +2416,12 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
       unawaited(_loadGitHubSettings());
       unawaited(
         _loadAppSettings().whenComplete(() {
-          if (mounted) unawaited(_bootstrapStartupLocalAgent());
+          if (!mounted) return;
+          unawaited(_bootstrapStartupLocalAgent());
+          unawaited(_restoreReleaseIntegrityAfterStartup());
         }),
       );
       unawaited(_loadBuildHistory());
-      unawaited(
-        _refreshDistributionCenterFromDisk().whenComplete(() {
-          final restoredIntegrityRoot = _resolveDashboardIntegrityRoot();
-          if (restoredIntegrityRoot != null && mounted) {
-            unawaited(
-              _refreshDashboardReleaseIntegrityStatus(restoredIntegrityRoot),
-            );
-          }
-        }),
-      );
-      final integrityRoot = _resolveDashboardIntegrityRoot();
-      if (integrityRoot != null) {
-        unawaited(_refreshDashboardReleaseIntegrityStatus(integrityRoot));
-      }
       unawaited(_refreshDashboardAgentHeartbeat());
       _dashboardAgentHeartbeatTimer ??= Timer.periodic(
         const Duration(seconds: 5),
@@ -2446,12 +2433,36 @@ class _ReleaseManagerPageState extends State<ReleaseManagerPage> {
           final integrityRoot = _resolveDashboardIntegrityRoot();
           if (integrityRoot != null) {
             unawaited(_refreshDashboardReleaseIntegrityStatus(integrityRoot));
-          } else {
+          } else if (!_appSettingsLoading &&
+              !_projectProfilesLoading &&
+              !_distributionRefreshRunning) {
             _resetDashboardReleaseIntegrityStatus();
           }
         },
       );
     });
+  }
+
+  Future<void> _restoreReleaseIntegrityAfterStartup() async {
+    await _refreshDistributionCenterFromDisk();
+    if (!mounted) return;
+
+    final root = _resolveDashboardIntegrityRoot();
+    if (root == null || !await root.exists()) {
+      _addLog(
+        'RELEASE INTEGRITY STARTUP: release root zatiaľ nebol nájdený; '
+        'stav Dashboardu sa počas štartu neresetuje.',
+      );
+      return;
+    }
+
+    await _refreshDashboardReleaseIntegrityStatus(root);
+    if (!mounted) return;
+    _addLog(
+      'RELEASE INTEGRITY STARTUP RESTORE: '
+      '$_dashboardReleaseIntegrityStatus • '
+      'Publish Gate: $_dashboardPublishGateStatus • ${root.path}',
+    );
   }
 
   @override
@@ -4904,6 +4915,8 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     required String projectPath,
     required DateTime startedAt,
     required bool fastMode,
+    required String releaseStage,
+    String? transitionSummary,
   }) async {
     final pubspec = File(path.join(projectPath, 'pubspec.yaml'));
     var identity = 'neznáma verzia';
@@ -4923,12 +4936,19 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       ..writeln('Trvanie: ${DateTime.now().difference(startedAt).inSeconds} s')
       ..writeln()
       ..writeln('Režim: ${fastMode ? 'FAST DEV BUILD' : 'FULL BUILD'}')
+      ..writeln('Release stage buildu: $releaseStage')
+      ..writeln('Release transition: ${transitionSummary ?? 'bez prechodu'}')
       ..writeln()
       ..writeln(fastMode ? '↷ flutter clean – preskočené' : '✔ flutter clean')
       ..writeln(fastMode ? '↷ flutter pub get – preskočené' : '✔ flutter pub get')
       ..writeln('✔ flutter analyze')
       ..writeln('✔ flutter test')
-      ..writeln('✔ flutter build windows --release');
+      ..writeln('✔ flutter build windows --release')
+      ..writeln(
+        !fastMode && await Directory(path.join(projectPath, 'android')).exists()
+            ? '✔ flutter build apk --release'
+            : '↷ flutter build apk --release – projekt bez Android platformy alebo FAST režim',
+      );
     final file = File(path.join(projectPath, 'BUILD_REPORT_${_diagnosticTimeStamp(DateTime.now())}.txt'));
     await file.writeAsString(report.toString(), flush: true);
     _addLog('Build report bol vytvorený: ${file.path}');
@@ -6136,6 +6156,11 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
     await _rememberGitWorkspace(profile.projectPath);
     await _openProjectPath(profile.projectPath);
     await _refreshWorkspaceHealth();
+    await _refreshDistributionCenterFromDisk();
+    final integrityRoot = _resolveDashboardIntegrityRoot();
+    if (integrityRoot != null && await integrityRoot.exists()) {
+      await _refreshDashboardReleaseIntegrityStatus(integrityRoot);
+    }
   }
 
   Future<String?> _askProfileName(String title, String initialValue) async {
@@ -6178,6 +6203,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         if (await Directory(path.join(selected, 'windows')).exists()) 'windows',
         if (await Directory(path.join(selected, 'android')).exists()) 'android',
       ];
+      if (!mounted) return;
       final profile = ProjectProfile(
         id: id,
         name: name,
@@ -6248,7 +6274,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       'Project Clone – názov nového profilu',
       '${profile.name} – klon',
     );
-    if (name == null) return;
+    if (name == null || !mounted) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -6716,7 +6742,7 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
           const SizedBox(height: 8),
           Text(
             'FAST DEV BUILD: analyze → test → Windows Release → report → Release ZIP. '
-            'FULL BUILD: clean → pub get → analyze → test → Windows Release. '
+            'FULL BUILD: clean → pub get → analyze → test → Windows Release → Android APK (ak projekt podporuje Android) → Release ZIP. '
             'FAST režim je určený na rýchle testovanie bežných zmien kódu.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -6979,6 +7005,16 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
 
       setState(() {
         _project = project;
+
+        // FIX253: project switch is atomic. Dashboard/Git identity must follow
+        // the newly opened project immediately instead of retaining the
+        // previous Release Manager workspace identity.
+        _gitWorkspacePath = selected;
+        _gitWorkspaceStatus = null;
+        _gitHistory = const <GitCommitEntry>[];
+        _projectIdentitySnapshot = null;
+        _projectIdentityLoading = true;
+
         _apkPath = null;
         _apkSizeBytes = null;
         _apkSha256 = null;
@@ -6987,6 +7023,11 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
         _githubReleasePreview = null;
         _androidExportedApkPath = null;
         _completedApkBuildSteps.clear();
+
+        // FIX251: project-scoped dashboard metadata must never leak
+        // from the previously active project while the new project loads.
+        _lastSynchronizedZipName = null;
+        _dashboardLastVerifiedExportZipPath = null;
       });
       _addLog('Projekt otvorený: ${project.projectName}');
       if (_selectedPage == 13) {
@@ -6994,6 +7035,40 @@ Future<void> _chooseAndroidReleaseExportDirectory() async {
       }
       _addLog('Načítaná verzia ${project.fullVersion}.');
       await _rememberProjectPath(selected);
+      await _rememberGitWorkspace(selected);
+
+      await _runProjectOpenStep(
+        'Git a identita projektu',
+        _refreshGitWorkspace,
+        projectPath: selected,
+      );
+      if (!mounted) return;
+
+      _addLog(
+        'FIX253 PROJECT SWITCH IDENTITY: ${project.projectName} • '
+        '${_projectIdentitySnapshot == null ? "nezistená identita" : "${_projectIdentitySnapshot!.version}+${_projectIdentitySnapshot!.build} ${_projectIdentitySnapshot!.stage.toUpperCase()}"} • '
+        '$selected.',
+      );
+
+      await _runProjectOpenStep(
+        'Posledný synchronizovaný ZIP',
+        () => _loadLastSynchronizedZipName(selected),
+        projectPath: selected,
+      );
+      if (!mounted) return;
+
+      await _runProjectOpenStep(
+        'Posledný export ZIP',
+        () => _loadLastVerifiedExportZipPath(selected),
+        projectPath: selected,
+      );
+      if (!mounted) return;
+
+      _addLog(
+        'FIX251 PROJECT ZIP METADATA: ${project.projectName} • '
+        'sync=${_lastSynchronizedZipName ?? "—"} • '
+        'export=${_dashboardLastVerifiedExportZipPath == null ? "—" : path.basename(_dashboardLastVerifiedExportZipPath!)}.',
+      );
 
       await _runProjectOpenStep(
         'Načítanie histórie vydaní',
@@ -11420,7 +11495,6 @@ SHA256: $hash''';
       if (mounted) {
         setState(() {
           _oneClickBuildResumeIndex = 0;
-          _oneClickBuildCompletedSteps = 0;
           _oneClickBuildCurrentStep = 'Čaká';
           _oneClickBuildFailedLabel = null;
           _oneClickBuildFailedArguments = const <String>[];
@@ -11778,6 +11852,216 @@ SHA256: $hash''';
         },
       ),
     );
+  }
+
+  Future<File?> _lastExportMetadataFile([String? workspacePath]) async {
+    final workspace = (workspacePath ?? _gitWorkspacePath)?.trim();
+    if (workspace == null || workspace.isEmpty) return null;
+    final dir = Directory(path.join(workspace, '.release_manager'));
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return File(path.join(dir.path, 'last_export.json'));
+  }
+
+  Future<bool> _hasZipSignature(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (!await file.exists()) return false;
+      final length = await file.length();
+      if (length < 4) return false;
+      final bytes = await file.openRead(0, 4).fold<List<int>>(
+        <int>[],
+        (buffer, chunk) => buffer..addAll(chunk),
+      );
+      return bytes.length >= 4 &&
+          bytes[0] == 0x50 &&
+          bytes[1] == 0x4B &&
+          ((bytes[2] == 0x03 && bytes[3] == 0x04) ||
+              (bytes[2] == 0x05 && bytes[3] == 0x06) ||
+              (bytes[2] == 0x07 && bytes[3] == 0x08));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _saveLastVerifiedExportZipPath(
+    String workspacePath,
+    String zipPath,
+  ) async {
+    try {
+      final normalizedInputZipPath = File(zipPath).absolute.path;
+      if (!normalizedInputZipPath.toLowerCase().endsWith('.zip')) {
+        _addLog(
+          'Posledný export ZIP sa neuložil: cesta nemá príponu .zip.',
+        );
+        return;
+      }
+      if (!await _hasZipSignature(normalizedInputZipPath)) {
+        _addLog(
+          'Posledný export ZIP sa neuložil: súbor nemá platnú ZIP signatúru.',
+        );
+        return;
+      }
+      final file = await _lastExportMetadataFile(workspacePath);
+      if (file == null) return;
+      final tempFile = File('${file.path}.tmp');
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+      await tempFile.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(<String, dynamic>{
+          'schemaVersion': 1,
+          'kind': 'lastVerifiedExportZip',
+          'zipPath': File(zipPath).absolute.path,
+          'savedAt': DateTime.now().toUtc().toIso8601String(),
+        }),
+        flush: true,
+      );
+      if (await file.exists()) {
+        await file.delete();
+      }
+      await tempFile.rename(file.path);
+      final normalizedZipPath = File(zipPath).absolute.path;
+      if (mounted) {
+        setState(
+          () => _dashboardLastVerifiedExportZipPath = normalizedZipPath,
+        );
+      }
+      _addLog('Posledný export ZIP metadata uložené: $normalizedZipPath');
+    } catch (error) {
+      _addLog('Posledný export ZIP sa nepodarilo uložiť: $error');
+    }
+  }
+
+  Future<void> _loadLastVerifiedExportZipPath([String? workspacePath]) async {
+    if (mounted) {
+      setState(() => _dashboardLastVerifiedExportZipPath = null);
+    }
+    try {
+      final file = await _lastExportMetadataFile(workspacePath);
+      if (file == null) return;
+      final tempFile = File('${file.path}.tmp');
+      if (!await file.exists() && await tempFile.exists()) {
+        try {
+          final tempDecoded = jsonDecode(await tempFile.readAsString());
+          final tempKind = tempDecoded is Map<String, dynamic>
+              ? tempDecoded['kind']?.toString().trim()
+              : null;
+          if (tempKind != null &&
+              tempKind.isNotEmpty &&
+              tempKind != 'lastVerifiedExportZip') {
+            throw FormatException(
+              'Neplatný typ dočasných last_export metadata: $tempKind',
+            );
+          }
+          final tempZipPath = tempDecoded is Map<String, dynamic>
+              ? tempDecoded['zipPath']?.toString().trim()
+              : null;
+          final normalizedTempZipPath =
+              tempZipPath == null || tempZipPath.isEmpty
+                  ? null
+                  : File(tempZipPath).absolute.path;
+          if (normalizedTempZipPath != null &&
+              await File(normalizedTempZipPath).exists() &&
+              FileSystemEntity.typeSync(normalizedTempZipPath) ==
+                  FileSystemEntityType.file &&
+              normalizedTempZipPath.toLowerCase().endsWith('.zip') &&
+              await _hasZipSignature(normalizedTempZipPath)) {
+            await tempFile.rename(file.path);
+            _addLog(
+              'Posledný export ZIP: obnovené metadata po prerušenom zápise.',
+            );
+          } else {
+            await tempFile.delete();
+            _addLog(
+              'Posledný export ZIP: dočasné metadata boli odstránené, '
+              'pretože neobsahovali platný existujúci ZIP.',
+            );
+          }
+        } catch (error) {
+          await tempFile.delete();
+          _addLog(
+            'Posledný export ZIP: poškodené dočasné metadata boli odstránené: '
+            '$error',
+          );
+        }
+      }
+      if (!await file.exists()) {
+        return;
+      }
+
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+      final decoded = jsonDecode(await file.readAsString());
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('last_export.json root must be a JSON object');
+      }
+      final schemaVersion =
+          decoded['schemaVersion'] is int ? decoded['schemaVersion'] as int : 1;
+      final metadataKind = decoded['kind']?.toString().trim();
+      if (metadataKind != null &&
+          metadataKind.isNotEmpty &&
+          metadataKind != 'lastVerifiedExportZip') {
+        throw FormatException('Neplatný typ last_export.json: $metadataKind');
+      }
+      if (schemaVersion > 1) {
+        if (mounted) {
+          setState(() => _dashboardLastVerifiedExportZipPath = null);
+        }
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+        }
+        _addLog(
+          'Posledný export ZIP: metadata používajú novšiu schému '
+          '$schemaVersion; záznam sa ignoruje.',
+        );
+        return;
+      }
+      final savedPath = decoded['zipPath']?.toString().trim();
+      final normalizedSavedPath =
+          savedPath == null || savedPath.isEmpty
+              ? null
+              : File(savedPath).absolute.path;
+      final validPath = normalizedSavedPath != null &&
+              await File(normalizedSavedPath).exists() &&
+              FileSystemEntity.typeSync(normalizedSavedPath) ==
+                  FileSystemEntityType.file &&
+              normalizedSavedPath.toLowerCase().endsWith('.zip') &&
+              await _hasZipSignature(normalizedSavedPath)
+          ? normalizedSavedPath
+          : null;
+
+      if (!mounted) return;
+      setState(() => _dashboardLastVerifiedExportZipPath = validPath);
+      if (validPath != null && validPath != savedPath) {
+        _addLog(
+          'Posledný export ZIP: cesta bola normalizovaná na $validPath',
+        );
+      }
+      if (validPath == null && savedPath != null && savedPath.isNotEmpty) {
+        if (mounted) {
+          setState(() => _dashboardLastVerifiedExportZipPath = null);
+        }
+        await file.delete();
+        _addLog(
+          'Posledný export ZIP chýba alebo nie je platný ZIP; '
+          'neaktuálne metadata boli odstránené: $savedPath',
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() => _dashboardLastVerifiedExportZipPath = null);
+      }
+      try {
+        final file = await _lastExportMetadataFile(workspacePath);
+        if (file != null && await file.exists()) {
+          await file.delete();
+        }
+      } catch (_) {}
+      _addLog('Posledný export ZIP sa nepodarilo načítať: $error');
+    }
   }
 
   Future<File?> _lastSyncMetadataFile([String? workspacePath]) async {
@@ -12160,7 +12444,6 @@ SHA256: $hash''';
       if (mounted) {
         setState(() {
           _oneClickBuildResumeIndex = 0;
-          _oneClickBuildCompletedSteps = 0;
           _oneClickBuildCurrentStep = 'Čaká';
           _oneClickBuildFailedLabel = null;
           _oneClickBuildFailedArguments = const <String>[];
@@ -12292,6 +12575,75 @@ SHA256: $hash''';
     return _sameWindowsPath(target, Platform.resolvedExecutable);
   }
 
+  Future<bool> _runWorkspaceCmdFlutterStep(
+    String workspace,
+    List<String> arguments,
+    String label,
+  ) async {
+    if (mounted) {
+      setState(() => _activeCommand = label);
+    }
+
+    final commandText = 'flutter ${arguments.join(' ')}';
+    _addLog('▶ cmd.exe /d /s /c $commandText');
+    final commandOutput = <String>[];
+
+    try {
+      final process = await Process.start(
+        'cmd.exe',
+        <String>['/d', '/s', '/c', commandText],
+        workingDirectory: workspace,
+        runInShell: false,
+      );
+
+      final stdoutDone = process.stdout
+          .transform(systemEncoding.decoder)
+          .transform(const LineSplitter())
+          .listen((line) {
+            commandOutput.add(line);
+            _addLog(line);
+          })
+          .asFuture<void>();
+      final stderrDone = process.stderr
+          .transform(systemEncoding.decoder)
+          .transform(const LineSplitter())
+          .listen((line) {
+            commandOutput.add('CHYBA: $line');
+            _addLog('CHYBA: $line');
+          })
+          .asFuture<void>();
+
+      final exitCode = await process.exitCode;
+      await Future.wait<void>(<Future<void>>[stdoutDone, stderrDone]);
+
+      if (exitCode == 0) {
+        _addLog('✔ $label bol úspešne dokončený.');
+        return true;
+      }
+
+      _addLog('✖ $label zlyhal. Návratový kód: $exitCode.');
+      await _showBuildFailureDialog(
+        projectName: _project?.projectName ?? 'Projekt',
+        projectPath: workspace,
+        label: label,
+        arguments: arguments,
+        output: commandOutput,
+        exitCode: exitCode,
+      );
+      return false;
+    } on ProcessException catch (error, stackTrace) {
+      commandOutput.add('CHYBA: $error');
+      _addLog('CHYBA: $error');
+      await _writeCrashLog(
+        error,
+        stackTrace,
+        step: label,
+        projectPath: workspace,
+      );
+      return false;
+    }
+  }
+
   Future<bool> _runWorkspaceFlutterStep(
     String workspace,
     List<String> arguments,
@@ -12367,7 +12719,6 @@ SHA256: $hash''';
       _addLog(exitCode == 0 ? '✔ $label bol úspešne dokončený.' : '⚠ $label obsahuje iba upozornenia.');
       if (mounted) {
         setState(() {
-          _oneClickBuildCompletedSteps++;
           if (label == 'Flutter analyze') _dashboardBuildAnalyzeOk = true;
           if (label == 'Flutter test') _dashboardBuildTestOk = true;
           if (label == 'Windows Release build') _dashboardBuildWindowsOk = true;
@@ -12388,8 +12739,50 @@ SHA256: $hash''';
   }
 
 
+  Future<int> _cleanupLegacyUnpackedExportDirectories(
+    Directory exportDirectory, {
+    required String projectName,
+  }) async {
+    var removed = 0;
+    if (!await exportDirectory.exists()) return removed;
+
+    await for (final entity in exportDirectory.list(followLinks: false)) {
+      if (entity is! Directory) continue;
+
+      final name = path.basename(entity.path);
+      final upper = name.toUpperCase();
+      if (!upper.startsWith('${projectName.toUpperCase()}_')) continue;
+      if (!upper.contains('_BUILD_')) continue;
+      if (!(upper.endsWith('_WINDOWS_RELEASE') ||
+          upper.endsWith('_WINDOWS_ANDROID_RELEASE'))) {
+        continue;
+      }
+
+      // Zmaž iba starý rozbalený duplikát, ku ktorému už existuje ZIP
+      // s rovnakým názvom. Iné release adresáre ani FINAL/LTS archívy
+      // sa týmto cleanupom nedotknú.
+      final pairedZip = File('${entity.path}.zip');
+      if (!await pairedZip.exists()) continue;
+
+      try {
+        await entity.delete(recursive: true);
+        removed++;
+        _addLog(
+          'Export cleanup: odstránený starý rozbalený duplikát → '
+          '${entity.path}',
+        );
+      } catch (error) {
+        _addLog(
+          'Export cleanup: nepodarilo sa odstrániť ${entity.path}: $error',
+        );
+      }
+    }
+    return removed;
+  }
+
   Future<File> _createOneClickReleaseZip(
     String projectPath, {
+    String? releaseStage,
     void Function(double progress, String step)? onProgress,
   }) async {
     onProgress?.call(0.02, 'Kontrolujem Windows Release...');
@@ -12402,14 +12795,28 @@ SHA256: $hash''';
       );
     }
 
-    final identity = await _readGitBuildIdentity(projectPath);
-    final version = identity?.version ?? 'UNKNOWN';
-    final build = identity?.build ?? 0;
-    final stage = (identity?.stage ?? 'DEV')
+    final currentProject = await _pubspecService.readProject(projectPath);
+    final version = currentProject.version;
+    final build = currentProject.releaseBuild;
+    final lowerVersion = version.toLowerCase();
+    final inferredStage = lowerVersion.contains('-rc')
+        ? 'RC'
+        : lowerVersion.contains('-dev')
+            ? 'DEV'
+            : 'FINAL';
+    final normalizedRequestedStage = releaseStage
+        ?.trim()
         .toUpperCase()
         .replaceAll(RegExp(r'[^A-Z0-9]+'), '_')
         .replaceAll(RegExp(r'^_+|_+$'), '');
-    final projectName = path.basename(projectPath).toUpperCase();
+    final stage = (normalizedRequestedStage == null ||
+            normalizedRequestedStage.isEmpty)
+        ? inferredStage
+        : normalizedRequestedStage;
+    final projectName = currentProject.projectName
+        .toUpperCase()
+        .replaceAll(RegExp(r'[^A-Z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
 
     var exportRoot = _windowsReleaseExportDirectory?.trim();
     if (exportRoot == null || exportRoot.isEmpty) {
@@ -12431,18 +12838,39 @@ SHA256: $hash''';
     }
 
     final packageName =
-        '${projectName}_${version}_${stage.isEmpty ? 'DEV' : stage}_BUILD_${build}'
+        '${projectName}_${version}_${stage.isEmpty ? 'DEV' : stage}_BUILD_$build'
         '${hasAndroidApk ? '_WINDOWS_ANDROID_RELEASE' : '_WINDOWS_RELEASE'}';
 
     onProgress?.call(0.10, 'Pripravujem exportný balík...');
     final stagingDirectory = Directory(
       path.join(exportDirectory.path, '.${packageName}_STAGING'),
     );
+    final releaseIntegrityCacheRoot = Directory(
+      path.join(projectPath, '.release_integrity_cache'),
+    );
+    final registeredReleaseDirectory = Directory(
+      path.join(releaseIntegrityCacheRoot.path, packageName),
+    );
     if (await stagingDirectory.exists()) {
       await stagingDirectory.delete(recursive: true);
     }
+    await releaseIntegrityCacheRoot.create(recursive: true);
+
+    // Cache je interný pracovný priestor pre Integrity/Publish Gate.
+    // V používateľskom exportnom priečinku má po úspechu zostať iba ZIP.
+    await for (final entity in releaseIntegrityCacheRoot.list(
+      followLinks: false,
+    )) {
+      if (entity is Directory) {
+        await entity.delete(recursive: true);
+      } else if (entity is File) {
+        await entity.delete();
+      }
+    }
+
     await stagingDirectory.create(recursive: true);
 
+    var stagingPromoted = false;
     try {
       onProgress?.call(0.18, 'Kopírujem Windows súbory...');
       final windowsTarget =
@@ -12486,7 +12914,6 @@ SHA256: $hash''';
             Directory(path.join(stagingDirectory.path, 'Android'));
         await androidTarget.create(recursive: true);
 
-        final currentProject = await _pubspecService.readProject(projectPath);
         final androidFile = File(
           path.join(androidTarget.path, '${currentProject.releaseFileStem}.apk'),
         );
@@ -12544,15 +12971,38 @@ SHA256: $hash''';
           'Export Release ZIP sa nepodarilo vytvoriť: $stderrBuffer',
         );
       }
-      onProgress?.call(0.94, 'ZIP vytvorený – overujem výsledný súbor...');
-      onProgress?.call(1.0, 'Export ZIP dokončený.');
+      onProgress?.call(0.94, 'ZIP vytvorený – registrujem release artefakt...');
+      await stagingDirectory.rename(registeredReleaseDirectory.path);
+      stagingPromoted = true;
+
+      if (mounted) {
+        setState(() {
+          _releaseWizardReleaseDirectory = registeredReleaseDirectory.path;
+          _distributionLastDetectedAt = DateTime.now();
+        });
+      }
+
+      onProgress?.call(1.0, 'Export ZIP + release artefakt dokončený.');
       _addLog(
         'Export Release ZIP bol vytvorený: ${zipFile.path} '
         '• Windows=ÁNO • Android=${hasAndroidApk ? 'ÁNO' : 'NIE'}',
       );
+      _addLog(
+        'Release Integrity cache: aktuálny release artefakt zaregistrovaný → '
+        '${registeredReleaseDirectory.path}',
+      );
+      final removedLegacyDirectories =
+          await _cleanupLegacyUnpackedExportDirectories(
+        exportDirectory,
+        projectName: projectName,
+      );
+      _addLog(
+        'Export priečinok: ponechaný iba výsledný ZIP → ${zipFile.path} '
+        '• odstránené staré rozbalené duplikáty: $removedLegacyDirectories',
+      );
       return zipFile;
     } finally {
-      if (await stagingDirectory.exists()) {
+      if (!stagingPromoted && await stagingDirectory.exists()) {
         await stagingDirectory.delete(recursive: true);
       }
     }
@@ -12755,15 +13205,75 @@ SHA256: $hash''';
             _dashboardOperationStep = 'Vytváram Release ZIP...';
           });
         }
-        final zip = await _createOneClickReleaseZip(workspace);
+        final exportRoot = (_windowsReleaseExportDirectory?.trim().isNotEmpty == true)
+            ? _windowsReleaseExportDirectory!.trim()
+            : path.join(workspace, 'Export Release');
+        _addLog('Dashboard Export ZIP cieľový priečinok: $exportRoot');
+        final zip = await _createOneClickReleaseZip(workspace, releaseStage: 'DEV');
+        if (!await zip.exists()) {
+          throw StateError(
+            'Export ZIP bol nahlásený ako dokončený, ale súbor fyzicky neexistuje: '
+            '${zip.path}',
+          );
+        }
+        final zipSize = await zip.length();
+        if (zipSize <= 0) {
+          throw StateError('Export ZIP existuje, ale má nulovú veľkosť: ${zip.path}');
+        }
         if (mounted) {
           setState(() {
+            _dashboardBuildExportOk = true;
+            _dashboardLastVerifiedExportZipPath = zip.path;
+            unawaited(_saveLastVerifiedExportZipPath(workspace, zip.path));
             _dashboardOperationProgress = 1.0;
-            _dashboardOperationStep = 'Export dokončený: ${path.basename(zip.path)}';
+            _dashboardOperationStep = 'Export overený: ${zip.path}';
           });
         }
-        _addLog('Dashboard Export ZIP bol úspešný: ${zip.path}');
+        _addLog(
+          'Dashboard Export ZIP fyzicky overený: ${zip.path} • '
+          '${(zipSize / 1024 / 1024).toStringAsFixed(1)} MB',
+        );
         _rememberDashboardOperationResult('Export ZIP', true);
+
+        // Po úspechu otvoríme Prieskumník priamo na vytvorenom ZIPe.
+        // Používateľ tak nemusí hádať, do ktorého nastaveného exportného
+        // priečinka bol súbor uložený.
+        await _selectFileInExplorer(zip.path);
+
+        if (mounted) {
+          await showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (dialogContext) => AlertDialog(
+              title: const Row(
+                children: <Widget>[
+                  Icon(Icons.check_circle_rounded, color: Color(0xFF31C653)),
+                  SizedBox(width: 10),
+                  Text('Export ZIP vytvorený'),
+                ],
+              ),
+              content: SizedBox(
+                width: 620,
+                child: SelectableText(
+                  'Súbor bol fyzicky overený.\n\n'
+                  'Veľkosť: ${(zipSize / 1024 / 1024).toStringAsFixed(1)} MB\n\n'
+                  'Presná cesta:\n${zip.path}',
+                ),
+              ),
+              actions: <Widget>[
+                OutlinedButton.icon(
+                  onPressed: () => _selectFileInExplorer(zip.path),
+                  icon: const Icon(Icons.folder_open_rounded),
+                  label: const Text('OTVORIŤ V PRIESKUMNÍKOVI'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('HOTOVO'),
+                ),
+              ],
+            ),
+          );
+        }
         return;
       }
 
@@ -12879,6 +13389,115 @@ SHA256: $hash''';
     }
   }
 
+  Future<Directory> _backupReleaseTransitionConfiguration(
+    String workspace,
+    ProjectReleaseTransitionPlan plan,
+  ) async {
+    final now = DateTime.now();
+    String two(int value) => value.toString().padLeft(2, '0');
+    final stamp =
+        '${now.year}${two(now.month)}${two(now.day)}_'
+        '${two(now.hour)}${two(now.minute)}${two(now.second)}';
+
+    final backupRoot = Directory(
+      path.join(
+        workspace,
+        '.release_transition_backups',
+        'DEV_TO_FINAL_$stamp',
+      ),
+    );
+    await backupRoot.create(recursive: true);
+
+    final copiedFiles = <String>[];
+    for (final relativeFile in plan.configFiles) {
+      final source = File(path.join(workspace, relativeFile));
+      if (!await source.exists()) {
+        throw StateError(
+          'FIX251 backup: chýba povinný konfiguračný súbor $relativeFile',
+        );
+      }
+      final target = File(path.join(backupRoot.path, relativeFile));
+      await target.parent.create(recursive: true);
+      await source.copy(target.path);
+      copiedFiles.add(relativeFile);
+    }
+
+    final manifestFile =
+        File(path.join(backupRoot.path, 'transition_backup_manifest.json'));
+    await manifestFile.writeAsString(
+      const JsonEncoder.withIndent('  ').convert(<String, Object?>{
+        'createdAt': now.toIso8601String(),
+        'fromChannel': plan.fromChannel,
+        'toChannel': plan.toChannel,
+        'identityFile': plan.identityFile,
+        'files': copiedFiles,
+      }),
+      flush: true,
+    );
+
+    _addLog(
+      'FIX251 CONFIG BACKUP: vytvorená bezpečnostná záloha '
+      '${backupRoot.path} • ${copiedFiles.length} súborov.',
+    );
+    return backupRoot;
+  }
+
+  Future<void> _restoreReleaseTransitionConfiguration(
+    Directory backupRoot,
+    ProjectReleaseTransitionPlan plan,
+    String workspace,
+  ) async {
+    for (final relativeFile in plan.configFiles) {
+      final source = File(path.join(backupRoot.path, relativeFile));
+      if (!await source.exists()) {
+        throw StateError(
+          'FIX253 restore: v zálohe chýba $relativeFile',
+        );
+      }
+      final target = File(path.join(workspace, relativeFile));
+      await target.parent.create(recursive: true);
+      await source.copy(target.path);
+    }
+
+    _addLog(
+      'FIX253 FINAL RESTORE: DEV konfigurácia obnovená zo zálohy '
+      '${backupRoot.path}.',
+    );
+  }
+
+  Future<bool> _confirmReleaseTransition(
+    ProjectReleaseTransitionPlan plan,
+  ) async {
+    if (!mounted) return false;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('DEV → FINAL • kontrola zmien'),
+        content: SizedBox(
+          width: 680,
+          child: SingleChildScrollView(
+            child: SelectableText(plan.previewText),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Zrušiť'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            icon: const Icon(Icons.verified_outlined),
+            label: const Text('Skontrolované • Pokračovať'),
+          ),
+        ],
+      ),
+    );
+
+    return confirmed ?? false;
+  }
+
   Future<void> _runOneClickBuild({required bool fastMode, bool exportReleaseZip = true, bool showCompletionDialog = true}) async {
     if (_oneClickBuildRunning) return;
     if (!await _waitForWorkspaceSyncBeforeBuild()) return;
@@ -12921,12 +13540,88 @@ SHA256: $hash''';
       '${buildIdentityAtStart.build} ${buildIdentityAtStart.stage.toUpperCase()}.',
     );
     final buildStartedAt = DateTime.now();
+    Directory? finalTransitionBackup;
+    ProjectReleaseTransitionPlan? finalTransitionPlan;
+    ProjectReleaseProfile? finalTransitionProfile;
+    var finalTransitionApplied = false;
+
+    // FIX248: project-owned DEV/FINAL release profile is the source of truth.
+    // This first integration is deliberately read-only: it validates and logs
+    // the profile before FULL BUILD without rewriting a working project.
+    if (!fastMode) {
+      try {
+        final releaseProfile =
+            await ProjectReleaseProfile.tryLoad(workspace);
+        if (releaseProfile == null) {
+          _addLog(
+            'FIX253 Release Profile: projekt nemá '
+            '${ProjectReleaseProfile.relativePath}; pokračujem kompatibilným režimom.',
+          );
+        } else {
+          final channel = releaseProfile.channel(releaseProfile.activeChannel);
+          _addLog(
+            'FIX253 Release Profile: ${releaseProfile.displayName} • '
+            '${releaseProfile.activeChannel.toUpperCase()} • '
+            '${channel.androidApplicationId} • '
+            '${channel.dataRootName} • ${channel.databaseName}.',
+          );
+
+          if (releaseProfile.activeChannel == 'dev') {
+            final finalPlan = releaseProfile.planTransition('final');
+            _addLog(
+              'FIX253 FINAL PREFLIGHT: ${finalPlan.summary} • '
+              'identity=${finalPlan.identityFile}.',
+            );
+
+            final confirmed =
+                await _confirmReleaseTransition(finalPlan);
+            if (!confirmed) {
+              _addLog(
+                'FIX253 FINAL PREFLIGHT: používateľ zrušil prechod; '
+                'projekt zostal bez zmien.',
+              );
+              return;
+            }
+
+            _addLog(
+              'FIX253 FINAL PREFLIGHT: používateľ potvrdil plán zmien.',
+            );
+
+            final transitionBackup =
+                await _backupReleaseTransitionConfiguration(
+              workspace,
+              finalPlan,
+            );
+            finalTransitionBackup = transitionBackup;
+            finalTransitionPlan = finalPlan;
+            finalTransitionProfile = releaseProfile;
+            _addLog(
+              'FIX253 FINAL PREFLIGHT: záloha overená → '
+              '${transitionBackup.path}.',
+            );
+
+            _addLog(
+              'FIX253 FINAL PREFLIGHT: FINAL apply pripravený, '
+              'ale odložený až po úspešnom analyze + test.',
+            );
+          }
+        }
+      } on Object catch (error) {
+        _showError('Projektový Release Profile je neplatný: $error');
+        return;
+      }
+    }
+
+    final androidSupported =
+        await Directory(path.join(workspace, 'android')).exists();
     final steps = <({List<String> args, String label})>[
       if (!fastMode) (args: <String>['clean'], label: 'Flutter clean'),
       if (!fastMode) (args: <String>['pub', 'get'], label: 'Flutter pub get'),
       (args: <String>['analyze'], label: 'Flutter analyze'),
       (args: <String>['test'], label: 'Flutter test'),
       (args: <String>['build', 'windows', '--release'], label: 'Windows Release build'),
+      if (!fastMode && androidSupported)
+        (args: <String>['build', 'apk', '--release'], label: 'Android APK Release build'),
     ];
     final startIndex = _oneClickBuildResumeIndex.clamp(0, steps.length - 1);
     _beginDashboardOperationResult(fastMode ? 'FAST DEV BUILD' : 'FULL BUILD');
@@ -12938,8 +13633,8 @@ SHA256: $hash''';
         _dashboardBuildTestOk = false;
         _dashboardBuildWindowsOk = false;
         _dashboardBuildExportOk = false;
+        _dashboardLastVerifiedExportZipPath = null;
       }
-      _oneClickBuildCompletedSteps = startIndex;
       _oneClickBuildCurrentStep = startIndex == 0 ? 'Príprava' : 'Pokračovanie';
       _oneClickBuildFailedLabel = null;
       _oneClickBuildFailedArguments = const <String>[];
@@ -12961,7 +13656,52 @@ SHA256: $hash''';
     try {
       for (var index = startIndex; index < steps.length; index++) {
         final step = steps[index];
-        final ok = await _runWorkspaceFlutterStep(workspace, step.args, step.label);
+
+        final isPlatformBuildStep =
+            step.args.length >= 3 &&
+            step.args[0] == 'build' &&
+            (step.args[1] == 'windows' || step.args[1] == 'apk');
+
+        if (!fastMode &&
+            isPlatformBuildStep &&
+            !finalTransitionApplied &&
+            finalTransitionProfile != null &&
+            finalTransitionPlan != null &&
+            finalTransitionBackup != null) {
+          final transitionEngine =
+              const ProjectReleaseTransitionEngine();
+          final transitionResult =
+              await transitionEngine.apply(
+            workspace: workspace,
+            profile: finalTransitionProfile!,
+            targetChannel: 'final',
+          );
+          finalTransitionApplied = true;
+
+          _addLog(
+            'FIX253 FINAL APPLY: DEV → FINAL aplikovaný až po úspešnom '
+            'analyze + test • ${transitionResult.changedFiles.length} '
+            'zmenených súborov • ${transitionResult.changedFiles.join(', ')}.',
+          );
+        }
+
+        final isAndroidApkStep =
+            step.args.length >= 3 &&
+            step.args[0] == 'build' &&
+            step.args[1] == 'apk' &&
+            step.args[2] == '--release';
+
+        final ok = isAndroidApkStep && Platform.isWindows
+            ? await _runWorkspaceCmdFlutterStep(
+                workspace,
+                step.args,
+                step.label,
+              )
+            : await _runWorkspaceFlutterStep(
+                workspace,
+                step.args,
+                step.label,
+              );
         if (!ok) {
           _oneClickBuildResumeIndex = index;
           await _showBuildFailureDialog(
@@ -12999,19 +13739,54 @@ SHA256: $hash''';
         '=== $modeLabel ${identity.version}+${identity.build} '
         'BOL ÚSPEŠNE DOKONČENÝ ===',
       );
+      final buildReleaseStage = finalTransitionApplied ? 'FINAL' : 'DEV';
+      final buildTransitionSummary = finalTransitionApplied
+          ? 'DEV → FINAL aplikovaný pred platform buildmi; po dokončení sa konfigurácia obnoví FINAL → DEV.'
+          : null;
       final buildReportFile = await _writeSuccessfulBuildReport(
         projectPath: workspace,
         startedAt: buildStartedAt,
         fastMode: fastMode,
+        releaseStage: buildReleaseStage,
+        transitionSummary: buildTransitionSummary,
       );
+      if (mounted) {
+        setState(() => _lastSuccessfulBuildReportPath = buildReportFile.path);
+      }
       File? releaseZipFile;
       Object? releaseZipError;
       if (exportReleaseZip) {
         try {
-          releaseZipFile = await _createOneClickReleaseZip(workspace);
-          if (mounted) {
-            setState(() => _dashboardBuildExportOk = true);
+          releaseZipFile = await _createOneClickReleaseZip(
+            workspace,
+            releaseStage: finalTransitionApplied ? 'FINAL' : 'DEV',
+          );
+          if (!await releaseZipFile.exists()) {
+            throw StateError(
+              'Export ZIP bol nahlásený ako dokončený, ale súbor fyzicky neexistuje: '
+              '${releaseZipFile.path}',
+            );
           }
+          final releaseZipSize = await releaseZipFile.length();
+          if (releaseZipSize <= 0) {
+            throw StateError(
+              'Export ZIP existuje, ale má nulovú veľkosť: ${releaseZipFile.path}',
+            );
+          }
+          if (mounted) {
+            setState(() {
+              _dashboardBuildExportOk = true;
+              _dashboardLastVerifiedExportZipPath = releaseZipFile!.path;
+            unawaited(_saveLastVerifiedExportZipPath(workspace, releaseZipFile.path));
+            });
+          }
+          _addLog(
+            'ONE CLICK BUILD EXPORT OVERENÝ: ${releaseZipFile.path} • '
+            '${(releaseZipSize / 1024 / 1024).toStringAsFixed(1)} MB',
+          );
+          // FIX167: po FAST/FULL DEV builde Prieskumník neotvárame
+          // automaticky. Export zostáva dostupný cez ručné tlačidlá.
+
         } catch (error, stackTrace) {
           releaseZipError = error;
           _addLog('Export Release ZIP sa nepodarilo vytvoriť: $error');
@@ -13021,6 +13796,9 @@ SHA256: $hash''';
             step: 'One Click Build – Export Release ZIP',
             projectPath: workspace,
           );
+          if (!fastMode) {
+            rethrow;
+          }
         }
       } else {
         _addLog(
@@ -13071,12 +13849,19 @@ SHA256: $hash''';
                           '✔ Flutter pub get\n'
                           '✔ Flutter analyze\n'
                           '✔ Flutter test\n'
-                          '✔ Windows Release build',
+                          '✔ Windows Release build'
+                          '${androidSupported ? '\n✔ Android APK Release build' : ''}',
                 ),
                 const SizedBox(height: 14),
                 Text('Build report: ${buildReportFile.path}'),
-                if (releaseZipFile != null)
-                  Text('Export Release ZIP: ${releaseZipFile.path}'),
+                if (releaseZipFile != null) ...<Widget>[
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Export Release ZIP – presná cesta:',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  SelectableText(releaseZipFile.path),
+                ],
                 if (releaseZipError != null)
                   Text(
                     '⚠ Export Release ZIP sa nepodarilo vytvoriť: '
@@ -13100,7 +13885,7 @@ SHA256: $hash''';
               TextButton.icon(
                 onPressed: () => _selectFileInExplorer(releaseZipFile!.path),
                 icon: const Icon(Icons.archive_outlined),
-                label: const Text('EXPORT RELEASE ZIP'),
+                label: const Text('OTVORIŤ EXPORT ZIP V PRIESKUMNÍKOVI'),
               ),
             TextButton.icon(
               onPressed: () => _launchOneClickWindowsBuild(workspace),
@@ -13124,6 +13909,39 @@ SHA256: $hash''';
       );
       }
     } finally {
+      if (finalTransitionApplied &&
+          finalTransitionBackup != null &&
+          finalTransitionPlan != null) {
+        try {
+          await _restoreReleaseTransitionConfiguration(
+            finalTransitionBackup!,
+            finalTransitionPlan!,
+            workspace,
+          );
+          final restoredProfile =
+              await ProjectReleaseProfile.tryLoad(workspace);
+          if (restoredProfile != null) {
+            _addLog(
+              'FIX253 FINAL RESTORE VERIFY: '
+              '${restoredProfile.activeChannel.toUpperCase()} • workspace pripravený na ďalší DEV build.',
+            );
+          }
+          final restoredProject =
+              await _pubspecService.readProject(workspace);
+          if (mounted) {
+            setState(() => _project = restoredProject);
+          }
+        } catch (restoreError, restoreStackTrace) {
+          _addLog('CHYBA FIX253 FINAL RESTORE: $restoreError');
+          await _writeCrashLog(
+            restoreError,
+            restoreStackTrace,
+            step: 'FIX253 FINAL → DEV restore',
+            projectPath: workspace,
+          );
+        }
+      }
+
       if (mounted) {
         setState(() {
           _oneClickBuildRunning = false;
@@ -13848,52 +14666,6 @@ SHA256: $hash''';
     );
   }
 
-  Widget _dashboardEventRow(IconData icon, String label, String status) {
-    final Color statusColor;
-    final IconData statusIcon;
-    if (status == 'OK') {
-      statusColor = const Color(0xFF31C653);
-      statusIcon = Icons.check_circle_rounded;
-    } else if (status == 'CHYBA') {
-      statusColor = const Color(0xFFE53935);
-      statusIcon = Icons.error_rounded;
-    } else if (status == 'PREBIEHA') {
-      statusColor = const Color(0xFFF59E0B);
-      statusIcon = Icons.sync_rounded;
-    } else if (status == 'PRIPRAVENÝ') {
-      statusColor = Theme.of(context).colorScheme.primary;
-      statusIcon = Icons.pause_circle_outline_rounded;
-    } else {
-      statusColor = Theme.of(context).colorScheme.outline;
-      statusIcon = Icons.schedule_rounded;
-    }
-
-    return Container(
-      height: 34,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.18),
-          ),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(statusIcon, size: 17, color: statusColor),
-          const SizedBox(width: 9),
-          Expanded(child: Text(label)),
-          Text(
-            status,
-            style: TextStyle(
-              color: statusColor,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
 Widget _buildProjectDashboardCard() {
     final workspace = _gitWorkspacePath;
@@ -14021,6 +14793,28 @@ Widget _buildProjectDashboardCard() {
             _lastSynchronizedZipName ?? 'Zatiaľ nebola vykonaná synchronizácia',
             icon: Icons.folder_zip_rounded,
           ),
+          const SizedBox(height: 4),
+          if (_dashboardLastVerifiedExportZipPath == null)
+            row(
+              'Posledný export ZIP',
+              'Zatiaľ nebol vytvorený',
+              icon: Icons.archive_outlined,
+            )
+          else
+            Tooltip(
+              message: _dashboardLastVerifiedExportZipPath!,
+              child: InkWell(
+                onTap: () => _selectFileInExplorer(
+                  _dashboardLastVerifiedExportZipPath!,
+                ),
+                borderRadius: BorderRadius.circular(10),
+                child: row(
+                  'Posledný export ZIP',
+                  path.basename(_dashboardLastVerifiedExportZipPath!),
+                  icon: Icons.archive_outlined,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -15007,7 +15801,13 @@ Widget _buildProjectDashboardCard() {
 
       if (options['exportZip'] == true) {
         await step('Export Release ZIP', () async {
-          releaseZipPath = (await _createOneClickReleaseZip(workspace)).path;
+          final completionReleaseType =
+              (data['releaseType'] as String?)?.trim().toUpperCase();
+          releaseZipPath = (await _createOneClickReleaseZip(
+            workspace,
+            releaseStage: completionReleaseType,
+          ))
+              .path;
         });
       }
 
@@ -15182,124 +15982,20 @@ Widget _buildProjectDashboardCard() {
   }
 
 Widget _buildSectionOverviewDashboard() {
-    final managerSelected =
-        _managerProjectPath != null && _managerProjectPath!.trim().isNotEmpty;
-    final stavbySelected = _project != null;
-    final apkReady = _apkPath != null;
-
-    final sections = <({
-      String title,
-      String detail,
-      IconData icon,
-      Color color,
-      int page,
-      String status,
-    })>[
-      (
-        title: 'Projekt',
-        detail: stavbySelected
-            ? '${_project!.projectName} • ${_project!.version}+${_project!.build}'
-            : 'Výber a kontrola projektu STAVBY PRO',
-        icon: Icons.folder_rounded,
-        color: const Color(0xFFFF9800),
-        page: 1,
-        status: stavbySelected ? 'PRIPRAVENÝ' : 'NEVYBRANÝ',
-      ),
-      (
-        title: 'APK',
-        detail: apkReady
-            ? path.basename(_apkPath!)
-            : 'Build, analýza a export APK pre STAVBY PRO',
-        icon: Icons.android_rounded,
-        color: const Color(0xFF43A047),
-        page: 2,
-        status: apkReady ? 'PRIPRAVENÉ' : 'ČAKÁ',
-      ),
-      (
-        title: 'WINDOWS',
-        detail: _windowsZipExtracted
-            ? path.basename(
-                _windowsExtractedProjectPath ?? 'Windows DEV projekt',
-              )
-            : 'Samostatný Windows DEV build STAVBY PRO',
-        icon: Icons.desktop_windows_rounded,
-        color: const Color(0xFF1565C0),
-        page: 3,
-        status: _windowsZipExtracted ? 'NAČÍTANÝ' : 'PRIPRAVENÝ',
-      ),
-      (
-        title: 'GitHub',
-        detail: _githubConnected
-            ? 'Repozitár je pripojený a pripravený na publikovanie'
-            : 'Nastavenie repozitára, tokenu a publikovania',
-        icon: Icons.cloud_rounded,
-        color: const Color(0xFF00ACC1),
-        page: 4,
-        status: _githubConnected ? 'ONLINE' : 'NEPRIPOJENÝ',
-      ),
-      (
-        title: 'Release Wizard – finálny workflow',
-        detail: managerSelected
-            ? path.basename(_managerProjectPath!)
-            : 'Rozbaliť ZIP → Build → Export → Dokončiť vydanie → Test EXE',
-        icon: Icons.rocket_launch_rounded,
-        color: const Color(0xFF8E24AA),
-        page: 5,
-        status: managerSelected ? 'AKTÍVNY' : 'PRIPRAVENÝ',
-      ),
-      (
-        title: 'Git Workspace',
-        detail: _gitWorkspaceStatus?.isRepository == true
-            ? '${_gitWorkspaceStatus!.branch} • ${_gitWorkspaceStatus!.changedFiles.length} zmien'
-            : 'Lokálny Git stav, vetva a zmenené súbory',
-        icon: Icons.account_tree_rounded,
-        color: const Color(0xFF2E7D32),
-        page: 6,
-        status: _gitWorkspaceStatus?.isRepository == true
-            ? 'AKTÍVNY'
-            : 'PRIPRAVENÝ',
-      ),
-    ];
-
-    Widget statusPill({
-      required IconData icon,
-      required String label,
-      required bool ok,
-    }) {
-      final color = ok ? const Color(0xFF2E7D32) : const Color(0xFFF57C00);
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: color.withValues(alpha: 0.18)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(icon, size: 15, color: color),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     Widget quickAction({
       required IconData icon,
       required String title,
       required String subtitle,
+      required String tooltip,
       required Color color,
       required VoidCallback? onTap,
     }) {
-      return SizedBox(
+      return Tooltip(
+        message: tooltip,
+        waitDuration: const Duration(milliseconds: 450),
+        showDuration: const Duration(seconds: 8),
+        preferBelow: true,
+        child: SizedBox(
         height: 96,
         child: Material(
           color: color.withValues(alpha: 0.12),
@@ -15331,11 +16027,17 @@ Widget _buildSectionOverviewDashboard() {
             ),
           ),
         ),
+        ),
       );
     }
 
-    Widget smallAction(IconData icon, String title, VoidCallback? onTap) {
-      return SizedBox(
+    Widget smallAction(
+      IconData icon,
+      String title,
+      VoidCallback? onTap, {
+      String? tooltip,
+    }) {
+      final button = SizedBox(
         height: 44,
         child: OutlinedButton.icon(
           onPressed: onTap,
@@ -15351,6 +16053,14 @@ Widget _buildSectionOverviewDashboard() {
             style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
           ),
         ),
+      );
+      if (tooltip == null || tooltip.isEmpty) return button;
+      return Tooltip(
+        message: tooltip,
+        waitDuration: const Duration(milliseconds: 450),
+        showDuration: const Duration(seconds: 8),
+        preferBelow: true,
+        child: button,
       );
     }
 
@@ -15368,6 +16078,7 @@ Widget _buildSectionOverviewDashboard() {
                   icon: Icons.bolt_rounded,
                   title: 'FAST DEV BUILD',
                   subtitle: 'Rýchly build bez clean a pub get',
+                  tooltip: 'Rýchle testovanie buildu. Preskočí flutter clean a pub get, potom spustí Analyze, Test, Windows Build a Export ZIP. Nie je to kompletný One Click Release – nespúšťa celý Release Integrity / Publish Gate workflow.',
                   color: const Color(0xFF31C653),
                   onTap: repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning)
                       ? () async {
@@ -15387,6 +16098,7 @@ Widget _buildSectionOverviewDashboard() {
                   icon: Icons.handyman_rounded,
                   title: 'FULL BUILD',
                   subtitle: 'Plný build s clean a pub get',
+                  tooltip: 'Dôkladný čistý build: flutter clean, pub get, Analyze, Test, Windows Build a Export ZIP. Slúži na overenie buildu; kompletný release workflow spúšťa ONE CLICK RELEASE.',
                   color: const Color(0xFF2196F3),
                   onTap: repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning)
                       ? () async {
@@ -15437,34 +16149,40 @@ Widget _buildSectionOverviewDashboard() {
             ],
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: repositoryReady &&
-                      !(_oneClickBuildRunning ||
-                          _workspaceSyncRunning ||
-                          _gitBuildPublishRunning ||
-                          _dashboardOperationRunning ||
-                          _busy)
-                  ? _runOneClickReleaseComplete
-                  : null,
-              icon: const Icon(Icons.rocket_launch_rounded),
-              label: Text(
-                'ONE CLICK RELEASE • $_oneClickReleaseMode',
-                style: const TextStyle(fontWeight: FontWeight.w900),
+          Tooltip(
+            message: 'Kompletný $_oneClickReleaseMode release workflow: nastaví Release Recipe, zostaví platformy, vytvorí release artefakty a ZIP, overí Release Integrity a podľa výsledku nastaví Publish Gate.',
+            waitDuration: const Duration(milliseconds: 450),
+            showDuration: const Duration(seconds: 8),
+            preferBelow: true,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: repositoryReady &&
+                        !(_oneClickBuildRunning ||
+                            _workspaceSyncRunning ||
+                            _gitBuildPublishRunning ||
+                            _dashboardOperationRunning ||
+                            _busy)
+                    ? _runOneClickReleaseComplete
+                    : null,
+                icon: const Icon(Icons.rocket_launch_rounded),
+                label: Text(
+                  'ONE CLICK RELEASE • $_oneClickReleaseMode',
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
               ),
             ),
           ),
           const SizedBox(height: 12),
           Row(
             children: <Widget>[
-              Expanded(child: smallAction(Icons.search_rounded, 'Analyze', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('analyze') : null)),
+              Expanded(child: smallAction(Icons.search_rounded, 'Analyze', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('analyze') : null, tooltip: 'Skontroluje zdrojový kód projektu pomocou flutter analyze. Nevytvára build ani release.')),
               const SizedBox(width: 8),
-              Expanded(child: smallAction(Icons.check_rounded, 'Flutter Test', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('test') : null)),
+              Expanded(child: smallAction(Icons.check_rounded, 'Flutter Test', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('test') : null, tooltip: 'Spustí automatické Flutter testy projektu. Nevytvára Windows/APK build ani release.')),
               const SizedBox(width: 8),
-              Expanded(child: smallAction(Icons.window_rounded, 'Windows Build', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('windows') : null)),
+              Expanded(child: smallAction(Icons.window_rounded, 'Windows Build', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('windows') : null, tooltip: 'Vytvorí iba Windows Release build z aktuálneho projektu. Nespúšťa kompletný release workflow.')),
               const SizedBox(width: 8),
-              Expanded(child: smallAction(Icons.folder_open_rounded, 'Export ZIP', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('export') : null)),
+              Expanded(child: smallAction(Icons.folder_open_rounded, 'Export ZIP', repositoryReady && !(_oneClickBuildRunning || _workspaceSyncRunning || _gitBuildPublishRunning || _dashboardOperationRunning) ? () => _runDashboardQuickOperation('export') : null, tooltip: 'Vytvorí Release ZIP z už existujúcich build artefaktov a zaregistruje export pre Distribution Center.')),
             ],
           ),
           const SizedBox(height: 8),
@@ -15882,7 +16600,7 @@ Widget _buildSectionOverviewDashboard() {
           const SizedBox(height: 10),
           Row(
             children: <Widget>[
-              Expanded(child: OutlinedButton.icon(onPressed: () => setState(() => _selectedPage = 6), icon: const Icon(Icons.article_outlined), label: const Text('Otvoriť report'))),
+              Expanded(child: OutlinedButton.icon(onPressed: _lastSuccessfulBuildReportPath == null ? null : () => Process.start('notepad.exe', <String>[_lastSuccessfulBuildReportPath!]), icon: const Icon(Icons.article_outlined), label: const Text('Otvoriť report'))),
               const SizedBox(width: 8),
               Expanded(child: OutlinedButton.icon(onPressed: _gitWorkspacePath == null ? null : () => Process.start('explorer.exe', <String>[_gitWorkspacePath!]), icon: const Icon(Icons.folder_open_rounded), label: const Text('Otvoriť priečinok'))),
             ],
@@ -16670,6 +17388,7 @@ Widget _buildSectionOverviewDashboard() {
       addRoot(project == null ? null : Directory(project.projectPath).parent.path);
       addRoot(Directory(workspace).parent.path);
       addRoot(path.join(workspace, 'Export Release'));
+      addRoot(path.join(workspace, '.release_integrity_cache'));
 
       final projectToken = (project?.projectName ?? path.basename(workspace))
           .toUpperCase()
@@ -16713,10 +17432,23 @@ Widget _buildSectionOverviewDashboard() {
         return;
       }
 
-      candidates.sort(
-        (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
-      );
+      int releaseBuildNumber(Directory directory) {
+        final name = path.basename(directory.path).toUpperCase();
+        final match = RegExp(r'BUILD[_-]?(\d+)').firstMatch(name);
+        return int.tryParse(match?.group(1) ?? '') ?? -1;
+      }
+
+      candidates.sort((a, b) {
+        final buildCompare =
+            releaseBuildNumber(b).compareTo(releaseBuildNumber(a));
+        if (buildCompare != 0) return buildCompare;
+        return b.statSync().modified.compareTo(a.statSync().modified);
+      });
       final latest = candidates.first;
+      _addLog(
+        'Distribution Center: vybraný kandidát BUILD '
+        '${releaseBuildNumber(latest)} → ${latest.path}',
+      );
 
       String? firstFileWithExtension(Directory directory, String extension) {
         if (!directory.existsSync()) return null;
@@ -16932,7 +17664,8 @@ Widget _buildSectionOverviewDashboard() {
     return null;
   }
 
-  // Internal verifier retained for automatic integrity workflows.
+  // Internal verifier retained intentionally for automatic Release Integrity
+  // workflows and as a recovery path if manual verification is re-enabled.
   // ignore: unused_element
   Future<void> _verifyProjectFromDashboard() async {
     if (_busy) return;
@@ -17219,6 +17952,7 @@ Widget _buildSectionOverviewDashboard() {
         }
         final combinedReleaseZip = await _createOneClickReleaseZip(
           workspace,
+          releaseStage: selected,
           onProgress: (progress, step) {
             if (!mounted) return;
             setState(() {
@@ -17234,9 +17968,18 @@ Widget _buildSectionOverviewDashboard() {
             '${combinedReleaseZip.path}',
           );
         }
+        final combinedZipSize = await combinedReleaseZip.length();
+        if (combinedZipSize <= 0) {
+          throw StateError(
+            'Spoločný Windows + Android ZIP existuje, ale má nulovú veľkosť: '
+            '${combinedReleaseZip.path}',
+          );
+        }
         if (mounted) {
           setState(() {
             _dashboardBuildExportOk = true;
+            _dashboardLastVerifiedExportZipPath = combinedReleaseZip.path;
+            unawaited(_saveLastVerifiedExportZipPath(workspace, combinedReleaseZip.path));
             _oneClickBuildCurrentStep = 'Export ZIP OK';
           });
         }
@@ -17249,9 +17992,74 @@ Widget _buildSectionOverviewDashboard() {
       } else {
         _addLog(
           'ONE CLICK RELEASE: 3/6 Android platforma nie je v projekte – '
-          'APK krok preskočený.',
+          'APK krok preskočený. Pokračujem Windows Release ZIP exportom.',
+        );
+        if (mounted) {
+          setState(() {
+            _dashboardOperationProgress = 0.62;
+            _dashboardOperationStep = 'Vytváram Windows Release ZIP...';
+          });
+        }
+        final windowsOnlyReleaseZip = await _createOneClickReleaseZip(
+          workspace,
+          releaseStage: selected,
+          onProgress: (progress, step) {
+            if (!mounted) return;
+            setState(() {
+              _dashboardOperationProgress = 0.62 + (progress * 0.18);
+              _dashboardOperationStep = step;
+            });
+          },
+        );
+        finalReleaseZip = windowsOnlyReleaseZip;
+        if (!await windowsOnlyReleaseZip.exists()) {
+          throw StateError(
+            'Windows Release ZIP po exporte fyzicky neexistuje: '
+            '${windowsOnlyReleaseZip.path}',
+          );
+        }
+        final windowsOnlyZipSize = await windowsOnlyReleaseZip.length();
+        if (windowsOnlyZipSize <= 0) {
+          throw StateError(
+            'Windows Release ZIP existuje, ale má nulovú veľkosť: '
+            '${windowsOnlyReleaseZip.path}',
+          );
+        }
+        if (mounted) {
+          setState(() {
+            _dashboardBuildExportOk = true;
+            _dashboardLastVerifiedExportZipPath = windowsOnlyReleaseZip.path;
+            unawaited(_saveLastVerifiedExportZipPath(workspace, windowsOnlyReleaseZip.path));
+            _oneClickBuildCurrentStep = 'Export ZIP OK';
+          });
+        }
+        _addLog(
+          'ONE CLICK RELEASE: Windows Release ZIP fyzicky overený → '
+          '${windowsOnlyReleaseZip.path} • '
+          '${(windowsOnlyZipSize / 1024 / 1024).toStringAsFixed(1)} MB',
         );
       }
+
+      final verifiedReleaseZip = finalReleaseZip;
+      if (verifiedReleaseZip == null ||
+          !await verifiedReleaseZip.exists() ||
+          await verifiedReleaseZip.length() <= 0) {
+        throw StateError(
+          'ONE CLICK RELEASE nemôže pokračovať: Export ZIP nebol fyzicky '
+          'vytvorený alebo je prázdny.',
+        );
+      }
+      if (mounted) {
+        setState(() {
+          _dashboardBuildExportOk = true;
+          _dashboardLastVerifiedExportZipPath = verifiedReleaseZip.path;
+            unawaited(_saveLastVerifiedExportZipPath(workspace, verifiedReleaseZip.path));
+          _oneClickBuildCurrentStep = 'Export ZIP OK';
+        });
+      }
+      _addLog(
+        'ONE CLICK RELEASE EXPORT GATE OK: ${verifiedReleaseZip.path}',
+      );
 
       await _refreshDistributionCenterFromDisk();
       final releaseRoot = _resolveDashboardIntegrityRoot();
@@ -17317,16 +18125,21 @@ Widget _buildSectionOverviewDashboard() {
             content: Text(
               'Profil: $selected\n'
               'Windows build: OK\n'
-              'Android APK: OK\n'
-              'Export ZIP: OK\n'
+              'Android APK: ${androidProject ? 'OK' : '— (projekt bez Android platformy)'}\n'
+              'Export ZIP: OK – fyzicky overený\n'
               'SHA-256 manifest: OK\n'
               'Release Integrity: INTEGRITY OK\n'
               'Publish Gate: POVOLENÉ\n\n'
-              '${finalReleaseZip == null ? '' : 'Export:\n${finalReleaseZip!.path}\n\n'}'
+              'Export:\n${verifiedReleaseZip.path}\n\n'
               '${selected == 'DEV' ? 'DEV release je pripravený na interné testovanie.' : 'Release je pripravený na publikovanie.'}\n\n'
-              '${selected == 'DEV' ? 'Projekt zostáva v DEV konfigurácii.' : 'Po zatvorení tohto okna sa pracovný projekt automaticky vráti do DEV konfigurácie.'}',
+              '${selected == 'DEV' ? 'Projekt zostáva v DEV konfigurácii.' : 'Po zatvorení tohto okna sa pracovný projekt aj One Click voľba automaticky vrátia do DEV konfigurácie.'}',
             ),
             actions: <Widget>[
+              OutlinedButton.icon(
+                onPressed: () => _selectFileInExplorer(verifiedReleaseZip.path),
+                icon: const Icon(Icons.folder_open_rounded),
+                label: const Text('OTVORIŤ EXPORT ZIP V PRIESKUMNÍKOVI'),
+              ),
               FilledButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
                 child: const Text('POKRAČOVAŤ'),
@@ -17388,6 +18201,14 @@ Widget _buildSectionOverviewDashboard() {
       }
       if (selected != 'DEV') {
         await _restoreDevelopmentRecipe();
+        if (mounted) {
+          setState(() => _oneClickReleaseMode = 'DEV');
+        }
+        await _appSettingsService.saveOneClickReleaseMode('DEV');
+        _addLog(
+          'ONE CLICK RELEASE: režim $selected dokončený – '
+          'One Click voľba aj projekt boli vrátené do DEV.',
+        );
       }
 
       // RC1 stabilization: after FINAL/RC the source tree is restored to DEV,
@@ -17435,11 +18256,11 @@ Widget _buildSectionOverviewDashboard() {
     final build = match.group(2)!;
     final normalized = recipe.toUpperCase();
     final recipeVersion = switch (normalized) {
-      'RC' => baseVersion.replaceAll(RegExp(r'-(?:dev|rc)[.\-0-9]*$', caseSensitive: false), '') + '-rc.1',
+      'RC' => '${baseVersion.replaceAll(RegExp(r'-(?:dev|rc)[.\-0-9]*$', caseSensitive: false), '')}-rc.1',
       'FINAL' => baseVersion.replaceAll(RegExp(r'-(?:dev|rc)[.\-0-9]*$', caseSensitive: false), ''),
       _ => baseVersion.contains(RegExp(r'-dev', caseSensitive: false))
           ? baseVersion
-          : baseVersion.replaceAll(RegExp(r'-(?:rc)[.\-0-9]*$', caseSensitive: false), '') + '-dev.1',
+          : '${baseVersion.replaceAll(RegExp(r'-(?:rc)[.\-0-9]*$', caseSensitive: false), '')}-dev.1',
     };
 
     final updated = original.replaceFirst(
@@ -17502,6 +18323,16 @@ Widget _buildSectionOverviewDashboard() {
       ),
     );
     if (selected == null) return;
+
+    if (selected == 'FINAL') {
+      _addLog(
+        'FIX253 FINAL UI: používateľ vybral FINAL → spúšťam '
+        'preflight a kontrolovaný FULL BUILD.',
+      );
+      await _runOneClickBuild(fastMode: false);
+      return;
+    }
+
     await _applyReleaseRecipe(selected);
   }
 
@@ -17598,7 +18429,6 @@ Widget _buildSectionOverviewDashboard() {
     if (!mounted) return;
     setState(() {
       _releaseDistributionTargetPath = target.trim();
-      _lastReleaseDistributionAt = DateTime.now();
       _releaseDistributionStatus = executed ? 'PUBLIKOVANÉ' : 'BLOKOVANÉ';
     });
     _rememberDashboardOperationResult(
@@ -18824,6 +19654,8 @@ Widget _buildSectionOverviewDashboard() {
     final releaseDirectory = _releaseWizardReleaseDirectory;
     final releaseAvailable = releaseDirectory != null &&
         Directory(releaseDirectory).existsSync();
+    final integrityOk = _dashboardReleaseIntegrityStatus == 'INTEGRITY OK';
+    final publishGateAllowed = _dashboardPublishGateStatus == 'POVOLENÉ';
     final finalRelease = releaseAvailable &&
         releaseDirectory.toUpperCase().contains('_FINAL');
 
@@ -18849,6 +19681,7 @@ Widget _buildSectionOverviewDashboard() {
       gitReady,
       windowsReady || apkReady || aabReady,
       releaseAvailable,
+      integrityOk,
     ];
     final readyCount = readyChecks.where((value) => value).length;
     final readiness = readyCount / readyChecks.length;
@@ -18942,11 +19775,13 @@ Widget _buildSectionOverviewDashboard() {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          finalRelease
-                              ? 'Posledný výstup je LTS / FINAL.'
-                              : releaseAvailable
-                                  ? 'Posledný release je pripravený.'
-                                  : 'Release zatiaľ nie je pripravený.',
+                          finalRelease && integrityOk
+                              ? 'Posledný výstup je LTS / FINAL a integrita je platná.'
+                              : releaseAvailable && integrityOk
+                                  ? 'Posledný release je pripravený a overený.'
+                                  : releaseAvailable
+                                      ? 'Release existuje, čaká na platnú Release Integrity.'
+                                      : 'Release zatiaľ nie je pripravený.',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -19055,6 +19890,20 @@ Widget _buildSectionOverviewDashboard() {
                           ? releaseDirectory!
                           : 'Spusť Release Recipe alebo One Click Final Release.',
                       ok: releaseAvailable,
+                    ),
+                    stateLine(
+                      title: 'Release Integrity',
+                      detail: integrityOk
+                          ? 'INTEGRITY OK'
+                          : _dashboardReleaseIntegrityStatus,
+                      ok: integrityOk,
+                    ),
+                    stateLine(
+                      title: 'Publish Gate',
+                      detail: publishGateAllowed
+                          ? 'POVOLENÉ'
+                          : _dashboardPublishGateStatus,
+                      ok: publishGateAllowed,
                     ),
                   ],
                 ),

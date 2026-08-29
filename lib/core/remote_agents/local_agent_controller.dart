@@ -21,9 +21,30 @@ class LocalAgentController {
     final candidates = <Directory>[];
     final explicitRoot = projectRoot?.trim();
     if (explicitRoot != null && explicitRoot.isNotEmpty) {
+      final explicitDirectory = Directory(explicitRoot).absolute;
       candidates.add(Directory(
-        '${Directory(explicitRoot).absolute.path}${Platform.pathSeparator}tools${Platform.pathSeparator}release_agent',
+        '${explicitDirectory.path}${Platform.pathSeparator}tools${Platform.pathSeparator}release_agent',
       ));
+
+      // FIX251: the active workspace can be STAVBY_PRO while the Local Agent
+      // belongs to the sibling Release_Manager source project. Search sibling
+      // workspaces under the same parent before falling back to process paths.
+      final parent = explicitDirectory.parent;
+      if (await parent.exists()) {
+        try {
+          await for (final entity in parent.list(
+            recursive: false,
+            followLinks: false,
+          )) {
+            if (entity is! Directory) continue;
+            candidates.add(Directory(
+              '${entity.path}${Platform.pathSeparator}tools${Platform.pathSeparator}release_agent',
+            ));
+          }
+        } on FileSystemException {
+          // Parent scanning is only a recovery path; normal candidates remain.
+        }
+      }
     }
 
     void addWithParents(Directory start) {
@@ -51,7 +72,8 @@ class LocalAgentController {
 
     throw FileSystemException(
       'Priečinok tools/release_agent sa nepodarilo nájsť. '
-      'Očakávané umiestnenie: <aktuálny workspace>/tools/release_agent.',
+      'Kontrolovaný bol aktívny workspace, jeho susedné projekty '
+      'a cesty Release Manager procesu.',
     );
   }
 

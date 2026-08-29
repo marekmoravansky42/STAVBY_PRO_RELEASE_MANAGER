@@ -1,0 +1,165 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 264 RC1 DEV001 FIX147
+Dátum a čas: 2026-08-23T09:47:55.880229
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 41 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1271:44 - unnecessary_non_null_assertion
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1281:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:6258:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9662:7 - use_build_context_synchronously
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12435:75 - unnecessary_brace_in_string_interps
+warning - The declaration '_dashboardEventRow' isn't referenced. Try removing the declaration of '_dashboardEventRow' - lib\main.dart:13851:10 - unused_element
+warning - The value of the local variable 'apkReady' isn't used. Try removing the variable or using it - lib\main.dart:15185:11 - unused_local_variable
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15483:38 - unnecessary_brace_in_string_interps
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17217:76 - unnecessary_non_null_assertion
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17330:15 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17334:13 - prefer_interpolation_to_compose_strings
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17411:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:18726:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:18946:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19018:46 - unnecessary_non_null_assertion
+  error - Expected an identifier - test\fix148_integrity_startup_restore_contract_test.dart:35:6 - missing_identifier
+   info - Use the generic function type syntax to declare the parameter ''. Try using the generic function type syntax - test\fix148_integrity_startup_restore_contract_test.dart:35:67 - use_function_type_syntax_for_parameters
+  error - Expected an identifier - test\fix148_integrity_startup_restore_contract_test.dart:35:67 - missing_identifier
+  error - Expected to find ')' - test\fix148_integrity_startup_restore_contract_test.dart:35:70 - expected_token
+  error - A function body must be provided. Try adding a function body - test\fix148_integrity_startup_restore_contract_test.dart:49:3 - missing_function_body
+
+20 issues found. (ran in 4.4s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+09:44:10     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9662:7 - use_build_context_synchronously
+09:44:10     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12435:75 - unnecessary_brace_in_string_interps
+09:44:10  warning - The declaration '_refreshDashboardStatusWithProgress' isn't referenced. Try removing the declaration of '_refreshDashboardStatusWithProgress' - lib\main.dart:12597:16 - unused_element
+09:44:10  warning - The declaration '_runDashboardQuickOperation' isn't referenced. Try removing the declaration of '_runDashboardQuickOperation' - lib\main.dart:12681:16 - unused_element
+09:44:10  warning - The declaration '_dashboardAgentInfoRow' isn't referenced. Try removing the declaration of '_dashboardAgentInfoRow' - lib\main.dart:13537:10 - unused_element
+09:44:10  warning - The declaration '_dashboardInfoRow' isn't referenced. Try removing the declaration of '_dashboardInfoRow' - lib\main.dart:13578:10 - unused_element
+09:44:10  warning - The declaration '_dashboardStatusInfoRow' isn't referenced. Try removing the declaration of '_dashboardStatusInfoRow' - lib\main.dart:13596:10 - unused_element
+09:44:10  warning - The declaration '_dashboardOperationChip' isn't referenced. Try removing the declaration of '_dashboardOperationChip' - lib\main.dart:13642:10 - unused_element
+09:44:10  warning - The declaration '_dashboardProgressStep' isn't referenced. Try removing the declaration of '_dashboardProgressStep' - lib\main.dart:13675:10 - unused_element
+09:44:10    error - Undefined name '_oneClickBuildProgress'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:13676:22 - undefined_identifier
+09:44:10  warning - The declaration '_dashboardWorkspaceStatus' isn't referenced. Try removing the declaration of '_dashboardWorkspaceStatus' - lib\main.dart:13718:10 - unused_element
+09:44:10  warning - The declaration '_dashboardBuildStepStatus' isn't referenced. Try removing the declaration of '_dashboardBuildStepStatus' - lib\main.dart:13734:10 - unused_element
+09:44:10  warning - The declaration '_dashboardBuildMetric' isn't referenced. Try removing the declaration of '_dashboardBuildMetric' - lib\main.dart:13811:10 - unused_element
+09:44:10    error - Undefined name '_exportPortableNewPcBackup'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:14017:33 - undefined_identifier
+09:44:10    error - Undefined name '_importPortableNewPcBackup'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:14035:33 - undefined_identifier
+09:44:10  warning - The declaration '_runOneClickReleaseComplete' isn't referenced. Try removing the declaration of '_runOneClickReleaseComplete' - lib\main.dart:14615:16 - unused_element
+09:44:10  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:14885:76 - unnecessary_non_null_assertion
+09:44:10     info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:14998:15 - prefer_interpolation_to_compose_strings
+09:44:10     info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:15002:13 - prefer_interpolation_to_compose_strings
+09:44:10  warning - The declaration '_selectReleaseRecipe' isn't referenced. Try removing the declaration of '_selectReleaseRecipe' - lib\main.dart:15034:16 - unused_element
+09:44:10  warning - The declaration '_publishReleaseToHomeServer' isn't referenced. Try removing the declaration of '_publishReleaseToHomeServer' - lib\main.dart:15068:16 - unused_element
+09:44:10     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:15079:7 - use_build_context_synchronously
+09:44:10  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:16394:49 - unnecessary_non_null_assertion
+09:44:10  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:16614:45 - unnecessary_non_null_assertion
+09:44:10  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:16686:46 - unnecessary_non_null_assertion
+09:44:10    error - The method '_buildSectionOverviewDashboard' isn't defined for the type '_ReleaseManagerPageState'. Try correcting the name to the name of an existing method, or defining a method named '_buildSectionOverviewDashboard' - lib\main.dart:17209:39 - undefined_method
+09:44:10    error - Undefined name '_showBuildCompletionCenter'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:19364:35 - undefined_identifier
+09:44:10    error - Expected an identifier - test\fix148_integrity_startup_restore_contract_test.dart:35:6 - missing_identifier
+09:44:10     info - Use the generic function type syntax to declare the parameter ''. Try using the generic function type syntax - test\fix148_integrity_startup_restore_contract_test.dart:35:67 - use_function_type_syntax_for_parameters
+09:44:10    error - Expected an identifier - test\fix148_integrity_startup_restore_contract_test.dart:35:67 - missing_identifier
+09:44:10    error - Expected to find ')' - test\fix148_integrity_startup_restore_contract_test.dart:35:70 - expected_token
+09:44:10    error - A function body must be provided. Try adding a function body - test\fix148_integrity_startup_restore_contract_test.dart:49:3 - missing_function_body
+09:44:10  
+09:44:10  CHYBA: 54 issues found. (ran in 4.3s)
+09:44:10  ✖ Flutter analyze zlyhal. Návratový kód: 1.
+09:44:10  Diagnostický report bol automaticky uložený: C:\SP\Release_Manager\diagnostics\BUILD_ERROR_2026-08-23_09-44-10.txt
+09:44:14  Diagnostický report bol skopírovaný do schránky.
+09:46:07  Diagnostické okno bolo zatvorené.
+09:46:12  === WORKSPACE SYNC ===
+09:46:12  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_267_DEV001_FIX150_INTEGRITY_REBASE_FIX147.zip
+09:46:12  Workspace: C:\SP\Release_Manager
+09:47:15  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-23T09-46-12-067195.zip
+09:47:15  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-23T08-38-22-013572.zip (85.6 MB).
+09:47:15  Backup Manager: automaticky uvoľnené 85.6 MB (1 starých záloh).
+09:47:15  Backup Manager: 10 záloh, 856.5 MB.
+09:47:15  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+09:47:16  Overená identita workspace: 8.0.0+267 RC1.
+09:47:16  Dashboard projekt obnovený po synchronizácii: 8.0.0+267.
+09:47:16  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+09:47:16  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+09:47:16  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+09:47:17  ProjectVersionProvider: 8.0.0+267 RC1 (C:\SP\Release_Manager).
+09:47:17  Git workspace: dev, 20 zmien.
+09:47:17  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_267_DEV001_FIX150_INTEGRITY_REBASE_FIX147.zip. Git eviduje 20 zmien.
+09:47:48  One Click Build identita: 8.0.0+267 RC1.
+09:47:48  === ZAČÍNA FAST DEV BUILD ===
+09:47:48  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+09:47:48  ▶ flutter analyze
+09:47:49  Resolving dependencies...
+09:47:49  Downloading packages...
+09:47:49    dbus 0.7.14 (0.7.15 available)
+09:47:49    file_picker 11.0.3 (12.0.0 available)
+09:47:49    flutter_lints 5.0.0 (6.0.0 available)
+09:47:49    lints 5.1.1 (6.1.0 available)
+09:47:49    matcher 0.12.19 (0.12.20 available)
+09:47:49    material_color_utilities 0.13.0 (0.13.1 available)
+09:47:49    meta 1.18.0 (1.19.0 available)
+09:47:49    test_api 0.7.11 (0.7.13 available)
+09:47:49    vector_math 2.2.0 (2.4.2 available)
+09:47:49    vm_service 15.2.0 (15.3.0 available)
+09:47:49    win32 5.15.0 (6.4.0 available)
+09:47:49    xml 6.6.1 (7.0.1 available)
+09:47:49  Got dependencies!
+09:47:49  12 packages have newer versions incompatible with dependency constraints.
+09:47:49  Try `flutter pub outdated` for more information.
+09:47:55  Analyzing Release_Manager...                                    
+09:47:55  
+09:47:55  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:1271:44 - unnecessary_non_null_assertion
+09:47:55     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:1281:7 - use_build_context_synchronously
+09:47:55     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:6258:7 - use_build_context_synchronously
+09:47:55     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9662:7 - use_build_context_synchronously
+09:47:55     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:12435:75 - unnecessary_brace_in_string_interps
+09:47:55  warning - The declaration '_dashboardEventRow' isn't referenced. Try removing the declaration of '_dashboardEventRow' - lib\main.dart:13851:10 - unused_element
+09:47:55  warning - The value of the local variable 'apkReady' isn't used. Try removing the variable or using it - lib\main.dart:15185:11 - unused_local_variable
+09:47:55     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:15483:38 - unnecessary_brace_in_string_interps
+09:47:55  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:17217:76 - unnecessary_non_null_assertion
+09:47:55     info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17330:15 - prefer_interpolation_to_compose_strings
+09:47:55     info - Use interpolation to compose strings and values. Try using string interpolation to build the composite string - lib\main.dart:17334:13 - prefer_interpolation_to_compose_strings
+09:47:55     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:17411:7 - use_build_context_synchronously
+09:47:55  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:18726:49 - unnecessary_non_null_assertion
+09:47:55  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:18946:45 - unnecessary_non_null_assertion
+09:47:55  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19018:46 - unnecessary_non_null_assertion
+09:47:55    error - Expected an identifier - test\fix148_integrity_startup_restore_contract_test.dart:35:6 - missing_identifier
+09:47:55     info - Use the generic function type syntax to declare the parameter ''. Try using the generic function type syntax - test\fix148_integrity_startup_restore_contract_test.dart:35:67 - use_function_type_syntax_for_parameters
+09:47:55    error - Expected an identifier - test\fix148_integrity_startup_restore_contract_test.dart:35:67 - missing_identifier
+09:47:55    error - Expected to find ')' - test\fix148_integrity_startup_restore_contract_test.dart:35:70 - expected_token
+09:47:55    error - A function body must be provided. Try adding a function body - test\fix148_integrity_startup_restore_contract_test.dart:49:3 - missing_function_body
+09:47:55  
+09:47:55  CHYBA: 20 issues found. (ran in 4.4s)
+09:47:55  ✖ Flutter analyze zlyhal. Návratový kód: 1.

@@ -1,3 +1,4 @@
+import '../../app/app_version.dart';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -492,7 +493,7 @@ class _PluginMarketplacePageState extends State<PluginMarketplacePage> {
     PluginMarketplaceManifest plugin,
   ) async {
     const validator = PluginInstallationValidator(
-      currentReleaseManagerVersion: '6.5.2',
+      currentReleaseManagerVersion: ReleaseManagerVersion.version,
       supportedApiVersion: '1.0',
     );
     final validation = validator.validate(plugin);
@@ -577,7 +578,7 @@ class _PluginMarketplacePageState extends State<PluginMarketplacePage> {
     PluginMarketplaceManifest plugin,
   ) async {
     const validator = PluginInstallationValidator(
-      currentReleaseManagerVersion: '6.5.2',
+      currentReleaseManagerVersion: ReleaseManagerVersion.version,
       supportedApiVersion: '1.0',
     );
     final result = validator.validate(plugin);

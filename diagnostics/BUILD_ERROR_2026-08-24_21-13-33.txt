@@ -1,0 +1,153 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 316 RC1 DEV001 FIX250
+Dátum a čas: 2026-08-24T21:13:33.167856
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Pravdepodobná príčina: nekompatibilné API balíka alebo nesprávny názov metódy či vlastnosti.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 29 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9678:7 - use_build_context_synchronously
+  error - The getter 'name' isn't defined for the type 'ProjectInfo'. Try importing the library that defines 'name', correcting the name to the name of an existing getter, or defining a getter or field named 'name' - lib\main.dart:12571:32 - undefined_getter
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:16086:38 - unnecessary_brace_in_string_interps
+warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17821:30 - unnecessary_null_comparison
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:18117:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19434:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19657:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19743:46 - unnecessary_non_null_assertion
+
+8 issues found. (ran in 7.2s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+21:12:25  Predvolený priečinok pre aktualizačné ZIP: C:\6\RELEASE_MANAGER\Export Release
+21:12:25  Project Profile obnovený: stavby_pro
+21:12:25  Načítavam projekt: C:\SP\STAVBY_PRO
+21:12:25  Načítanie projektu – Načítanie pubspec.yaml...
+21:12:25  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+21:12:25  Projekt otvorený: stavby_pro
+21:12:25  Načítaná verzia 3.8.97+471.
+21:12:25  Načítanie projektu – Načítanie histórie vydaní...
+21:12:25  Načítanie projektu – Načítanie histórie vydaní dokončené.
+21:12:25  Načítanie projektu – Kontrola pripravenosti projektu...
+21:12:25  Kontrolujem pripravenosť projektu...
+21:12:25  GitHub pripojenie je funkčné. Token bol uložený šifrovane cez Windows DPAPI.
+21:12:25  Kontrolujem aktualizáciu Release Managera na GitHube...
+21:12:26  Používaš najnovšiu verziu.
+21:12:26  Kontrola projektu dokončená: 0 chýb, 0 upozornení.
+21:12:26  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+21:12:26  Načítanie projektu – Automatická analýza APK...
+21:12:26  Hľadám release APK...
+21:12:27  APK nájdené: C:\SP\STAVBY_PRO\build\app\outputs\flutter-apk\app-release.apk
+21:12:27  Veľkosť APK: 77481245 B (73.89 MB)
+21:12:27  SHA-256: 84c2571f74d76f3ca0a1e5cc31fab233098efc8a9e8ed5815d927a3d2cb8886d
+21:12:27  Načítanie projektu – Automatická analýza APK dokončené.
+21:12:27  Local Agent startup health: CONNECTED • pokus 1/6 • 2026-08-24T21:12:27.230488
+21:12:27  Local Agent startup: spojenie automaticky obnovené.
+21:12:27  Distribution Center: vybraný kandidát BUILD 471 → C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_DEV_BUILD_471_WINDOWS_ANDROID_RELEASE
+21:12:27  Distribution Center platform detection: Windows=ÁNO, Android=ÁNO.
+21:12:27  Distribution Center: obnovený posledný release z disku: C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_DEV_BUILD_471_WINDOWS_ANDROID_RELEASE
+21:12:27  Distribution Center: Windows EXE: C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_DEV_BUILD_471_WINDOWS_ANDROID_RELEASE\Windows\stavby_pro_dev.exe
+21:12:27  Distribution Center: Android APK: C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_DEV_BUILD_471_WINDOWS_ANDROID_RELEASE\Android\STAVBY_PRO_3.8.97_BUILD_471.apk
+21:12:27  RELEASE INTEGRITY DASHBOARD v1: NEOVERENÉ • AKTUÁLNE • automatická kontrola aktívna.
+21:12:27  RELEASE INTEGRITY STARTUP RESTORE: NEOVERENÉ • Publish Gate: BLOKOVANÉ • C:\SP\STAVBY_PRO\.release_integrity_cache\STAVBY_PRO_3.8.97_DEV_BUILD_471_WINDOWS_ANDROID_RELEASE
+21:12:30  Načítavam projekt: C:\SP\Release_Manager
+21:12:30  Načítanie projektu – Načítanie pubspec.yaml...
+21:12:30  Načítanie projektu – Načítanie pubspec.yaml dokončené.
+21:12:30  Projekt otvorený: stavby_pro_release_manager
+21:12:30  Načítaná verzia 8.0.0+316.
+21:12:30  Načítanie projektu – Načítanie histórie vydaní...
+21:12:30  Načítanie projektu – Načítanie histórie vydaní dokončené.
+21:12:30  Načítanie projektu – Kontrola pripravenosti projektu...
+21:12:30  Kontrolujem pripravenosť projektu...
+21:12:32  Kontrola projektu dokončená: 1 chýb, 1 upozornení.
+21:12:32  Načítanie projektu – Kontrola pripravenosti projektu dokončené.
+21:12:32  Načítanie projektu – Automatická analýza APK...
+21:12:32  Hľadám release APK...
+21:12:32  APK zatiaľ nebolo vytvorené. Po APK builde sa analyzuje automaticky.
+21:12:32  Načítanie projektu – Automatická analýza APK dokončené.
+21:12:32  Distribution Center: vybraný kandidát BUILD 316 → C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE
+21:12:32  Distribution Center platform detection: Windows=ÁNO, Android=NIE.
+21:12:32  Distribution Center: obnovený posledný release z disku: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE
+21:12:32  Distribution Center: Windows EXE: C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE\Windows\stavby_pro_release_manager.exe
+21:12:38  === WORKSPACE SYNC ===
+21:12:38  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_316_DEV001_FIX250_ANDROID_CMD_LAUNCH_FIX.zip
+21:12:38  Workspace: C:\SP\Release_Manager
+21:13:16  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-24T21-12-38-909114.zip
+21:13:16  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-24T18-58-55-084277.zip (148.2 MB).
+21:13:16  Backup Manager: automaticky uvoľnené 148.2 MB (1 starých záloh).
+21:13:16  Backup Manager: 10 záloh, 1.01 GB.
+21:13:16  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+21:13:16  Overená identita workspace: 8.0.0+316 RC1.
+21:13:16  Dashboard projekt obnovený po synchronizácii: 8.0.0+316.
+21:13:16  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+21:13:16  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+21:13:16  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+21:13:17  ProjectVersionProvider: 8.0.0+316 RC1 (C:\SP\Release_Manager).
+21:13:17  Git workspace: dev, 193 zmien.
+21:13:17  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_316_DEV001_FIX250_ANDROID_CMD_LAUNCH_FIX.zip. Git eviduje 193 zmien.
+21:13:23  One Click Build identita: 8.0.0+316 RC1.
+21:13:23  === ZAČÍNA FAST DEV BUILD ===
+21:13:23  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+21:13:23  ▶ flutter analyze
+21:13:24  Resolving dependencies...
+21:13:24  Downloading packages...
+21:13:24    dbus 0.7.14 (0.7.15 available)
+21:13:24    file_picker 11.0.3 (12.0.0 available)
+21:13:24    flutter_lints 5.0.0 (6.0.0 available)
+21:13:24    lints 5.1.1 (6.1.0 available)
+21:13:24    matcher 0.12.19 (0.12.20 available)
+21:13:24    material_color_utilities 0.13.0 (0.13.1 available)
+21:13:24    meta 1.18.0 (1.19.0 available)
+21:13:24    test_api 0.7.11 (0.7.13 available)
+21:13:24    vector_math 2.2.0 (2.4.2 available)
+21:13:24    vm_service 15.2.0 (15.3.0 available)
+21:13:24    win32 5.15.0 (6.4.0 available)
+21:13:24    xml 6.6.1 (7.0.1 available)
+21:13:24  Got dependencies!
+21:13:24  12 packages have newer versions incompatible with dependency constraints.
+21:13:24  Try `flutter pub outdated` for more information.
+21:13:32  Analyzing Release_Manager...                                    
+21:13:32  
+21:13:32     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9678:7 - use_build_context_synchronously
+21:13:32    error - The getter 'name' isn't defined for the type 'ProjectInfo'. Try importing the library that defines 'name', correcting the name to the name of an existing getter, or defining a getter or field named 'name' - lib\main.dart:12571:32 - undefined_getter
+21:13:32     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:16086:38 - unnecessary_brace_in_string_interps
+21:13:32  warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17821:30 - unnecessary_null_comparison
+21:13:32     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:18117:7 - use_build_context_synchronously
+21:13:32  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19434:49 - unnecessary_non_null_assertion
+21:13:32  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19657:45 - unnecessary_non_null_assertion
+21:13:32  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19743:46 - unnecessary_non_null_assertion
+21:13:32  
+21:13:33  CHYBA: 8 issues found. (ran in 7.2s)
+21:13:33  ✖ Flutter analyze zlyhal. Návratový kód: 1.

@@ -1,0 +1,153 @@
+STAVBY PRO RELEASE MANAGER – DIAGNOSTICKÝ REPORT
+============================================================
+Verzia Release Managera: 8.0.0 RC1 Build 316 RC1 DEV001 FIX252
+Dátum a čas: 2026-08-25T19:57:34.906469
+Operačný systém: windows "Windows 10 Pro" 10.0 (Build 26200)
+Projekt: Release_Manager
+Cesta projektu: C:\SP\Release_Manager
+Krok: Flutter analyze
+Príkaz: flutter analyze
+Návratový kód: 1
+
+Presná príčina je uvedená v zachytenom výstupe nižšie.
+
+CHYBA:
+Príkaz skončil neúspešným návratovým kódom.
+
+POSLEDNÝCH 29 RIADKOV VÝSTUPU:
+------------------------------------------------------------
+Resolving dependencies...
+Downloading packages...
+  dbus 0.7.14 (0.7.15 available)
+  file_picker 11.0.3 (12.0.0 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  lints 5.1.1 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  test_api 0.7.11 (0.7.13 available)
+  vector_math 2.2.0 (2.4.2 available)
+  vm_service 15.2.0 (15.3.0 available)
+  win32 5.15.0 (6.4.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Release_Manager...                                    
+
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9704:7 - use_build_context_synchronously
+  error - Undefined name '_releaseTransitionEngine'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:13545:23 - undefined_identifier
+   info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:16187:38 - unnecessary_brace_in_string_interps
+warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17922:30 - unnecessary_null_comparison
+   info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:18218:7 - use_build_context_synchronously
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19535:49 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19758:45 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19844:46 - unnecessary_non_null_assertion
+
+8 issues found. (ran in 3.8s)
+
+STACK TRACE:
+(Stack trace nie je k dispozícii.)
+
+POSLEDNÝCH 100 RIADKOV ŽIVÉHO TERMINÁLU:
+------------------------------------------------------------
+19:49:07  00:16 +206: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:07  00:16 +207: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:16 +208: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:16 +209: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:16 +210: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:16 +211: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:16 +212: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:16 +213: C:/SP/Release_Manager/test/git_build_publisher_test.dart: Git Build Publisher vytvorĂ­ commit, tag a odoĹˇle ich do origin
+19:49:08  00:17 +214: C:/SP/Release_Manager/test/release_pipeline_designer_test.dart: loads defaults, edits order and persists templates
+19:49:08  00:17 +215: C:/SP/Release_Manager/test/release_pipeline_execution_controller_test.dart: executor runs enabled steps in order and skips disabled steps
+19:49:08  00:17 +216: C:/SP/Release_Manager/test/release_pipeline_test.dart: pipeline template JSON roundtrip preserves steps
+19:49:08  00:17 +217: C:/SP/Release_Manager/test/release_pipeline_test.dart: validator rejects duplicate step identifiers
+19:49:09  00:17 +218: C:/SP/Release_Manager/test/release_pipeline_test.dart: unsupported platform step is skipped without stopping pipeline
+19:49:09  00:17 +219: C:/SP/Release_Manager/test/release_pipeline_test.dart: executor skips remaining steps after failure
+19:49:09  00:17 +220: C:/SP/Release_Manager/test/release_profile_test.dart: release profile JSON roundtrip preserves configuration
+19:49:09  00:17 +221: C:/SP/Release_Manager/test/release_profile_test.dart: validator requires at least one project path
+19:49:09  00:17 +222: C:/SP/Release_Manager/test/test_plugin_generator_test.dart: generates an installable test plugin package
+19:49:09  00:18 +223: C:/SP/Release_Manager/test/widget_test.dart: Release Manager vytvorĂ­ stabilnĂ˝ aplikaÄŤnĂ˝ shell
+19:49:10  00:18 +224: All tests passed!
+19:49:10  ✔ Flutter test bol úspešne dokončený.
+19:49:10  ▶ flutter build windows --release
+19:49:11  Resolving dependencies...
+19:49:11  Downloading packages...
+19:49:11    dbus 0.7.14 (0.7.15 available)
+19:49:11    file_picker 11.0.3 (12.0.0 available)
+19:49:11    flutter_lints 5.0.0 (6.0.0 available)
+19:49:11    lints 5.1.1 (6.1.0 available)
+19:49:11    matcher 0.12.19 (0.12.20 available)
+19:49:11    material_color_utilities 0.13.0 (0.13.1 available)
+19:49:11    meta 1.18.0 (1.19.0 available)
+19:49:11    test_api 0.7.11 (0.7.13 available)
+19:49:11    vector_math 2.2.0 (2.4.2 available)
+19:49:11    vm_service 15.2.0 (15.3.0 available)
+19:49:11    win32 5.15.0 (6.4.0 available)
+19:49:11    xml 6.6.1 (7.0.1 available)
+19:49:11  Got dependencies!
+19:49:11  12 packages have newer versions incompatible with dependency constraints.
+19:49:11  Try `flutter pub outdated` for more information.
+19:49:33  Building Windows application...                                    22,1s
+19:49:33  âš Built build\windows\x64\runner\Release\stavby_pro_release_manager.exe
+19:49:34  ✔ Windows Release build bol úspešne dokončený.
+19:49:34  ProjectVersionProvider: 8.0.0+316 RC1 (C:\SP\Release_Manager).
+19:49:34  Git workspace: dev, 207 zmien.
+19:49:34  === FAST DEV BUILD 8.0.0+316 BOL ÚSPEŠNE DOKONČENÝ ===
+19:49:34  Build report bol vytvorený: C:\SP\Release_Manager\BUILD_REPORT_2026-08-25_19-49-34.txt
+19:49:36  Export Release ZIP bol vytvorený: C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE.zip • Windows=ÁNO • Android=NIE
+19:49:36  Release Integrity cache: aktuálny release artefakt zaregistrovaný → C:\SP\Release_Manager\.release_integrity_cache\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE
+19:49:36  Export priečinok: ponechaný iba výsledný ZIP → C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE.zip • odstránené staré rozbalené duplikáty: 0
+19:49:36  ONE CLICK BUILD EXPORT OVERENÝ: C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE.zip • 12.8 MB
+19:49:36  Posledný export ZIP metadata uložené: C:\SP\Export Release win a android\STAVBY_PRO_RELEASE_MANAGER_8.0.0_DEV_BUILD_316_WINDOWS_RELEASE.zip
+19:56:05  === WORKSPACE SYNC ===
+19:56:05  ZIP: C:\6\Release_Manager z gpt chatu\STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_316_DEV001_FIX253_CONFIRM_APPLY_FINAL_TRANSITION.zip
+19:56:05  Workspace: C:\SP\Release_Manager
+19:57:00  Záloha: C:\SP\Backups\Workspace_Backup_2026-08-25T19-56-05-247568.zip
+19:57:00  Backup Manager: odstránená stará záloha Workspace_Backup_2026-08-24T20-15-35-805896.zip (148.2 MB).
+19:57:00  Backup Manager: automaticky uvoľnené 148.2 MB (1 starých záloh).
+19:57:00  Backup Manager: 10 záloh, 986.0 MB.
+19:57:00  Workspace Sync SAFE MODE: existujúce súbory sa nemažú; ZIP iba aktualizuje workspace.
+19:57:01  Overená identita workspace: 8.0.0+316 RC1.
+19:57:01  Dashboard projekt obnovený po synchronizácii: 8.0.0+316.
+19:57:01  Po synchronizácii odstránený odvodený súbor: .flutter-plugins-dependencies
+19:57:01  Workspace Sync: build/ a .dart_tool/ sa nesynchronizujú ani nemažú; flutter clean ich spracuje pri ďalšom builde.
+19:57:01  One Click Build bol po synchronizácii resetovaný. Ďalší build začne od flutter clean.
+19:57:01  ProjectVersionProvider: 8.0.0+316 RC1 (C:\SP\Release_Manager).
+19:57:01  Git workspace: dev, 213 zmien.
+19:57:01  Workspace bol synchronizovaný zo ZIP: STAVBY_PRO_RELEASE_MANAGER_8.0.0_RC1_BUILD_316_DEV001_FIX253_CONFIRM_APPLY_FINAL_TRANSITION.zip. Git eviduje 213 zmien.
+19:57:28  One Click Build identita: 8.0.0+316 RC1.
+19:57:28  === ZAČÍNA FAST DEV BUILD ===
+19:57:28  FAST režim: flutter clean a flutter pub get boli preskočené. Ak build zlyhá na závislostiach/toolchaine, použi FULL BUILD.
+19:57:28  ▶ flutter analyze
+19:57:29  Resolving dependencies...
+19:57:29  Downloading packages...
+19:57:29    dbus 0.7.14 (0.7.15 available)
+19:57:29    file_picker 11.0.3 (12.0.0 available)
+19:57:29    flutter_lints 5.0.0 (6.0.0 available)
+19:57:29    lints 5.1.1 (6.1.0 available)
+19:57:29    matcher 0.12.19 (0.12.20 available)
+19:57:29    material_color_utilities 0.13.0 (0.13.1 available)
+19:57:29    meta 1.18.0 (1.19.0 available)
+19:57:29    test_api 0.7.11 (0.7.13 available)
+19:57:29    vector_math 2.2.0 (2.4.2 available)
+19:57:29    vm_service 15.2.0 (15.3.0 available)
+19:57:29    win32 5.15.0 (6.4.0 available)
+19:57:29    xml 6.6.1 (7.0.1 available)
+19:57:29  Got dependencies!
+19:57:29  12 packages have newer versions incompatible with dependency constraints.
+19:57:29  Try `flutter pub outdated` for more information.
+19:57:34  Analyzing Release_Manager...                                    
+19:57:34  
+19:57:34     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:9704:7 - use_build_context_synchronously
+19:57:34    error - Undefined name '_releaseTransitionEngine'. Try correcting the name to one that is defined, or defining the name - lib\main.dart:13545:23 - undefined_identifier
+19:57:34     info - Unnecessary braces in a string interpolation. Try removing the braces - lib\main.dart:16187:38 - unnecessary_brace_in_string_interps
+19:57:34  warning - The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement - lib\main.dart:17922:30 - unnecessary_null_comparison
+19:57:34     info - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check - lib\main.dart:18218:7 - use_build_context_synchronously
+19:57:34  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19535:49 - unnecessary_non_null_assertion
+19:57:34  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19758:45 - unnecessary_non_null_assertion
+19:57:34  warning - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator - lib\main.dart:19844:46 - unnecessary_non_null_assertion
+19:57:34  
+19:57:34  CHYBA: 8 issues found. (ran in 3.8s)
+19:57:34  ✖ Flutter analyze zlyhal. Návratový kód: 1.
