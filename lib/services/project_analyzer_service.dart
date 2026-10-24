@@ -18,6 +18,22 @@ class ProjectTodoItem {
   final String? module;
 }
 
+/// One searchable source line, kept with its original location. This lets the
+/// analyzer find visible UI text and the widget/function calls that render it.
+class ProjectSourceReference {
+  const ProjectSourceReference({
+    required this.relativeFile,
+    required this.line,
+    required this.code,
+    required this.className,
+  });
+
+  final String relativeFile;
+  final int line;
+  final String code;
+  final String? className;
+}
+
 class ProjectModuleAnalysis {
   const ProjectModuleAnalysis({
     required this.name,
@@ -55,6 +71,7 @@ class ProjectAnalysisResult {
     required this.databaseTables,
     required this.routes,
     required this.todos,
+    required this.sourceReferences,
     required this.generatedAt,
   });
 
@@ -66,7 +83,43 @@ class ProjectAnalysisResult {
   final List<String> databaseTables;
   final List<String> routes;
   final List<ProjectTodoItem> todos;
+  final List<ProjectSourceReference> sourceReferences;
   final DateTime generatedAt;
+
+  List<ProjectSourceReference> searchSource(String query, {int limit = 100}) {
+    final needle = _searchKey(query.trim());
+    if (needle.length < 2 || limit <= 0) {
+      return const <ProjectSourceReference>[];
+    }
+    final matches = <ProjectSourceReference>[];
+    for (final reference in sourceReferences) {
+      if (_searchKey(reference.code).contains(needle)) {
+        matches.add(reference);
+        if (matches.length >= limit) break;
+      }
+    }
+    return matches;
+  }
+
+  static String _searchKey(String value) => value
+      .toLowerCase()
+      .replaceAll(RegExp('[áä]'), 'a')
+      .replaceAll('č', 'c')
+      .replaceAll('ď', 'd')
+      .replaceAll('é', 'e')
+      .replaceAll('í', 'i')
+      .replaceAll('ĺ', 'l')
+      .replaceAll('ľ', 'l')
+      .replaceAll('ň', 'n')
+      .replaceAll('ó', 'o')
+      .replaceAll('ô', 'o')
+      .replaceAll('ŕ', 'r')
+      .replaceAll('ř', 'r')
+      .replaceAll('š', 's')
+      .replaceAll('ť', 't')
+      .replaceAll('ú', 'u')
+      .replaceAll('ý', 'y')
+      .replaceAll('ž', 'z');
 }
 
 class _MutableModuleAnalysis {
@@ -92,11 +145,13 @@ class ProjectAnalyzerService {
     }
 
     final dartFiles = <File>[];
-    await for (final entity in libDirectory.list(recursive: true, followLinks: false)) {
+    await for (final entity
+        in libDirectory.list(recursive: true, followLinks: false)) {
       if (entity is File && entity.path.toLowerCase().endsWith('.dart')) {
         dartFiles.add(entity);
       }
     }
+    dartFiles.sort((a, b) => a.path.compareTo(b.path));
 
     final moduleMap = <String, _MutableModuleAnalysis>{};
     final screens = <String>{};
@@ -104,25 +159,35 @@ class ProjectAnalyzerService {
     final tables = <String>{};
     final routes = <String>{};
     final todos = <ProjectTodoItem>[];
+    final sourceReferences = <ProjectSourceReference>[];
 
     final classPattern = RegExp(r'class\s+([A-Za-z_][A-Za-z0-9_]*)');
     final tablePatterns = <RegExp>[
-      RegExp(r'''CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+[`"']?([A-Za-z_][A-Za-z0-9_]*)''', caseSensitive: false),
-      RegExp(r'''from\s*:\s*[`"']([A-Za-z_][A-Za-z0-9_]*)[`"']''', caseSensitive: false),
-      RegExp(r'''table\s*\(\s*[`"']([A-Za-z_][A-Za-z0-9_]*)[`"']''', caseSensitive: false),
+      RegExp(
+          r'''CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+[`"']?([A-Za-z_][A-Za-z0-9_]*)''',
+          caseSensitive: false),
+      RegExp(r'''from\s*:\s*[`"']([A-Za-z_][A-Za-z0-9_]*)[`"']''',
+          caseSensitive: false),
+      RegExp(r'''table\s*\(\s*[`"']([A-Za-z_][A-Za-z0-9_]*)[`"']''',
+          caseSensitive: false),
     ];
-    final routePattern = RegExp(r'''(?:routeName|path|name)\s*[:=]\s*[`"']([^`"']+)[`"']''');
+    final routePattern =
+        RegExp(r'''(?:routeName|path|name)\s*[:=]\s*[`"']([^`"']+)[`"']''');
     final importPattern = RegExp(r'''import\s+[`"']([^`"']+)[`"']''');
-    final todoPattern = RegExp(r'\b(TODO|FIXME|HACK)\b\s*:?[ \t]*(.*)', caseSensitive: false);
+    final todoPattern =
+        RegExp(r'\b(TODO|FIXME|HACK)\b\s*:?[ \t]*(.*)', caseSensitive: false);
 
     for (final file in dartFiles) {
-      final relative = path.relative(file.path, from: libDirectory.path).replaceAll('\\', '/');
+      final relative = path
+          .relative(file.path, from: libDirectory.path)
+          .replaceAll('\\', '/');
       final segments = relative.split('/');
       _MutableModuleAnalysis? module;
       String? moduleName;
       if (segments.length > 2 && segments.first == 'features') {
         moduleName = segments[1];
-        module = moduleMap.putIfAbsent(moduleName, () => _MutableModuleAnalysis(moduleName!));
+        module = moduleMap.putIfAbsent(
+            moduleName, () => _MutableModuleAnalysis(moduleName!));
         module.files.add(relative);
       }
 
@@ -175,7 +240,19 @@ class ProjectAnalyzerService {
       }
 
       final lines = content.split('\n');
+      String? currentClass;
       for (var index = 0; index < lines.length; index++) {
+        final code = lines[index].trim();
+        final classMatch = classPattern.firstMatch(code);
+        if (classMatch != null) currentClass = classMatch.group(1);
+        if (code.isNotEmpty) {
+          sourceReferences.add(ProjectSourceReference(
+            relativeFile: relative,
+            line: index + 1,
+            code: code,
+            className: currentClass,
+          ));
+        }
         final match = todoPattern.firstMatch(lines[index]);
         if (match == null) continue;
         final item = ProjectTodoItem(
@@ -225,6 +302,8 @@ class ProjectAnalyzerService {
       databaseTables: sorted(tables),
       routes: sorted(routes),
       todos: List<ProjectTodoItem>.unmodifiable(todos),
+      sourceReferences:
+          List<ProjectSourceReference>.unmodifiable(sourceReferences),
       generatedAt: DateTime.now(),
     );
   }

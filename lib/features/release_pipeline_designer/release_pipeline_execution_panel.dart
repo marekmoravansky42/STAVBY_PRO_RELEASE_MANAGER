@@ -44,7 +44,8 @@ class _ReleasePipelineExecutionPanelState
     final report = controller.report;
     final summary = controller.summary;
     final enabledCount = template.steps.where((step) => step.enabled).length;
-    final total = controller.totalSteps == 0 ? enabledCount : controller.totalSteps;
+    final total =
+        controller.totalSteps == 0 ? enabledCount : controller.totalSteps;
     final completed = controller.completedSteps;
     final progress = controller.totalSteps == 0 ? 0.0 : controller.progress;
     final active = controller.activeStep;
@@ -52,9 +53,8 @@ class _ReleasePipelineExecutionPanelState
     final matchingHistory = controller.history
         .where((entry) => entry.pipelineName == template.name)
         .toList(growable: false);
-    final estimatedDuration = matchingHistory.isEmpty
-        ? null
-        : matchingHistory.first.duration;
+    final estimatedDuration =
+        matchingHistory.isEmpty ? null : matchingHistory.first.duration;
 
     return Card(
       margin: EdgeInsets.zero,
@@ -84,7 +84,9 @@ class _ReleasePipelineExecutionPanelState
                         ),
                   ),
                 ),
-                if (!controller.running && report == null && estimatedDuration != null)
+                if (!controller.running &&
+                    report == null &&
+                    estimatedDuration != null)
                   Chip(
                     avatar: const Icon(Icons.timer_outlined, size: 16),
                     label: Text('Odhad ${_formatDuration(estimatedDuration)}'),
@@ -180,7 +182,9 @@ class _ReleasePipelineExecutionPanelState
                       ? controller.cancel
                       : null,
                   icon: const Icon(Icons.stop_circle_outlined),
-                  label: Text(controller.cancelRequested ? 'ZASTAVUJEM...' : 'ZASTAVIŤ'),
+                  label: Text(controller.cancelRequested
+                      ? 'ZASTAVUJEM...'
+                      : 'ZASTAVIŤ'),
                 ),
                 OutlinedButton.icon(
                   onPressed: controller.running ? null : controller.clearResult,
@@ -188,7 +192,13 @@ class _ReleasePipelineExecutionPanelState
                   label: const Text('VYČISTIŤ VÝSLEDOK'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: workspace == null ? null : () => _showHistory(context, controller.history),
+                  onPressed: workspace == null
+                      ? null
+                      : () => _showHistory(
+                            context,
+                            controller.history,
+                            onClear: () => controller.clearHistory(workspace),
+                          ),
                   icon: const Icon(Icons.history),
                   label: Text('HISTÓRIA (${controller.history.length})'),
                 ),
@@ -240,20 +250,37 @@ class _ExecutionStepCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = execution?.status;
     final (icon, color, label) = switch (status) {
-      PipelineExecutionStatus.running =>
-        (Icons.sync_rounded, Colors.blue, 'Beží'),
-      PipelineExecutionStatus.succeeded =>
-        (Icons.check_circle_rounded, Colors.green, 'Hotovo'),
-      PipelineExecutionStatus.failed =>
-        (Icons.error_rounded, Theme.of(context).colorScheme.error, 'Chyba'),
-      PipelineExecutionStatus.skipped =>
-        (Icons.skip_next_rounded, Colors.orange, 'Preskočené'),
-      PipelineExecutionStatus.cancelled =>
-        (Icons.stop_circle_rounded, Colors.grey, 'Zrušené'),
-      PipelineExecutionStatus.waiting =>
-        (Icons.schedule_rounded, Colors.grey, 'Čaká'),
-      null when !enabled =>
-        (Icons.toggle_off_outlined, Colors.grey, 'Vypnuté'),
+      PipelineExecutionStatus.running => (
+          Icons.sync_rounded,
+          Colors.blue,
+          'Beží'
+        ),
+      PipelineExecutionStatus.succeeded => (
+          Icons.check_circle_rounded,
+          Colors.green,
+          'Hotovo'
+        ),
+      PipelineExecutionStatus.failed => (
+          Icons.error_rounded,
+          Theme.of(context).colorScheme.error,
+          'Chyba'
+        ),
+      PipelineExecutionStatus.skipped => (
+          Icons.skip_next_rounded,
+          Colors.orange,
+          'Preskočené'
+        ),
+      PipelineExecutionStatus.cancelled => (
+          Icons.stop_circle_rounded,
+          Colors.grey,
+          'Zrušené'
+        ),
+      PipelineExecutionStatus.waiting => (
+          Icons.schedule_rounded,
+          Colors.grey,
+          'Čaká'
+        ),
+      null when !enabled => (Icons.toggle_off_outlined, Colors.grey, 'Vypnuté'),
       null => (Icons.schedule_rounded, Colors.grey, 'Čaká'),
     };
     final duration = execution?.duration ?? Duration.zero;
@@ -277,7 +304,8 @@ class _ExecutionStepCard extends StatelessWidget {
         visualDensity: const VisualDensity(vertical: -2),
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
         childrenPadding: const EdgeInsets.only(left: 12, right: 12, bottom: 8),
-        key: PageStorageKey<String>('pipeline-step-${execution?.step.id ?? title}'),
+        key: PageStorageKey<String>(
+            'pipeline-step-${execution?.step.id ?? title}'),
         initiallyExpanded: status == PipelineExecutionStatus.failed ||
             status == PipelineExecutionStatus.cancelled,
         enabled: hasDetails,
@@ -316,7 +344,8 @@ class _StepOverview extends StatelessWidget {
     if (value == null) return const SizedBox.shrink();
     final firstError = value.firstErrorLine;
     final latest = value.log.isEmpty ? '' : value.log.last;
-    final text = firstError ?? (value.message.isNotEmpty ? value.message : latest);
+    final text =
+        firstError ?? (value.message.isNotEmpty ? value.message : latest);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -370,38 +399,36 @@ class _StepLogDetails extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     )),
             const SizedBox(height: 4),
-            SelectableText(firstError),
+            SelectableText(
+              firstError,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            ),
           ],
           if (execution.log.isNotEmpty) ...<Widget>[
             const SizedBox(height: 10),
-            Container(
-              constraints: const BoxConstraints(maxHeight: 260),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: SingleChildScrollView(
-                child: SelectableText(
-                  execution.fullLog,
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                OutlinedButton.icon(
+                  onPressed: () => _showStepLogDialog(context, execution),
+                  icon: const Icon(Icons.subject_rounded),
+                  label: const Text('ZOBRAZIŤ LOG'),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: execution.fullLog));
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Log kroku bol skopírovaný.')),
-                  );
-                },
-                icon: const Icon(Icons.copy_all_outlined),
-                label: const Text('KOPÍROVAŤ LOG'),
-              ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await Clipboard.setData(
+                        ClipboardData(text: execution.fullLog));
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Log kroku bol skopírovaný.')),
+                    );
+                  },
+                  icon: const Icon(Icons.copy_all_outlined),
+                  label: const Text('KOPÍROVAŤ LOG'),
+                ),
+              ],
             ),
           ] else if (execution.message.isNotEmpty) ...<Widget>[
             const SizedBox(height: 10),
@@ -411,6 +438,84 @@ class _StepLogDetails extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _showStepLogDialog(
+  BuildContext context,
+  PipelineStepExecution execution,
+) async {
+  final screenSize = MediaQuery.sizeOf(context);
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) => Dialog(
+      insetPadding: const EdgeInsets.all(24),
+      child: SizedBox(
+        width: screenSize.width.clamp(620.0, 1180.0).toDouble(),
+        height: (screenSize.height * 0.80).clamp(420.0, 760.0).toDouble(),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                'Log kroku • ${execution.step.title}',
+                style: Theme.of(dialogContext).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0B1220),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Text(
+                      execution.fullLog,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13,
+                        color: Color(0xFFF8FAFC),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                children: <Widget>[
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await Clipboard.setData(
+                        ClipboardData(text: execution.fullLog),
+                      );
+                      if (!dialogContext.mounted) return;
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        const SnackBar(
+                            content: Text('Log kroku bol skopírovaný.')),
+                      );
+                    },
+                    icon: const Icon(Icons.copy_all_outlined),
+                    label: const Text('KOPÍROVAŤ LOG'),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text('ZAVRIEŤ'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 String _formatDuration(Duration duration) {
@@ -450,11 +555,19 @@ class _DashboardHeader extends StatelessWidget {
             spacing: 18,
             runSpacing: 10,
             children: <Widget>[
-              _HeaderValue(label: 'Projekt', value: workspace?.projectName ?? 'Nevybraný'),
-              const _HeaderValue(label: 'Release Manager', value: ReleaseManagerVersion.label),
+              _HeaderValue(
+                  label: 'Projekt',
+                  value: workspace?.projectName ?? 'Nevybraný'),
+              const _HeaderValue(
+                  label: 'Release Manager', value: ReleaseManagerVersion.label),
               _HeaderValue(label: 'Pipeline', value: template.name),
-              _HeaderValue(label: 'Kroky', value: '${template.steps.where((step) => step.enabled).length} aktívnych'),
-              _HeaderValue(label: 'Pluginové kroky', value: '${summary?.pluginCount ?? 0}'),
+              _HeaderValue(
+                  label: 'Kroky',
+                  value:
+                      '${template.steps.where((step) => step.enabled).length} aktívnych'),
+              _HeaderValue(
+                  label: 'Pluginové kroky',
+                  value: '${summary?.pluginCount ?? 0}'),
               _HeaderValue(
                 label: 'Posledný beh',
                 value: lastRun == null ? '—' : _formatDateTime(lastRun),
@@ -462,7 +575,11 @@ class _DashboardHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text('Platformy', style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800)),
+          Text('Platformy',
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
+                  ?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           if (platforms == null || platforms.isEmpty)
             const Text('Nie sú detegované žiadne platformy.')
@@ -473,7 +590,8 @@ class _DashboardHeader extends StatelessWidget {
               children: platforms
                   .map((platform) => Chip(
                         visualDensity: VisualDensity.compact,
-                        avatar: const Icon(Icons.check_circle_outline, size: 16),
+                        avatar:
+                            const Icon(Icons.check_circle_outline, size: 16),
                         label: Text(platform.label),
                       ))
                   .toList(),
@@ -501,7 +619,9 @@ class _HeaderValue extends StatelessWidget {
           children: <Widget>[
             Text(label, style: Theme.of(context).textTheme.labelSmall),
             const SizedBox(height: 2),
-            Text(value, maxLines: 2, overflow: TextOverflow.ellipsis,
+            Text(value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w800)),
           ],
         ),
@@ -526,11 +646,16 @@ class _PipelineSummary extends StatelessWidget {
               Row(
                 children: <Widget>[
                   Icon(summary.succeeded ? Icons.task_alt : Icons.error_outline,
-                      color: summary.succeeded ? Colors.green : Theme.of(context).colorScheme.error),
+                      color: summary.succeeded
+                          ? Colors.green
+                          : Theme.of(context).colorScheme.error),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text('Súhrn pipeline',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800)),
                   ),
                   _ResultBadge(
                     succeeded: summary.succeeded,
@@ -554,7 +679,8 @@ class _PipelineSummary extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text('Beh: ${summary.runId} • ${_formatDateTime(summary.finishedAt)}',
+              Text(
+                  'Beh: ${summary.runId} • ${_formatDateTime(summary.finishedAt)}',
                   style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
@@ -575,7 +701,11 @@ class _ResultBadge extends StatelessWidget {
   final bool cancelled;
   @override
   Widget build(BuildContext context) => Text(
-        cancelled ? 'ZRUŠENÉ' : succeeded ? 'ÚSPECH' : 'CHYBA',
+        cancelled
+            ? 'ZRUŠENÉ'
+            : succeeded
+                ? 'ÚSPECH'
+                : 'CHYBA',
         style: TextStyle(
           fontWeight: FontWeight.w800,
           color: cancelled
@@ -587,8 +717,11 @@ class _ResultBadge extends StatelessWidget {
       );
 }
 
-
-Future<void> _showHistory(BuildContext context, List<ExecutionHistoryEntry> entries) async {
+Future<void> _showHistory(
+  BuildContext context,
+  List<ExecutionHistoryEntry> entries, {
+  Future<void> Function()? onClear,
+}) async {
   await showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
@@ -609,9 +742,16 @@ Future<void> _showHistory(BuildContext context, List<ExecutionHistoryEntry> entr
                           ? Theme.of(context).colorScheme.error
                           : Colors.green;
                   return ListTile(
-                    leading: Icon(entry.succeeded ? Icons.check_circle : entry.cancelledCount > 0 ? Icons.stop_circle : Icons.error, color: color),
+                    leading: Icon(
+                        entry.succeeded
+                            ? Icons.check_circle
+                            : entry.cancelledCount > 0
+                                ? Icons.stop_circle
+                                : Icons.error,
+                        color: color),
                     title: Text('${entry.pipelineName} • ${entry.projectName}'),
-                    subtitle: Text('${_formatDateTime(entry.startedAt)} • ${_formatDuration(entry.duration)}\n'
+                    subtitle: Text(
+                        '${_formatDateTime(entry.startedAt)} • ${_formatDuration(entry.duration)}\n'
                         'Hotovo ${entry.succeededCount} • Preskočené ${entry.skippedCount} • Chyby ${entry.failedCount} • Zrušené ${entry.cancelledCount}'),
                     isThreeLine: true,
                     trailing: Chip(label: Text(entry.resultLabel)),
@@ -620,7 +760,51 @@ Future<void> _showHistory(BuildContext context, List<ExecutionHistoryEntry> entr
               ),
       ),
       actions: <Widget>[
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('ZAVRIEŤ')),
+        OutlinedButton.icon(
+          onPressed: entries.isEmpty || onClear == null
+              ? null
+              : () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (confirmContext) => AlertDialog(
+                      title: const Text('Vymazať históriu behov?'),
+                      content: const Text(
+                        'Vymažú sa iba uložené záznamy pipeline aktuálneho '
+                        'workspace. Zdrojové súbory a aktuálny výsledok '
+                        'pipeline zostanú zachované.',
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.of(confirmContext).pop(false),
+                          child: const Text('ZRUŠIŤ'),
+                        ),
+                        FilledButton.icon(
+                          onPressed: () =>
+                              Navigator.of(confirmContext).pop(true),
+                          icon: const Icon(Icons.delete_outline_rounded),
+                          label: const Text('VYMAZAŤ HISTÓRIU'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed != true) return;
+                  await onClear();
+                  if (!context.mounted) return;
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('História behov pipeline bola vymazaná.')),
+                  );
+                },
+          icon: const Icon(Icons.delete_outline_rounded),
+          label: const Text('VYMAZAŤ HISTÓRIU'),
+        ),
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('ZAVRIEŤ')),
       ],
     ),
   );

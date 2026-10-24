@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import '../../core/release_pipeline/pipeline_executor.dart';
 import '../../core/release_pipeline/execution_history_entry.dart';
 import '../../core/release_pipeline/execution_history_service.dart';
+import '../../core/release_pipeline/pipeline_step.dart';
 import '../../core/release_pipeline/pipeline_template.dart';
 import '../../core/project_workspace/project_platform.dart';
 import '../../core/project_workspace/project_workspace.dart';
@@ -34,14 +35,16 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
   Process? _activeProcess;
   bool _cancelRequested = false;
   List<ExecutionHistoryEntry> _history = const <ExecutionHistoryEntry>[];
-  final ExecutionHistoryService _historyService = const ExecutionHistoryService();
+  final ExecutionHistoryService _historyService =
+      const ExecutionHistoryService();
 
   bool get running => _running;
   bool get cancelRequested => _cancelRequested;
   PipelineExecutionReport? get report => _report;
   PipelineExecutionSummary? get summary => _summary;
   String? get error => _error;
-  List<ExecutionHistoryEntry> get history => List<ExecutionHistoryEntry>.unmodifiable(_history);
+  List<ExecutionHistoryEntry> get history =>
+      List<ExecutionHistoryEntry>.unmodifiable(_history);
   Map<String, PipelineStepExecution> get stepStates =>
       Map<String, PipelineStepExecution>.unmodifiable(_stepStates);
 
@@ -55,7 +58,9 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
     final report = _report;
     if (report != null) return report.finishedAt.difference(report.startedAt);
     final startedAt = _runStartedAt;
-    return startedAt == null ? Duration.zero : DateTime.now().difference(startedAt);
+    return startedAt == null
+        ? Duration.zero
+        : DateTime.now().difference(startedAt);
   }
 
   int get progressPercent => (progress * 100).round();
@@ -108,7 +113,8 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
     try {
       final preflight = await const PreflightValidator().validate(workspace);
       for (final check in preflight.checks) {
-        _writeLog('${check.passed ? '✔' : '✖'} ${check.name}: ${check.message}');
+        _writeLog(
+            '${check.passed ? '✔' : '✖'} ${check.name}: ${check.message}');
       }
       if (!preflight.passed) {
         throw StateError('Preflight validácia nebola úspešná.');
@@ -116,15 +122,7 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
       final executor = PipelineExecutor(
         actions: _createActions(workspace),
         shouldCancel: () => _cancelRequested,
-        skipReason: (step) {
-          for (final id in step.requiredPlatforms) {
-            final platform = ProjectPlatformLabel.fromId(id);
-            if (platform != null && !workspace.supports(platform)) {
-              return 'Platforma ${platform.label} nie je v cieľovom projekte podporovaná.';
-            }
-          }
-          return null;
-        },
+        skipReason: (step) => unsupportedPlatformReason(step, workspace),
       );
       final result = await executor.run(
         template,
@@ -148,7 +146,9 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
         pipelineName: template.name,
         startedAt: result.startedAt,
         finishedAt: result.finishedAt,
-        platformLabels: workspace.platforms.map((platform) => platform.label).toList()..sort(),
+        platformLabels:
+            workspace.platforms.map((platform) => platform.label).toList()
+              ..sort(),
         steps: result.steps,
         pluginIds: result.steps
             .map((step) => step.pluginId)
@@ -183,6 +183,32 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
     }
   }
 
+  /// Keeps old user-saved templates safe too: some of them predate
+  /// [PipelineStep.requiredPlatforms], so platform-bound actions need their
+  /// own guard in addition to declarative metadata.
+  @visibleForTesting
+  static String? unsupportedPlatformReason(
+    PipelineStep step,
+    ProjectWorkspace workspace,
+  ) {
+    final actionPlatform = switch (step.action) {
+      'android_apk' || 'android_aab' => ProjectPlatform.android,
+      'windows_build' => ProjectPlatform.windows,
+      _ => null,
+    };
+    if (actionPlatform != null && !workspace.supports(actionPlatform)) {
+      return 'Platforma ${actionPlatform.label} nie je v cieľovom projekte. '
+          'Krok bol bezpečne preskočený.';
+    }
+    for (final id in step.requiredPlatforms) {
+      final platform = ProjectPlatformLabel.fromId(id);
+      if (platform != null && !workspace.supports(platform)) {
+        return 'Platforma ${platform.label} nie je v cieľovom projekte podporovaná. '
+            'Krok bol bezpečne preskočený.';
+      }
+    }
+    return null;
+  }
 
   Future<void> loadHistory(ProjectWorkspace workspace) async {
     try {
@@ -191,6 +217,15 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
       _history = const <ExecutionHistoryEntry>[];
       _writeLog('⚠ Históriu behov sa nepodarilo načítať: $historyError');
     }
+    notifyListeners();
+  }
+
+  Future<void> clearHistory(ProjectWorkspace workspace) async {
+    if (_running) return;
+    await _historyService.clear(workspace.rootPath);
+    _history = const <ExecutionHistoryEntry>[];
+    _writeLog(
+        'História behov pipeline bola vymazaná pre ${workspace.rootPath}.');
     notifyListeners();
   }
 
@@ -235,6 +270,7 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
             executable: 'flutter',
             arguments: const <String>['analyze'],
             workspace: workspace,
+            allowNonFatalAnalyzeFindings: true,
           ),
       'flutter_test': (_) => _runCommand(
             executable: 'flutter',
@@ -274,6 +310,7 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
     required String executable,
     required List<String> arguments,
     required ProjectWorkspace workspace,
+    bool allowNonFatalAnalyzeFindings = false,
   }) async {
     final command = '$executable ${arguments.join(' ')}';
     _writeLog('▶ $command');
@@ -305,6 +342,15 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
     final exitCode = await process.exitCode;
     if (identical(_activeProcess, process)) _activeProcess = null;
     await Future.wait<void>(<Future<void>>[stdoutDone, stderrDone]);
+    if (exitCode != 0 &&
+        allowNonFatalAnalyzeFindings &&
+        acceptsAnalyzeResult(exitCode: exitCode, output: output)) {
+      final findings = analyzeFindings(output);
+      final message =
+          'Dokončené s ${findings.warnings} upozorneniami a ${findings.infos} odporúčaniami: $command';
+      _writeLog('⚠ $message');
+      return message;
+    }
     if (exitCode != 0) {
       throw ProcessException(
         executable,
@@ -318,6 +364,37 @@ class ReleasePipelineExecutionController extends ChangeNotifier {
     final message = 'Hotovo: $command';
     _writeLog('✔ $message');
     return message;
+  }
+
+  @visibleForTesting
+  static ({int errors, int warnings, int infos}) analyzeFindings(
+    List<String> output,
+  ) {
+    var errors = 0;
+    var warnings = 0;
+    var infos = 0;
+    for (final rawLine in output) {
+      final line = rawLine.replaceFirst(RegExp(r'^CHYBA:\s*'), '').trimLeft();
+      if (RegExp(r'^error\s+-', caseSensitive: false).hasMatch(line)) {
+        errors++;
+      } else if (RegExp(r'^warning\s+-', caseSensitive: false).hasMatch(line)) {
+        warnings++;
+      } else if (RegExp(r'^info\s+-', caseSensitive: false).hasMatch(line)) {
+        infos++;
+      }
+    }
+    return (errors: errors, warnings: warnings, infos: infos);
+  }
+
+  @visibleForTesting
+  static bool acceptsAnalyzeResult({
+    required int exitCode,
+    required List<String> output,
+  }) {
+    if (exitCode == 0) return true;
+    final findings = analyzeFindings(output);
+    return findings.errors == 0 &&
+        (findings.warnings > 0 || findings.infos > 0);
   }
 
   void _startElapsedTicker() {

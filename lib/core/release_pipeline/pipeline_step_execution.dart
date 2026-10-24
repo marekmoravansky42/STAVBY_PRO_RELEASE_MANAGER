@@ -1,6 +1,13 @@
 import 'pipeline_step.dart';
 
-enum PipelineExecutionStatus { waiting, running, succeeded, failed, skipped, cancelled }
+enum PipelineExecutionStatus {
+  waiting,
+  running,
+  succeeded,
+  failed,
+  skipped,
+  cancelled
+}
 
 /// Runtime state of one pipeline step. This is the single source of truth
 /// used by the executor and the Execution Dashboard.
@@ -31,7 +38,8 @@ class PipelineStepExecution {
     return (finishedAt ?? DateTime.now()).difference(start);
   }
 
-  bool get completed => status == PipelineExecutionStatus.succeeded ||
+  bool get completed =>
+      status == PipelineExecutionStatus.succeeded ||
       status == PipelineExecutionStatus.failed ||
       status == PipelineExecutionStatus.skipped ||
       status == PipelineExecutionStatus.cancelled;
@@ -40,9 +48,12 @@ class PipelineStepExecution {
 
   int get warningCount => log.where(_looksLikeWarning).length;
 
-  int get errorCount => log.where(_looksLikeError).length;
+  int get errorCount => status == PipelineExecutionStatus.failed
+      ? log.where(_looksLikeError).length
+      : 0;
 
   String? get firstErrorLine {
+    if (status != PipelineExecutionStatus.failed) return null;
     for (final line in log) {
       if (_looksLikeError(line)) return line.trim();
     }

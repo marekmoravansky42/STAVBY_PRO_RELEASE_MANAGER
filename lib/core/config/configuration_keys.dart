@@ -4,6 +4,10 @@ abstract final class ConfigurationKeys {
       'androidReleaseExportDirectory';
   static const String windowsReleaseExportDirectory =
       'windowsReleaseExportDirectory';
+  static const String stavbyProFinalReleaseExportDirectory =
+      'stavbyProFinalReleaseExportDirectory';
+  static const String workingProjectsBackupDirectory =
+      'workingProjectsBackupDirectory';
   static const String darkMode = 'darkMode';
   static const String recentProjectPaths = 'recentProjectPaths';
   static const String lastGitWorkspacePath = 'lastGitWorkspacePath';

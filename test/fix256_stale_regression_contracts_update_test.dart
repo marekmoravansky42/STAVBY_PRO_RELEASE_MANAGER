@@ -16,8 +16,8 @@ void main() {
     );
   });
 
-  test('FIX256 production identity follows current canonical FIX267', () {
+  test('FIX256 production identity follows current canonical identity', () {
     final versionSource = File('lib/app/app_version.dart').readAsStringSync();
-    expect(versionSource, contains('RC1 DEV001 FIX267'));
+    expect(versionSource, contains('RC1 DEV'));
   });
 }

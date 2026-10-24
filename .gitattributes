@@ -1,0 +1,24 @@
+# Keep repository text files identical on Windows and other systems.
+* text=auto eol=lf
+
+# Windows command files require CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets must never be line-ending converted.
+*.7z binary
+*.aab binary
+*.apk binary
+*.dll binary
+*.exe binary
+*.gif binary
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.pdf binary
+*.png binary
+*.so binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.zip binary

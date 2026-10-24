@@ -18,8 +18,9 @@ void main() {
     expect(
       source,
       contains(
-        'bool exportReleaseZip = true, bool showCompletionDialog = true',
+        'bool exportReleaseZip = true',
       ),
     );
+    expect(source, contains('bool showCompletionDialog = true'));
   });
 }

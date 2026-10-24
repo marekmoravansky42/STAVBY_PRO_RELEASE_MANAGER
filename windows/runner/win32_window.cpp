@@ -1,12 +1,74 @@
 #include "win32_window.h"
 #include <flutter_windows.h>
+#include <propkey.h>
+#include <propvarutil.h>
+#include "resource.h"
+#include <shobjidl_core.h>
 namespace { constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW"; constexpr const wchar_t kRegistryPath[] = L"Software\\Microsoft\\Windows\\DWM"; constexpr const wchar_t kRegistryKey[] = L"AppsUseLightTheme"; }
+
+namespace {
+void SetTaskbarIdentityAndIcon(HWND window) {
+  IPropertyStore* properties = nullptr;
+  if (FAILED(SHGetPropertyStoreForWindow(window, IID_PPV_ARGS(&properties)))) {
+    return;
+  }
+
+  wchar_t executable_path[MAX_PATH]{};
+  if (GetModuleFileName(nullptr, executable_path, MAX_PATH) > 0) {
+    const std::wstring executable(executable_path);
+    const auto separator = executable.find_last_of(L"\\/");
+    std::wstring icon_resource = executable + L",-101";
+    if (separator != std::wstring::npos) {
+      const std::wstring packaged_icon =
+          executable.substr(0, separator + 1) + L"app_icon.ico";
+      if (GetFileAttributes(packaged_icon.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        icon_resource = packaged_icon + L",0";
+      }
+    }
+    PROPVARIANT icon_value{};
+    if (SUCCEEDED(InitPropVariantFromString(icon_resource.c_str(), &icon_value))) {
+      properties->SetValue(PKEY_AppUserModel_RelaunchIconResource, icon_value);
+      PropVariantClear(&icon_value);
+    }
+  }
+
+  PROPVARIANT app_id{};
+  if (SUCCEEDED(InitPropVariantFromString(L"STAVBY.PRO.ReleaseManager", &app_id))) {
+    properties->SetValue(PKEY_AppUserModel_ID, app_id);
+    PropVariantClear(&app_id);
+  }
+  properties->Commit();
+  properties->Release();
+}
+}  // namespace
 Win32Window::Win32Window() {}
 Win32Window::~Win32Window() { Destroy(); }
 bool Win32Window::Create(const std::wstring& title, const Point& origin, const Size& size) {
   Destroy();
-  WNDCLASS window_class{}; window_class.hCursor=LoadCursor(nullptr,IDC_ARROW); window_class.lpszClassName=kWindowClassName; window_class.style=CS_HREDRAW|CS_VREDRAW; window_class.cbClsExtra=0; window_class.cbWndExtra=0; window_class.hInstance=GetModuleHandle(nullptr); window_class.hIcon=LoadIcon(window_class.hInstance, MAKEINTRESOURCE(101)); window_class.hbrBackground=0; window_class.lpszMenuName=nullptr; window_class.lpfnWndProc=Win32Window::WndProc; RegisterClass(&window_class);
-  window_handle_=CreateWindow(kWindowClassName,title.c_str(),WS_OVERLAPPEDWINDOW,origin.x,origin.y,size.width,size.height,nullptr,nullptr,GetModuleHandle(nullptr),this);
+  WNDCLASS window_class{};
+  window_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
+  window_class.lpszClassName = kWindowClassName;
+  window_class.style = CS_HREDRAW | CS_VREDRAW;
+  window_class.cbClsExtra = 0;
+  window_class.cbWndExtra = 0;
+  window_class.hInstance = GetModuleHandle(nullptr);
+  window_class.hIcon = static_cast<HICON>(LoadImage(
+      window_class.hInstance, MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON, 0,
+      0, LR_DEFAULTSIZE | LR_SHARED));
+  window_class.hbrBackground = 0;
+  window_class.lpszMenuName = nullptr;
+  window_class.lpfnWndProc = Win32Window::WndProc;
+  RegisterClass(&window_class);
+  window_handle_ = CreateWindow(
+      kWindowClassName, title.c_str(), WS_OVERLAPPEDWINDOW, origin.x, origin.y,
+      size.width, size.height, nullptr, nullptr, GetModuleHandle(nullptr), this);
+  if (window_handle_ && window_class.hIcon) {
+    SendMessage(window_handle_, WM_SETICON, ICON_BIG,
+                reinterpret_cast<LPARAM>(window_class.hIcon));
+    SendMessage(window_handle_, WM_SETICON, ICON_SMALL,
+                reinterpret_cast<LPARAM>(window_class.hIcon));
+  }
+  if (window_handle_) SetTaskbarIdentityAndIcon(window_handle_);
   return window_handle_ && OnCreate();
 }
 bool Win32Window::Show(){ return ShowWindow(window_handle_,SW_SHOWNORMAL); }

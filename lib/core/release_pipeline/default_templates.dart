@@ -56,17 +56,47 @@ abstract final class DefaultPipelineTemplates {
     name: 'Full Release',
     description: 'Kompletný Windows a Android release proces.',
     isDefault: true,
-    steps: <PipelineStep>[clean, pubGet, analyze, test, windowsBuild, androidApk, androidAab, diagnostics],
+    steps: <PipelineStep>[
+      clean,
+      pubGet,
+      analyze,
+      test,
+      windowsBuild,
+      androidApk,
+      androidAab,
+      diagnostics
+    ],
+  );
+  static const PipelineTemplate ciQuickCheck = PipelineTemplate(
+    id: 'ci_quick_check',
+    name: 'CI • Rýchla kontrola',
+    description: 'Flutter analyze a test bez clean a pub get.',
+    steps: <PipelineStep>[analyze, test],
   );
   static const PipelineTemplate windowsRelease = PipelineTemplate(
     id: 'windows_release',
     name: 'Windows Release',
-    steps: <PipelineStep>[clean, pubGet, analyze, test, windowsBuild, diagnostics],
+    steps: <PipelineStep>[
+      clean,
+      pubGet,
+      analyze,
+      test,
+      windowsBuild,
+      diagnostics
+    ],
   );
   static const PipelineTemplate androidRelease = PipelineTemplate(
     id: 'android_release',
     name: 'Android Release',
-    steps: <PipelineStep>[clean, pubGet, analyze, test, androidApk, androidAab, diagnostics],
+    steps: <PipelineStep>[
+      clean,
+      pubGet,
+      analyze,
+      test,
+      androidApk,
+      androidAab,
+      diagnostics
+    ],
   );
   static const PipelineTemplate diagnosticsOnly = PipelineTemplate(
     id: 'diagnostics_only',
@@ -81,6 +111,7 @@ abstract final class DefaultPipelineTemplates {
 
   static const List<PipelineTemplate> all = <PipelineTemplate>[
     fullRelease,
+    ciQuickCheck,
     windowsRelease,
     androidRelease,
     diagnosticsOnly,

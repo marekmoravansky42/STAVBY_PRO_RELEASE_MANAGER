@@ -1,7 +1,7 @@
 name: stavby_pro_release_manager
 description: Samostatný Windows nástroj na prípravu vydaní STAVBY PRO.
 publish_to: 'none'
-version: 8.0.0+317
+version: 8.0.0+333
 environment:
   sdk: '>=3.3.0 <4.0.0'
 

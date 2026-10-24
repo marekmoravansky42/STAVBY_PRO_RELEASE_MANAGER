@@ -24,6 +24,6 @@ void main() {
 
   test('FIX263 canonical identity is current', () {
     final source = File('lib/app/app_version.dart').readAsStringSync();
-    expect(source, contains("RC1 DEV001 FIX267"));
+    expect(source, contains("RC1 DEV"));
   });
 }

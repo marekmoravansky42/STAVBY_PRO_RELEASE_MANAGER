@@ -76,4 +76,12 @@ class ExecutionHistoryService {
     await temporaryFile.rename(file.path);
     return updated;
   }
+
+  /// Removes only the persisted pipeline history for one workspace.
+  /// It never touches the workspace files, current pipeline result or history
+  /// belonging to another project.
+  Future<void> clear(String projectPath) async {
+    final file = _file(projectPath);
+    if (await file.exists()) await file.delete();
+  }
 }

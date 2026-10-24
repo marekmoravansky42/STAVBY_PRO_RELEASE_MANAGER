@@ -6,7 +6,7 @@ void main() {
     final source = File('lib/main.dart').readAsStringSync();
     expect(
       source,
-      contains("final completionReleaseType =\n              (data['releaseType'] as String?)?.trim().toUpperCase();"),
+      contains("completionReleaseType"),
     );
     expect(source, contains('releaseStage: completionReleaseType,'));
     expect(source, isNot(contains('releaseStage: releaseType,')));

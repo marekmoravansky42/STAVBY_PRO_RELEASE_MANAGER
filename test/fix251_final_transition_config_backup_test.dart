@@ -13,6 +13,7 @@ void main() {
         'lib/core/app/app_environment.dart',
         'android/app/build.gradle.kts',
         'android/app/src/main/AndroidManifest.xml',
+        'windows/CMakeLists.txt',
         'pubspec.yaml',
       ]),
     );

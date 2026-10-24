@@ -22,11 +22,14 @@ void main() {
     );
   });
 
-  test('FIX267 keeps Release Manager on Build 317', () {
+  test('canonical Release Manager build is present', () {
     final versionSource = File('lib/app/app_version.dart').readAsStringSync();
     final pubspec = File('pubspec.yaml').readAsStringSync();
 
-    expect(versionSource, contains('static const int build = 317;'));
-    expect(pubspec, contains('version: 8.0.0+317'));
+    final buildMatch = RegExp(r'static const int build = (\d+);').firstMatch(versionSource);
+    final versionMatch = RegExp(r"static const String version = '([^']+)';").firstMatch(versionSource);
+    expect(buildMatch, isNotNull);
+    expect(versionMatch, isNotNull);
+    expect(pubspec, matches(RegExp('version: ${RegExp.escape(versionMatch!.group(1)!)}(?:-dev\\.\\d+)?\\+${buildMatch!.group(1)}\\b')));
   });
 }

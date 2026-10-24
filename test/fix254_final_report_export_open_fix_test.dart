@@ -13,6 +13,7 @@ void main() {
   test('FIX254 dashboard opens concrete successful build report', () {
     final source = File('lib/main.dart').readAsStringSync();
     expect(source, contains('_lastSuccessfulBuildReportPath = buildReportFile.path'));
-    expect(source, contains("Process.start('notepad.exe', <String>[_lastSuccessfulBuildReportPath!])"));
+    expect(source, contains("Process.start('notepad.exe'"));
+    expect(source, contains('_lastSuccessfulBuildReportPath!'));
   });
 }

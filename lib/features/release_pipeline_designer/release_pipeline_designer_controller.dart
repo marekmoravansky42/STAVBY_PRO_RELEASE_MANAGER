@@ -35,21 +35,28 @@ class ReleasePipelineDesignerController extends ChangeNotifier {
     return _templates.isEmpty ? null : _templates.first;
   }
 
+  PipelineTemplate? templateById(String id) {
+    for (final template in _templates) {
+      if (template.id == id) return template;
+    }
+    return null;
+  }
+
   Future<void> load() async {
     _loading = true;
     _error = null;
     notifyListeners();
     try {
       final stored = await _storage.load();
-      _templates = stored.isEmpty
-          ? List<PipelineTemplate>.from(DefaultPipelineTemplates.all)
-          : List<PipelineTemplate>.from(stored);
+      _templates = _mergeDefaultTemplates(stored);
       final savedSelectedId = await _storage.loadSelectedId();
       _selectedId = savedSelectedId != null &&
               _templates.any((template) => template.id == savedSelectedId)
           ? savedSelectedId
           : _initialSelectedId(_templates);
-      if (stored.isEmpty) await _storage.save(_templates);
+      if (stored.isEmpty || _templates.length != stored.length) {
+        await _storage.save(_templates);
+      }
       if (_selectedId != null) {
         // The initial selection is part of load(). Wait for persistence to
         // finish so tests and callers cannot dispose the workspace while the
@@ -62,6 +69,17 @@ class ReleasePipelineDesignerController extends ChangeNotifier {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  List<PipelineTemplate> _mergeDefaultTemplates(
+    List<PipelineTemplate> stored,
+  ) {
+    final merged = <PipelineTemplate>[...stored];
+    final knownIds = merged.map((template) => template.id).toSet();
+    for (final template in DefaultPipelineTemplates.all) {
+      if (knownIds.add(template.id)) merged.add(template);
+    }
+    return merged;
   }
 
   String? _initialSelectedId(List<PipelineTemplate> templates) {
@@ -83,7 +101,8 @@ class ReleasePipelineDesignerController extends ChangeNotifier {
   void toggleStep(String stepId, bool enabled) {
     _updateSelected((template) {
       final steps = template.steps
-          .map((step) => step.id == stepId ? step.copyWith(enabled: enabled) : step)
+          .map((step) =>
+              step.id == stepId ? step.copyWith(enabled: enabled) : step)
           .toList(growable: false);
       return template.copyWith(steps: steps, updatedAt: DateTime.now());
     });

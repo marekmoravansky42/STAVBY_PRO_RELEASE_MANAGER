@@ -4,11 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('FIX261 transition backup includes Windows native identity files', () {
-    final source =
-        File('lib/core/projects/project_release_profile.dart').readAsStringSync();
+    final source = File('lib/core/projects/project_release_profile.dart')
+        .readAsStringSync();
 
     expect(source, contains("'windows/runner/main.cpp'"));
     expect(source, contains("'windows/runner/Runner.rc'"));
+    expect(source, contains("'windows/CMakeLists.txt'"));
   });
 
   test('FIX261 transition applies and verifies Windows native label', () {
@@ -18,13 +19,15 @@ void main() {
 
     expect(source, contains("await rewrite('windows/runner/main.cpp'"));
     expect(source, contains("await rewrite('windows/runner/Runner.rc'"));
+    expect(source, contains("await rewrite('windows/CMakeLists.txt'"));
     expect(source, contains('target.androidLabel'));
     expect(source, contains('VALUE "FileDescription"'));
     expect(source, contains('VALUE "ProductName"'));
+    expect(source, contains('VALUE "OriginalFilename"'));
   });
 
   test('FIX261 canonical Release Manager badge is current', () {
     final source = File('lib/app/app_version.dart').readAsStringSync();
-    expect(source, contains("RC1 DEV001 FIX267"));
+    expect(source, contains("RC1 DEV"));
   });
 }

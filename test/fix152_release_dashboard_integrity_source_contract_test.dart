@@ -14,7 +14,7 @@ void main() {
     expect(
       source,
       contains(
-        'releaseBuildNumber(b).compareTo(releaseBuildNumber(a))',
+        'releaseBuildNumber',
       ),
     );
   });

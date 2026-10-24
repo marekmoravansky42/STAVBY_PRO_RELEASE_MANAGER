@@ -13,7 +13,8 @@ void main() {
 
     expect(block, contains('String? releaseStage,'));
     expect(block, contains('final normalizedRequestedStage = releaseStage'));
-    expect(block, contains('final stage = (normalizedRequestedStage == null'));
+    expect(block, contains('final stage ='));
+    expect(block, contains('normalizedRequestedStage.isEmpty'));
   });
 
   test('FAST/standalone stay DEV while controlled FULL BUILD may be FINAL', () {

@@ -19,14 +19,16 @@ void main() {
       "androidApplicationId": "com.example.stavby_pro.dev",
       "androidLabel": "STAVBY PRO DEV",
       "dataRootName": "STAVBY_PRO_DEV",
-      "databaseName": "stavby_pro_dev.db"
+      "databaseName": "stavby_pro_dev.db",
+      "windowsBinaryName": "stavby_pro_dev"
     },
     "final": {
       "status": "FINAL",
       "androidApplicationId": "com.example.stavby_pro",
       "androidLabel": "STAVBY PRO",
       "dataRootName": "STAVBY_PRO",
-      "databaseName": "stavby_pro.db"
+      "databaseName": "stavby_pro.db",
+      "windowsBinaryName": "stavby_pro"
     }
   }
 }
@@ -41,6 +43,7 @@ void main() {
     expect(preview, contains('STAVBY_PRO'));
     expect(preview, contains('stavby_pro_dev.db'));
     expect(preview, contains('stavby_pro.db'));
+    expect(profile().finalChannel.windowsBinaryName, 'stavby_pro');
     expect(preview, contains('lib/core/app/app_identity.dart'));
   });
 

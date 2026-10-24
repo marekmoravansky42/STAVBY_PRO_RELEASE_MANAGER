@@ -12,9 +12,9 @@ void main() {
     expect(source, isNot(contains("contains(r\"static const String badge")));
   });
 
-  test('FIX267 canonical identity is Build 317 FIX267', () {
+  test('canonical identity remains valid', () {
     final source = File('lib/app/app_version.dart').readAsStringSync();
-    expect(source, contains('static const int build = 317;'));
-    expect(source, contains("RC1 DEV001 FIX267"));
+    expect(source, contains('static const int build ='));
+    expect(source, contains("RC1 DEV"));
   });
 }

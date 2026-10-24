@@ -2,6 +2,16 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+int _callEnd(String source, int start) {
+  var depth = 0;
+  for (var index = start; index < source.length; index++) {
+    final character = source[index];
+    if (character == '(') depth++;
+    if (character == ')' && --depth == 0) return index + 1;
+  }
+  return -1;
+}
+
 void main() {
   late String source;
   setUpAll(() => source = File('lib/main.dart').readAsStringSync());
@@ -23,14 +33,22 @@ void main() {
   });
 
   test('Project Information contains Last Export ZIP', () {
-    expect(source, contains("'Posledný export ZIP'"));
+    final exportLabel = source.indexOf("label: 'Posledný export ZIP'");
+    final exportRowStart =
+        source.lastIndexOf('DashboardProjectInfoRow(', exportLabel);
+    expect(exportRowStart, greaterThanOrEqualTo(0));
+    final exportRowEnd = _callEnd(source, exportRowStart);
+    expect(exportRowEnd, greaterThan(exportRowStart));
+    final exportRow = source.substring(exportRowStart, exportRowEnd);
+
+    expect(exportRow,
+        contains('path.basename(_dashboardLastVerifiedExportZipPath!)'));
     expect(
-      source,
-      contains('path.basename(_dashboardLastVerifiedExportZipPath!)'),
-    );
-    expect(
-      source,
-      contains('onTap: () => _selectFileInExplorer(\n                  _dashboardLastVerifiedExportZipPath!'),
+      RegExp(
+        r'onTap:\s*\(\)\s*=>\s*_selectFileInExplorer\(\s*_dashboardLastVerifiedExportZipPath!\s*,?\s*\)',
+      ).hasMatch(exportRow),
+      isTrue,
+      reason: 'Kliknutie musí odovzdať ten istý overený ZIP do Prieskumníka.',
     );
   });
 

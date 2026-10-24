@@ -19,14 +19,16 @@ void main() {
       "androidApplicationId": "com.example.stavby_pro.dev",
       "androidLabel": "STAVBY PRO DEV",
       "dataRootName": "STAVBY_PRO_DEV",
-      "databaseName": "stavby_pro_dev.db"
+      "databaseName": "stavby_pro_dev.db",
+      "windowsBinaryName": "stavby_pro_dev"
     },
     "final": {
       "status": "FINAL",
       "androidApplicationId": "com.example.stavby_pro",
       "androidLabel": "STAVBY PRO",
       "dataRootName": "STAVBY_PRO",
-      "databaseName": "stavby_pro.db"
+      "databaseName": "stavby_pro.db",
+      "windowsBinaryName": "stavby_pro"
     }
   }
 }
@@ -43,6 +45,7 @@ void main() {
     expect(plan.to.dataRootName, 'STAVBY_PRO');
     expect(plan.from.databaseName, 'stavby_pro_dev.db');
     expect(plan.to.databaseName, 'stavby_pro.db');
+    expect(plan.to.windowsBinaryName, 'stavby_pro');
   });
 
   test('FIX250 supersedes FIX249 dry-run with explicit preflight gate', () {

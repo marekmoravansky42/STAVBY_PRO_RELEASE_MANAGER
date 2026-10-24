@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'agent_api.dart';
+import '../services/windows_tool_environment.dart';
 
 class LocalAgentController {
   Process? _process;
@@ -93,6 +94,7 @@ class LocalAgentController {
       <String>['run', 'bin/release_agent.dart', '$port', '--local'],
       workingDirectory: directory.path,
       runInShell: true,
+      environment: windowsToolEnvironment(),
     );
     _process = process;
 

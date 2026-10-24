@@ -48,4 +48,35 @@ void main() {
     expect(entries.first.runId, 'run-104');
     expect(entries.last.runId, 'run-5');
   });
+
+  test('clearing history removes only this workspace history file', () async {
+    final root = await Directory.systemTemp.createTemp('rm_history_clear_');
+    final otherRoot =
+        await Directory.systemTemp.createTemp('rm_history_other_');
+    addTearDown(() => root.delete(recursive: true));
+    addTearDown(() => otherRoot.delete(recursive: true));
+    final started = DateTime(2026, 9, 14, 18);
+
+    Future<void> addFor(String projectPath, String runId) => service.add(
+          PipelineExecutionSummary(
+            runId: runId,
+            projectName: 'Sample',
+            projectPath: projectPath,
+            pipelineName: 'Full Release',
+            startedAt: started,
+            finishedAt: started.add(const Duration(seconds: 1)),
+            platformLabels: const <String>['Windows'],
+            steps: const <PipelineStepExecution>[],
+            pluginIds: const <String>{},
+          ),
+        );
+
+    await addFor(root.path, 'current-workspace');
+    await addFor(otherRoot.path, 'other-workspace');
+    await service.clear(root.path);
+
+    expect(await service.load(root.path), isEmpty);
+    expect(
+        (await service.load(otherRoot.path)).single.runId, 'other-workspace');
+  });
 }

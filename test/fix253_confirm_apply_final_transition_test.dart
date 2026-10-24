@@ -3,15 +3,17 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('FIX253 applies transition only after explicit preflight confirmation and backup', () {
+  test(
+      'FIX253 applies transition only after explicit preflight confirmation and backup',
+      () {
     final source = File('lib/main.dart').readAsStringSync();
 
     final confirmIndex =
         source.indexOf('await _confirmReleaseTransition(finalPlan)');
-    final backupIndex =
-        source.indexOf('await _backupReleaseTransitionConfiguration(');
+    final backupIndex = source.indexOf(
+        'await _backupReleaseTransitionConfiguration(', confirmIndex);
     final applyIndex =
-        source.indexOf('await transitionEngine.apply(');
+        source.indexOf('await transitionEngine.apply(', backupIndex);
 
     expect(confirmIndex, greaterThanOrEqualTo(0));
     expect(backupIndex, greaterThan(confirmIndex));
@@ -22,11 +24,14 @@ void main() {
     );
   });
 
-  test('FIX253 applies only target FINAL channel and logs verified changed files', () {
+  test(
+      'FIX253 applies only target FINAL channel and logs verified changed files',
+      () {
     final source = File('lib/main.dart').readAsStringSync();
 
     expect(source, contains("targetChannel: 'final'"));
-    expect(source, contains('FIX253 FINAL APPLY: DEV → FINAL aplikovaný až po úspešnom'));
+    expect(source,
+        contains('FIX253 FINAL APPLY: DEV → FINAL aplikovaný až po úspešnom'));
     expect(source, contains('transitionResult.changedFiles'));
   });
 

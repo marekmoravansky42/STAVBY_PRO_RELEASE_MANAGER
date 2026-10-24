@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../../core/project_workspace/project_workspace.dart';
@@ -6,6 +9,9 @@ import '../../core/project_workspace/project_platform.dart';
 import '../../core/project_workspace/project_workspace_service.dart';
 
 import '../../core/release_pipeline/pipeline_step.dart';
+import '../../core/release_pipeline/default_templates.dart';
+import '../../core/release_pipeline/pipeline_step_execution.dart';
+import '../../core/release_pipeline/pipeline_template.dart';
 import 'release_pipeline_designer_controller.dart';
 import 'release_pipeline_execution_controller.dart';
 import 'release_pipeline_execution_panel.dart';
@@ -33,11 +39,7 @@ class _ReleasePipelineDesignerPageState
   ProjectWorkspace? _workspace;
   String? _workspaceError;
 
-  Future<void> _selectWorkspace() async {
-    final selected = await FilePicker.getDirectoryPath(
-      dialogTitle: 'Vyber cieľový Flutter projekt',
-    );
-    if (selected == null) return;
+  Future<void> _openWorkspace(String selected) async {
     try {
       final workspace = await const ProjectWorkspaceService().open(selected);
       if (!mounted) return;
@@ -52,6 +54,41 @@ class _ReleasePipelineDesignerPageState
       setState(() => _workspaceError = error.toString());
     }
   }
+
+  Future<void> _selectWorkspace() async {
+    final selected = await FilePicker.getDirectoryPath(
+      dialogTitle: 'Vyber cieľový Flutter projekt',
+    );
+    if (selected == null) return;
+    await _openWorkspace(selected);
+  }
+
+  Future<void> _loadCurrentWorkspace() async {
+    final workspace = widget.workingDirectory?.trim();
+    if (workspace == null || workspace.isEmpty) return;
+    await _openWorkspace(workspace);
+  }
+
+  Future<void> _runCiProfile(String templateId) async {
+    final workspace = _workspace;
+    final template = widget.controller.templateById(templateId);
+    if (workspace == null ||
+        template == null ||
+        widget.executionController.running) {
+      return;
+    }
+    widget.controller.select(template.id);
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _CiRunnerExecutionDialog(
+        controller: widget.executionController,
+        template: template,
+        workspace: workspace,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +97,7 @@ class _ReleasePipelineDesignerPageState
     if (widget.controller.templates.isEmpty && !widget.controller.loading) {
       widget.controller.load();
     }
+    unawaited(_loadCurrentWorkspace());
   }
 
   @override
@@ -72,6 +110,9 @@ class _ReleasePipelineDesignerPageState
     if (oldWidget.executionController != widget.executionController) {
       oldWidget.executionController.removeListener(_refresh);
       widget.executionController.addListener(_refresh);
+    }
+    if (oldWidget.workingDirectory != widget.workingDirectory) {
+      unawaited(_loadCurrentWorkspace());
     }
   }
 
@@ -108,9 +149,10 @@ class _ReleasePipelineDesignerPageState
                   children: <Widget>[
                     Text(
                       'Release Pipeline Designer',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
                     const SizedBox(height: 4),
                     const Text(
@@ -120,7 +162,8 @@ class _ReleasePipelineDesignerPageState
                 ),
               ),
               OutlinedButton.icon(
-                onPressed: controller.saving ? null : controller.resetToDefaults,
+                onPressed:
+                    controller.saving ? null : controller.resetToDefaults,
                 icon: const Icon(Icons.restart_alt),
                 label: const Text('PREDVOLENÉ'),
               ),
@@ -161,26 +204,40 @@ class _ReleasePipelineDesignerPageState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Text('CIEĽOVÝ PROJECT WORKSPACE', style: TextStyle(fontWeight: FontWeight.w800)),
+                        const Text('CIEĽOVÝ PROJECT WORKSPACE',
+                            style: TextStyle(fontWeight: FontWeight.w800)),
                         const SizedBox(height: 3),
                         Text(_workspace == null
                             ? 'Nie je vybraný žiadny cieľový Flutter projekt.'
                             : '${_workspace!.projectName} • ${_workspace!.platforms.map((p) => p.label).join(', ')}'),
-                        if (_workspace != null) SelectableText(_workspace!.rootPath, maxLines: 1),
+                        if (_workspace != null)
+                          SelectableText(_workspace!.rootPath, maxLines: 1),
                         if (_workspaceError != null)
-                          Text(_workspaceError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                          Text(_workspaceError!,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 12),
                   FilledButton.icon(
-                    onPressed: widget.executionController.running ? null : _selectWorkspace,
+                    onPressed: widget.executionController.running
+                        ? null
+                        : _selectWorkspace,
                     icon: const Icon(Icons.folder_open),
-                    label: Text(_workspace == null ? 'VYBRAŤ PROJEKT' : 'ZMENIŤ PROJEKT'),
+                    label: Text(_workspace == null
+                        ? 'VYBRAŤ PROJEKT'
+                        : 'ZMENIŤ PROJEKT'),
                   ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: 12),
+          _LocalCiRunnerCard(
+            workspace: _workspace,
+            running: widget.executionController.running,
+            onRun: _runCiProfile,
           ),
           if (controller.error != null) ...<Widget>[
             const SizedBox(height: 12),
@@ -236,54 +293,13 @@ class _ReleasePipelineDesignerPageState
                 Expanded(
                   child: Card(
                     child: selected == null
-                        ? const Center(child: Text('Nie je vybraná žiadna pipeline.'))
-                        : LayoutBuilder(
-                            builder: (context, constraints) {
-                              final useTwoColumns = constraints.maxWidth >= 980;
-                              final definition = _PipelineDefinitionPanel(
-                                templateName: selected.name,
-                                description: selected.description,
-                                steps: selected.steps,
-                                controller: controller,
-                              );
-                              final executionPanel =
-                                  ReleasePipelineExecutionPanel(
-                                controller: widget.executionController,
-                                template: selected,
-                                workspace: _workspace,
-                              );
-
-                              if (!useTwoColumns) {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: <Widget>[
-                                    Expanded(child: definition),
-                                    const Divider(height: 1),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12),
-                                        child: executionPanel,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: <Widget>[
-                                  Expanded(flex: 4, child: definition),
-                                  const VerticalDivider(width: 1),
-                                  Expanded(
-                                    flex: 7,
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                                      child: executionPanel,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
+                        ? const Center(
+                            child: Text('Nie je vybraná žiadna pipeline.'))
+                        : _PipelineDefinitionPanel(
+                            templateName: selected.name,
+                            description: selected.description,
+                            steps: selected.steps,
+                            controller: controller,
                           ),
                   ),
                 ),
@@ -296,6 +312,260 @@ class _ReleasePipelineDesignerPageState
   }
 }
 
+class _LocalCiRunnerCard extends StatelessWidget {
+  const _LocalCiRunnerCard({
+    required this.workspace,
+    required this.running,
+    required this.onRun,
+  });
+
+  final ProjectWorkspace? workspace;
+  final bool running;
+  final Future<void> Function(String templateId) onRun;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = workspace != null && !running;
+    const profiles = <({PipelineTemplate template, IconData icon})>[
+      (
+        template: DefaultPipelineTemplates.ciQuickCheck,
+        icon: Icons.speed_rounded,
+      ),
+      (
+        template: DefaultPipelineTemplates.fullRelease,
+        icon: Icons.fact_check_rounded,
+      ),
+      (
+        template: DefaultPipelineTemplates.windowsRelease,
+        icon: Icons.desktop_windows_rounded,
+      ),
+      (
+        template: DefaultPipelineTemplates.androidRelease,
+        icon: Icons.android_rounded,
+      ),
+    ];
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                const Icon(Icons.precision_manufacturing_rounded),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Text(
+                    'Lokálny CI Runner',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ),
+                if (running)
+                  const Chip(
+                    avatar: SizedBox.square(
+                      dimension: 15,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    label: Text('BEŽÍ'),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Spúšťa vybranú kontrolu iba v aktuálnom workspace. Nevykonáva Git, push ani GitHub Actions.',
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: profiles
+                  .map(
+                    (profile) => Tooltip(
+                      message: profile.template.description,
+                      child: OutlinedButton.icon(
+                        onPressed:
+                            enabled ? () => onRun(profile.template.id) : null,
+                        icon: Icon(profile.icon),
+                        label: Text(profile.template.name.toUpperCase()),
+                      ),
+                    ),
+                  )
+                  .toList(growable: false),
+            ),
+            if (workspace == null) ...<Widget>[
+              const SizedBox(height: 8),
+              const Text('Najprv vyber projekt alebo workspace.'),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CiRunnerExecutionDialog extends StatefulWidget {
+  const _CiRunnerExecutionDialog({
+    required this.controller,
+    required this.template,
+    required this.workspace,
+  });
+
+  final ReleasePipelineExecutionController controller;
+  final PipelineTemplate template;
+  final ProjectWorkspace workspace;
+
+  @override
+  State<_CiRunnerExecutionDialog> createState() =>
+      _CiRunnerExecutionDialogState();
+}
+
+class _CiRunnerExecutionDialogState extends State<_CiRunnerExecutionDialog> {
+  var _started = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_refresh);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _started) return;
+      _started = true;
+      await widget.controller.run(
+        template: widget.template,
+        workspace: widget.workspace,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_refresh);
+    super.dispose();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
+  String _failureDetails() {
+    final report = widget.controller.report;
+    final buffer = StringBuffer()
+      ..writeln('ŽIADOSŤ PRE CHATGPT/CODEX')
+      ..writeln(
+        'Analyzuj túto chybu Release Managera, urči príčinu a navrhni jednu minimálnu opravu. '
+        'Ak pracuješ v tomto projekte, opravu vykonaj; zachovaj nesúvisiace zmeny a nevytváraj commit, push ani publikovanie.',
+      )
+      ..writeln()
+      ..writeln('CI RUNNER – CHYBA')
+      ..writeln('Pipeline: ${widget.template.name}')
+      ..writeln('Projekt: ${widget.workspace.projectName}')
+      ..writeln('Workspace: ${widget.workspace.rootPath}');
+    if (widget.controller.error != null) {
+      buffer.writeln('Chyba spustenia: ${widget.controller.error}');
+    }
+    final failed = report?.steps
+            .where((step) => step.status == PipelineExecutionStatus.failed)
+            .toList(growable: false) ??
+        const <PipelineStepExecution>[];
+    for (final step in failed) {
+      buffer
+        ..writeln()
+        ..writeln('Krok: ${step.step.title}')
+        ..writeln('Akcia: ${step.step.action}')
+        ..writeln('Exit code: ${step.exitCode ?? '—'}');
+      if (step.message.isNotEmpty) buffer.writeln(step.message);
+      if (step.log.isNotEmpty) {
+        buffer
+          ..writeln('Výpis:')
+          ..writeln(step.log.join('\n'));
+      }
+    }
+    return buffer.toString().trimRight();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final failed = controller.error != null ||
+        (controller.report != null && !controller.report!.succeeded);
+    final canClose = !controller.running;
+    final screenSize = MediaQuery.sizeOf(context);
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: SizedBox(
+        width: (screenSize.width * 0.98).clamp(680.0, 1500.0).toDouble(),
+        height: (screenSize.height * 0.96).clamp(520.0, 1040.0).toDouble(),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  const Icon(Icons.precision_manufacturing_rounded),
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: Text(
+                      'CI Runner • ${widget.template.name}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ),
+                  if (controller.running)
+                    const Chip(label: Text('PREBIEHA'))
+                  else if (failed)
+                    const Chip(label: Text('CHYBA'))
+                  else
+                    const Chip(label: Text('HOTOVO')),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ReleasePipelineExecutionPanel(
+                  controller: controller,
+                  template: widget.template,
+                  workspace: widget.workspace,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                runSpacing: 8,
+                children: <Widget>[
+                  if (failed)
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: _failureDetails()),
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Chyba CI Runnera bola skopírovaná.'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.copy_all_outlined),
+                      label: const Text('KOPÍROVAŤ CHYBU'),
+                    ),
+                  FilledButton(
+                    onPressed:
+                        canClose ? () => Navigator.of(context).pop() : null,
+                    child: const Text('ZAVRIEŤ'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _PipelineDefinitionPanel extends StatelessWidget {
   const _PipelineDefinitionPanel({

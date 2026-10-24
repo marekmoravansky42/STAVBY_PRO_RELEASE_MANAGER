@@ -15,7 +15,8 @@ void main() {
     expect(block, contains("? 'RC'"));
     expect(block, contains("lowerVersion.contains('-dev')"));
     expect(block, contains("? 'DEV'"));
-    expect(block, contains("final stage = (normalizedRequestedStage == null"));
+    expect(block, contains('final stage ='));
+    expect(block, contains('normalizedRequestedStage.isEmpty'));
     expect(
       block,
       isNot(contains("final stage = (identity?.stage ?? 'DEV')")),

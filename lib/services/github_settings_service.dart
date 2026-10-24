@@ -85,6 +85,27 @@ class GitHubAssetUploadResult {
   final bool alreadyExists;
 }
 
+
+class GitHubPublicationVerificationResult {
+  const GitHubPublicationVerificationResult({
+    required this.versionJsonReady,
+    required this.releaseReady,
+    required this.assetReady,
+    required this.message,
+    this.releaseUrl,
+    this.assetUrl,
+  });
+
+  final bool versionJsonReady;
+  final bool releaseReady;
+  final bool assetReady;
+  final String message;
+  final String? releaseUrl;
+  final String? assetUrl;
+
+  bool get success => versionJsonReady && releaseReady && assetReady;
+}
+
 class GitHubSettingsService {
   const GitHubSettingsService();
 
@@ -458,6 +479,138 @@ class GitHubSettingsService {
     }
   }
 
+
+
+  Future<GitHubPublicationVerificationResult> verifyPublishedRelease({
+    required GitHubSettings settings,
+    required String tagName,
+    required String assetName,
+    required String expectedVersionJson,
+    required int expectedAssetSize,
+  }) async {
+    if (!settings.isComplete) {
+      return const GitHubPublicationVerificationResult(
+        versionJsonReady: false,
+        releaseReady: false,
+        assetReady: false,
+        message: 'GitHub pripojenie nie je úplne nastavené.',
+      );
+    }
+
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 20);
+    var versionJsonReady = false;
+    var releaseReady = false;
+    var assetReady = false;
+    String? releaseUrl;
+    String? assetUrl;
+    try {
+      final expectedDecoded = jsonDecode(expectedVersionJson);
+      if (expectedDecoded is! Map) {
+        throw const FormatException('Očakávaný version.json nie je JSON objekt.');
+      }
+      final expected = Map<String, dynamic>.from(expectedDecoded);
+
+      final fileUri = Uri.https(
+        'api.github.com',
+        '/repos/${settings.owner.trim()}/${settings.repository.trim()}/contents/version.json',
+      );
+      final fileRequest = await client.getUrl(fileUri);
+      _applyGitHubHeaders(fileRequest, settings.token);
+      final fileResponse = await fileRequest.close();
+      final fileBody = await fileResponse.transform(utf8.decoder).join();
+      if (fileResponse.statusCode == HttpStatus.ok) {
+        final decoded = jsonDecode(fileBody);
+        if (decoded is Map) {
+          final encodedContent = decoded['content']?.toString().replaceAll('\n', '') ?? '';
+          if (encodedContent.isNotEmpty) {
+            final onlineDecoded = jsonDecode(utf8.decode(base64Decode(encodedContent)));
+            if (onlineDecoded is Map) {
+              final online = Map<String, dynamic>.from(onlineDecoded);
+              const keys = <String>['channel', 'version', 'build', 'apkUrl', 'sizeBytes', 'sha256'];
+              versionJsonReady = keys.every((key) => online[key] == expected[key]);
+            }
+          }
+        }
+      }
+
+      final encodedTag = Uri.encodeComponent(tagName.trim());
+      final releaseUri = Uri.https(
+        'api.github.com',
+        '/repos/${settings.owner.trim()}/${settings.repository.trim()}/releases/tags/$encodedTag',
+      );
+      final releaseRequest = await client.getUrl(releaseUri);
+      _applyGitHubHeaders(releaseRequest, settings.token);
+      final releaseResponse = await releaseRequest.close();
+      final releaseBody = await releaseResponse.transform(utf8.decoder).join();
+      if (releaseResponse.statusCode == HttpStatus.ok) {
+        final decoded = jsonDecode(releaseBody);
+        if (decoded is Map) {
+          final data = Map<String, dynamic>.from(decoded);
+          releaseReady = data['tag_name']?.toString() == tagName &&
+              data['draft'] != true &&
+              data['prerelease'] != true;
+          releaseUrl = data['html_url']?.toString();
+          final assets = data['assets'];
+          if (assets is List) {
+            for (final item in assets) {
+              if (item is! Map) continue;
+              final asset = Map<String, dynamic>.from(item);
+              if (asset['name']?.toString() != assetName) continue;
+              final size = asset['size'];
+              assetUrl = asset['browser_download_url']?.toString();
+              assetReady = size is int &&
+                  size == expectedAssetSize &&
+                  assetUrl != null &&
+                  assetUrl!.isNotEmpty;
+              break;
+            }
+          }
+        }
+      }
+
+      final message = versionJsonReady && releaseReady && assetReady
+          ? 'Online publikovanie bolo overené: version.json, GitHub Release aj APK sú pripravené.'
+          : 'Online verifikácia nie je kompletná: version.json=${versionJsonReady ? 'OK' : 'CHÝBA/NESÚHLASÍ'}, '
+              'Release=${releaseReady ? 'OK' : 'CHÝBA/NESÚHLASÍ'}, APK=${assetReady ? 'OK' : 'CHÝBA/NESÚHLASÍ'}.';
+      return GitHubPublicationVerificationResult(
+        versionJsonReady: versionJsonReady,
+        releaseReady: releaseReady,
+        assetReady: assetReady,
+        message: message,
+        releaseUrl: releaseUrl,
+        assetUrl: assetUrl,
+      );
+    } on SocketException {
+      return GitHubPublicationVerificationResult(
+        versionJsonReady: versionJsonReady,
+        releaseReady: releaseReady,
+        assetReady: assetReady,
+        message: 'Online verifikácia zlyhala: nie je dostupné internetové spojenie alebo GitHub.',
+        releaseUrl: releaseUrl,
+        assetUrl: assetUrl,
+      );
+    } on HandshakeException {
+      return GitHubPublicationVerificationResult(
+        versionJsonReady: versionJsonReady,
+        releaseReady: releaseReady,
+        assetReady: assetReady,
+        message: 'Online verifikácia zlyhala na HTTPS spojení s GitHubom.',
+        releaseUrl: releaseUrl,
+        assetUrl: assetUrl,
+      );
+    } on FormatException {
+      return GitHubPublicationVerificationResult(
+        versionJsonReady: versionJsonReady,
+        releaseReady: releaseReady,
+        assetReady: assetReady,
+        message: 'Online verifikácia dostala neočakávanú odpoveď z GitHubu.',
+        releaseUrl: releaseUrl,
+        assetUrl: assetUrl,
+      );
+    } finally {
+      client.close(force: true);
+    }
+  }
 
   Future<GitHubAssetUploadResult> uploadReleaseAsset({
     required GitHubSettings settings,

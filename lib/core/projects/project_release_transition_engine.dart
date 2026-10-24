@@ -48,10 +48,14 @@ class ProjectReleaseTransitionEngine {
     await rewrite('lib/core/app/app_environment.dart', (source) {
       var value = source;
       value = _replaceSingleQuotedConst(value, 'channel', targetChannel);
-      value = _replaceSingleQuotedConst(value, 'androidApplicationId', target.androidApplicationId);
-      value = _replaceSingleQuotedConst(value, 'androidLabel', target.androidLabel);
-      value = _replaceSingleQuotedConst(value, 'dataRootName', target.dataRootName);
-      value = _replaceSingleQuotedConst(value, 'databaseName', target.databaseName);
+      value = _replaceSingleQuotedConst(
+          value, 'androidApplicationId', target.androidApplicationId);
+      value =
+          _replaceSingleQuotedConst(value, 'androidLabel', target.androidLabel);
+      value =
+          _replaceSingleQuotedConst(value, 'dataRootName', target.dataRootName);
+      value =
+          _replaceSingleQuotedConst(value, 'databaseName', target.databaseName);
       return value;
     });
 
@@ -87,6 +91,27 @@ class ProjectReleaseTransitionEngine {
       value = value.replaceFirst(
         RegExp(r'VALUE "ProductName", "[^"]*"'),
         'VALUE "ProductName", "${target.androidLabel}"',
+      );
+      value = value.replaceFirst(
+        RegExp(r'VALUE "InternalName", "[^"]*"'),
+        'VALUE "InternalName", "${target.windowsBinaryName}"',
+      );
+      value = value.replaceFirst(
+        RegExp(r'VALUE "OriginalFilename", "[^"]*"'),
+        'VALUE "OriginalFilename", "${target.windowsBinaryName}.exe"',
+      );
+      return value;
+    });
+
+    await rewrite('windows/CMakeLists.txt', (source) {
+      var value = source;
+      value = value.replaceFirst(
+        RegExp(r'project\([^\s)]+\s+LANGUAGES'),
+        'project(${target.windowsBinaryName} LANGUAGES',
+      );
+      value = value.replaceFirst(
+        RegExp(r'set\(BINARY_NAME\s+"[^"]+"\)'),
+        'set(BINARY_NAME "${target.windowsBinaryName}")',
       );
       return value;
     });
@@ -127,22 +152,27 @@ class ProjectReleaseTransitionEngine {
     final environment = await File(
       path.join(workspace, 'lib/core/app/app_environment.dart'),
     ).readAsString();
-    _requireContains(environment, "static const String channel = '$targetChannel';");
-    _requireContains(environment, "static const String androidApplicationId = '${target.androidApplicationId}';");
-    _requireContains(environment, "static const String androidLabel = '${target.androidLabel}';");
-    _requireContains(environment, "static const String dataRootName = '${target.dataRootName}';");
-    _requireContains(environment, "static const String databaseName = '${target.databaseName}';");
+    _requireContains(
+        environment, "static const String channel = '$targetChannel';");
+    _requireContains(environment,
+        "static const String androidApplicationId = '${target.androidApplicationId}';");
+    _requireContains(environment,
+        "static const String androidLabel = '${target.androidLabel}';");
+    _requireContains(environment,
+        "static const String dataRootName = '${target.dataRootName}';");
+    _requireContains(environment,
+        "static const String databaseName = '${target.databaseName}';");
 
     final gradle = await File(
       path.join(workspace, 'android/app/build.gradle.kts'),
     ).readAsString();
-    _requireContains(gradle, 'applicationId = "${target.androidApplicationId}"');
+    _requireContains(
+        gradle, 'applicationId = "${target.androidApplicationId}"');
 
     final manifest = await File(
       path.join(workspace, 'android/app/src/main/AndroidManifest.xml'),
     ).readAsString();
     _requireContains(manifest, 'android:label="${target.androidLabel}"');
-
 
     final windowsMain = await File(
       path.join(workspace, 'windows/runner/main.cpp'),
@@ -163,18 +193,41 @@ class ProjectReleaseTransitionEngine {
       windowsRc,
       'VALUE "ProductName", "${target.androidLabel}"',
     );
+    _requireContains(
+      windowsRc,
+      'VALUE "InternalName", "${target.windowsBinaryName}"',
+    );
+    _requireContains(
+      windowsRc,
+      'VALUE "OriginalFilename", "${target.windowsBinaryName}.exe"',
+    );
+
+    final windowsCmake = await File(
+      path.join(workspace, 'windows/CMakeLists.txt'),
+    ).readAsString();
+    _requireContains(
+      windowsCmake,
+      'project(${target.windowsBinaryName} LANGUAGES',
+    );
+    _requireContains(
+      windowsCmake,
+      'set(BINARY_NAME "${target.windowsBinaryName}")',
+    );
 
     final identity = await File(
       path.join(workspace, profile.identityFile),
     ).readAsString();
-    _requireContains(identity, "static const String status = '${target.status}';");
+    _requireContains(
+        identity, "static const String status = '${target.status}';");
 
     final profileText = await File(
       path.join(workspace, ProjectReleaseProfile.relativePath),
     ).readAsString();
     final decoded = jsonDecode(profileText);
-    if (decoded is! Map || decoded['activeChannel']?.toString() != targetChannel) {
-      throw StateError('Transition verify: activeChannel nie je $targetChannel.');
+    if (decoded is! Map ||
+        decoded['activeChannel']?.toString() != targetChannel) {
+      throw StateError(
+          'Transition verify: activeChannel nie je $targetChannel.');
     }
   }
 

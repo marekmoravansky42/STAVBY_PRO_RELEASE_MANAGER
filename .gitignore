@@ -5,3 +5,31 @@ build/
 .flutter-plugins
 .flutter-plugins-dependencies
 windows/flutter/ephemeral/
+
+# Local IDE and operating-system state
+.idea/
+*.iml
+.DS_Store
+*.log
+
+# Local Android and Gradle state
+android/local.properties
+.gradle/
+.gradle-release/
+
+# Generated Flutter and native output
+**/ephemeral/
+.release_integrity_cache/
+artifacts/
+Export Release/
+backups/
+diagnostics/
+.release_transition_backups/
+BUILD_REPORT_*.txt
+release/*.zip
+
+# Machine-local Release Manager state
+.release_manager/build_completion_draft.json
+.release_manager/build_completion_preferences.json
+.release_manager/last_export.json
+.release_manager/last_sync.json

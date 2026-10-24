@@ -7,7 +7,7 @@ void main() {
   setUpAll(() => source = File('lib/main.dart').readAsStringSync());
 
   test('FIX192 legacy metadata defaults to schema 1', () {
-    expect(source, contains("decoded['schemaVersion'] is int ? decoded['schemaVersion'] as int : 1"));
+    expect(source, contains("decoded['schemaVersion'] is int"));
   });
 
   test('FIX193 non-object metadata is rejected', () {

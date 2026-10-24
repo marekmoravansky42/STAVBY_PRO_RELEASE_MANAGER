@@ -20,14 +20,16 @@ void main() {
       "androidApplicationId": "com.example.stavby_pro.dev",
       "androidLabel": "STAVBY PRO DEV",
       "dataRootName": "STAVBY_PRO_DEV",
-      "databaseName": "stavby_pro_dev.db"
+      "databaseName": "stavby_pro_dev.db",
+      "windowsBinaryName": "stavby_pro_dev"
     },
     "final": {
       "status": "FINAL",
       "androidApplicationId": "com.example.stavby_pro",
       "androidLabel": "STAVBY PRO",
       "dataRootName": "STAVBY_PRO",
-      "databaseName": "stavby_pro.db"
+      "databaseName": "stavby_pro.db",
+      "windowsBinaryName": "stavby_pro"
     }
   }
 }
@@ -39,6 +41,7 @@ void main() {
     expect(profile.dev.dataRootName, 'STAVBY_PRO_DEV');
     expect(profile.finalChannel.androidApplicationId, 'com.example.stavby_pro');
     expect(profile.finalChannel.databaseName, 'stavby_pro.db');
+    expect(profile.finalChannel.windowsBinaryName, 'stavby_pro');
   });
 
   test('FIX248 FULL BUILD integration is read-only and fail-safe', () {

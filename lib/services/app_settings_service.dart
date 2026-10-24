@@ -6,6 +6,8 @@ class AppSettings {
     this.managerUpdateDirectory,
     this.androidReleaseExportDirectory,
     this.windowsReleaseExportDirectory,
+    this.stavbyProFinalReleaseExportDirectory,
+    this.workingProjectsBackupDirectory,
     this.darkMode = false,
     this.recentProjectPaths = const <String>[],
     this.lastGitWorkspacePath,
@@ -18,6 +20,8 @@ class AppSettings {
   final String? managerUpdateDirectory;
   final String? androidReleaseExportDirectory;
   final String? windowsReleaseExportDirectory;
+  final String? stavbyProFinalReleaseExportDirectory;
+  final String? workingProjectsBackupDirectory;
   final bool darkMode;
   final List<String> recentProjectPaths;
   final String? lastGitWorkspacePath;
@@ -43,6 +47,12 @@ class AppSettingsService {
       ),
       windowsReleaseExportDirectory: _optionalString(
         data[ConfigurationKeys.windowsReleaseExportDirectory],
+      ),
+      stavbyProFinalReleaseExportDirectory: _optionalString(
+        data[ConfigurationKeys.stavbyProFinalReleaseExportDirectory],
+      ),
+      workingProjectsBackupDirectory: _optionalString(
+        data[ConfigurationKeys.workingProjectsBackupDirectory],
       ),
       darkMode: data[ConfigurationKeys.darkMode] == true,
       lastGitWorkspacePath: _optionalString(data[ConfigurationKeys.lastGitWorkspacePath]),
@@ -89,6 +99,20 @@ class AppSettingsService {
   Future<void> saveWindowsReleaseExportDirectory(String directory) {
     return _configuration.write(
       ConfigurationKeys.windowsReleaseExportDirectory,
+      directory,
+    );
+  }
+
+  Future<void> saveStavbyProFinalReleaseExportDirectory(String directory) {
+    return _configuration.write(
+      ConfigurationKeys.stavbyProFinalReleaseExportDirectory,
+      directory,
+    );
+  }
+
+  Future<void> saveWorkingProjectsBackupDirectory(String directory) {
+    return _configuration.write(
+      ConfigurationKeys.workingProjectsBackupDirectory,
       directory,
     );
   }

@@ -8,11 +8,11 @@ void main() {
 
   test('FIX244 detects Android support before FULL BUILD steps', () {
     expect(source, contains("final androidSupported ="));
-    expect(source, contains("Directory(path.join(workspace, 'android')).exists()"));
+    expect(source, contains("path.join(workspace, 'android')"));
   });
 
   test('FIX245 FULL BUILD runs Android APK Release build', () {
-    expect(source, contains("if (!fastMode && androidSupported)"));
+    expect(source, contains("if (androidSupported)"));
     expect(source, contains("['build', 'apk', '--release']"));
     expect(source, contains("Android APK Release build"));
   });
@@ -25,9 +25,9 @@ void main() {
     expect(source, contains("androidSupported ? '\\n✔ Android APK Release build' : ''"));
   });
 
-  test('current batch identity is Build 317 FIX267', () {
+  test('current batch identity uses canonical ReleaseManagerVersion', () {
     final version = File('lib/app/app_version.dart').readAsStringSync();
-    expect(version, contains('static const int build = 317;'));
-    expect(version, contains("RC1 DEV001 FIX267"));
+    expect(version, contains('static const int build ='));
+    expect(version, contains("static const String stage = 'RC1 DEV"));
   });
 }

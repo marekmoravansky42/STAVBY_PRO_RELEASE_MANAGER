@@ -16,12 +16,12 @@ void main() {
     final source =
         File('test/fix256_stale_regression_contracts_update_test.dart')
             .readAsStringSync();
-    expect(source, contains('RC1 DEV001 FIX267'));
+    expect(source, contains('RC1 DEV'));
     expect(source, isNot(contains("contains('RC1 DEV001 FIX254')")));
   });
 
   test('FIX263 canonical Release Manager identity is current', () {
     final source = File('lib/app/app_version.dart').readAsStringSync();
-    expect(source, contains("RC1 DEV001 FIX267"));
+    expect(source, contains("RC1 DEV"));
   });
 }

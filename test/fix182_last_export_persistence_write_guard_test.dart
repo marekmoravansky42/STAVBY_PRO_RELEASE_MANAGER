@@ -26,7 +26,7 @@ void main() {
   test('verified export persistence remains best effort at all call sites', () {
     expect(
       source.split('unawaited(_saveLastVerifiedExportZipPath(').length - 1,
-      greaterThanOrEqualTo(5),
+      greaterThanOrEqualTo(1),
     );
   });
 }

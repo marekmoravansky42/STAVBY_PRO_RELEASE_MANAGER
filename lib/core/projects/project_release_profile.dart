@@ -8,6 +8,7 @@ class ProjectReleaseChannel {
     required this.androidLabel,
     required this.dataRootName,
     required this.databaseName,
+    required this.windowsBinaryName,
   });
 
   final String status;
@@ -15,6 +16,7 @@ class ProjectReleaseChannel {
   final String androidLabel;
   final String dataRootName;
   final String databaseName;
+  final String windowsBinaryName;
 
   factory ProjectReleaseChannel.fromJson(Map<String, Object?> json) {
     String requiredText(String key) {
@@ -31,10 +33,10 @@ class ProjectReleaseChannel {
       androidLabel: requiredText('androidLabel'),
       dataRootName: requiredText('dataRootName'),
       databaseName: requiredText('databaseName'),
+      windowsBinaryName: requiredText('windowsBinaryName'),
     );
   }
 }
-
 
 class ProjectReleaseTransitionPlan {
   const ProjectReleaseTransitionPlan({
@@ -111,8 +113,7 @@ class ProjectReleaseProfile {
   final ProjectReleaseChannel dev;
   final ProjectReleaseChannel finalChannel;
 
-  static const String relativePath =
-      'release/stavby_pro_release_profile.json';
+  static const String relativePath = 'release/stavby_pro_release_profile.json';
 
   static const List<String> transitionConfigFiles = <String>[
     'release/stavby_pro_release_profile.json',
@@ -122,9 +123,9 @@ class ProjectReleaseProfile {
     'android/app/src/main/AndroidManifest.xml',
     'windows/runner/main.cpp',
     'windows/runner/Runner.rc',
+    'windows/CMakeLists.txt',
     'pubspec.yaml',
   ];
-
 
   ProjectReleaseChannel channel(String name) {
     switch (name.trim().toLowerCase()) {
